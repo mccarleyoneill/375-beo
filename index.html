@@ -812,14 +812,19 @@ async function loadMasterSheet() {
   showLoadingState(true);
   try {
     const res  = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
-    MASTER = parseCSV(text);
+    const parsed = parseCSV(text);
+    if (parsed.length === 0) throw new Error('No recipes parsed — check sheet name and sharing settings');
+    MASTER = parsed;
+    showLoadingState(false);
     buildRows();
   } catch (e) {
-    showLoadingState(false, 'Could not load recipe data. Check the sheet is set to Anyone with the link can view.');
-    console.error(e);
+    console.error('Sheet load error:', e);
+    showLoadingState(false, 'Could not load recipes from Google Sheets. Make sure the sheet is shared as Anyone with the link can view. Using built-in recipe list instead.');
+    MASTER = FALLBACK_RECIPES;
+    buildRows();
   }
-  showLoadingState(false);
 }
 
 function showLoadingState(loading, error) {
@@ -888,6 +893,45 @@ function parseCSV(text) {
 
 // Legacy placeholder so nothing breaks before load
 const MASTER_PLACEHOLDER = [];
+
+// Fallback recipes in case Google Sheet can't be reached
+const FALLBACK_RECIPES = [
+  {name:"MARGARITA",popScore:1,glassware:"ROCKS",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
+    {name:"PUEBLO VIEJO BLANCO",oz:2,ct:"LITER BOTTLE",cs:33.8},
+    {name:"BOLS TRIPLE SEC",oz:0.75,ct:"LITER BOTTLE",cs:33.8},
+    {name:"AGAVE SYRUP",oz:0.25,ct:"QUART BOTTLE",cs:32},
+    {name:"LIME JUICE",oz:1,ct:"QUART BOTTLE",cs:32}]},
+  {name:"SKINNY MARG",popScore:1,glassware:"ROCKS",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
+    {name:"PUEBLO VIEJO BLANCO",oz:2,ct:"LITER BOTTLE",cs:33.8},
+    {name:"LIME JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
+    {name:"BOLS TRIPLE SEC",oz:0.75,ct:"LITER BOTTLE",cs:33.8}]},
+  {name:"ESPRESSO MARTINI",popScore:1,glassware:"COUPE",garnish1:"",garnish2:"",ingredients:[
+    {name:"GREY GOOSE",oz:1.5,ct:"LITER BOTTLE",cs:33.8},
+    {name:"KAHLUA",oz:1.5,ct:"1.75L BOTTLE",cs:59.15},
+    {name:"DECAF ESPRESSO",oz:1.5,ct:"QUART BOTTLE",cs:32}]},
+  {name:"GRILL SOUR",popScore:0.8,glassware:"COUPE",garnish1:"LEMON WHEEL",garnish2:"",ingredients:[
+    {name:"BOATYARD GIN",oz:2,ct:"750ML BOTTLE",cs:25.36},
+    {name:"LEMON JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
+    {name:"LAVENDER HONEY",oz:0.75,ct:"QUART BOTTLE",cs:32}]},
+  {name:"CLASSIC NEGRONI",popScore:0.8,glassware:"ROCKS",garnish1:"ORANGE TWIST",garnish2:"",ingredients:[
+    {name:"BOATYARD GIN",oz:1.5,ct:"750ML BOTTLE",cs:25.36},
+    {name:"CAMPARI",oz:1,ct:"LITER BOTTLE",cs:33.8},
+    {name:"COCCHI VDT",oz:1,ct:"750ML BOTTLE",cs:25.36}]},
+  {name:"COSMOPOLITAN",popScore:0.8,glassware:"COUPE",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
+    {name:"GREY GOOSE",oz:2,ct:"LITER BOTTLE",cs:33.8},
+    {name:"BOLS TRIPLE SEC",oz:0.75,ct:"LITER BOTTLE",cs:33.8},
+    {name:"CRANBERRY JUICE",oz:0.5,ct:"OZ",cs:1},
+    {name:"LIME JUICE",oz:0.5,ct:"QUART BOTTLE",cs:32}]},
+  {name:"MANHATTAN",popScore:0.6,glassware:"MARTINI",garnish1:"CHERRY",garnish2:"",ingredients:[
+    {name:"WILD TURKEY RYE",oz:2.5,ct:"LITER BOTTLE",cs:33.8},
+    {name:"CARPANO ANTICA",oz:0.66,ct:"LITER BOTTLE",cs:33.8},
+    {name:"CHERRY HEERING",oz:0.33,ct:"750ML BOTTLE",cs:25.36},
+    {name:"ANGOSTURA",oz:0.042,ct:"OZ",cs:1}]},
+  {name:"ELDERFLOWER SPRITZ",popScore:0.7,glassware:"AP WINE",garnish1:"HALF LEMON WHEEL",garnish2:"",ingredients:[
+    {name:"ST GERMAIN",oz:1.5,ct:"750ML BOTTLE",cs:25.36},
+    {name:"BOLS TRIPLE SEC",oz:0.5,ct:"LITER BOTTLE",cs:33.8},
+    {name:"GIFFARD PECHE",oz:0.5,ct:"750ML BOTTLE",cs:25.36}]}
+];
   {name:"GRILL OLD FASHIONED",popScore:0.6,glassware:"ROCKS",garnish1:"LEMON TWIST",garnish2:"",ingredients:[
     {name:"MAKERS MARK BOURBON",oz:2,ct:"LITER BOTTLE",cs:33.8},
     {name:"MAKERS SEAGRAM BARREL",oz:1,ct:"750ML BOTTLE",cs:25.36},
