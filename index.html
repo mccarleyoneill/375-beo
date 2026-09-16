@@ -1111,16 +1111,16 @@ function downloadPDF() {
   const CW = PW - ML - MR; // content width
   let y = 0;
 
-  // Colors
-  const DARK    = [14, 14, 12];
-  const GOLD    = [200, 169, 110];
-  const TEXT    = [240, 236, 228];
-  const TEXT2   = [160, 152, 128];
-  const TEXT3   = [90, 86, 72];
-  const SURFACE = [22, 22, 20];
-  const SURF2   = [30, 30, 27];
-  const SURF3   = [37, 37, 33];
-  const GOLDBG  = [28, 24, 16];
+  // Colors — clean white PDF
+  const DARK    = [20, 20, 20];
+  const GOLD    = [20, 20, 20];
+  const TEXT    = [20, 20, 20];
+  const TEXT2   = [80, 80, 80];
+  const TEXT3   = [120, 120, 120];
+  const SURFACE = [255, 255, 255];
+  const SURF2   = [245, 245, 243];
+  const SURF3   = [235, 233, 228];
+  const GOLDBG  = [235, 233, 228];
   const WHITE   = [255, 255, 255];
 
   function addPage() {
@@ -1145,11 +1145,11 @@ function downloadPDF() {
   }
 
   // ── HEADER ─────────────────────────────────────────────────
-  rect(0, 0, PW, 28, DARK);
-  text('375 BAR GROUP', ML, 9, 7.5, GOLD, 'left', 'bold');
-  text('BATCH RECIPE SHEET', ML, 14, 7.5, TEXT3, 'left', 'normal');
-  text(d.name.toUpperCase(), ML, 22, 13, TEXT, 'left', 'bold');
-  text(d.date + '  ·  ' + d.time + '  ·  ' + d.location, PW - MR, 22, 8, TEXT2, 'right', 'normal');
+  rect(0, 0, PW, 28, [235,233,228]);
+  text('375 BAR GROUP', ML, 9, 7.5, [120,120,120], 'left', 'bold');
+  text('BATCH RECIPE SHEET', ML, 14, 7.5, [160,160,160], 'left', 'normal');
+  text(d.name.toUpperCase(), ML, 22, 13, [20,20,20], 'left', 'bold');
+  text(d.date + '  ·  ' + d.time + '  ·  ' + d.location, PW - MR, 22, 8, [100,100,100], 'right', 'normal');
   y = 30;
 
   // ── INFO BAR ───────────────────────────────────────────────
@@ -1179,8 +1179,8 @@ function downloadPDF() {
     d.bars.forEach(b => {
       rect(bx, y, 40, 8, SURF2);
       text(b.type, bx + 3, y + 4, 8, TEXT, 'left', 'normal');
-      rect(bx + 32, y + 1, 6, 6, [200,169,110]);
-      text(String(b.qty), bx + 35, y + 4, 7, [14,14,12], 'center', 'bold');
+      rect(bx + 32, y + 1, 6, 6, [20,20,20]);
+      text(String(b.qty), bx + 35, y + 4, 7, [255,255,255], 'center', 'bold');
       bx += 43;
       if (bx > PW - MR - 40) { bx = ML; y += 10; }
     });
@@ -1204,8 +1204,8 @@ function downloadPDF() {
     rect(ML, y, CW, 9, SURF3);
     text(c.name, ML + 3, y + 4.5, 9, TEXT, 'left', 'bold');
     // Service tag
-    rect(PW - MR - 48, y + 1.5, 22, 6, GOLDBG);
-    text(c.service, PW - MR - 37, y + 4.5, 6.5, GOLD, 'center', 'bold');
+    rect(PW - MR - 48, y + 1.5, 22, 6, [220,218,213]);
+    text(c.service, PW - MR - 37, y + 4.5, 6.5, [40,40,40], 'center', 'bold');
     text(c.servings + ' servings', PW - MR - 24, y + 4.5, 7, TEXT2, 'left', 'normal');
     y += 9;
 
@@ -1229,14 +1229,14 @@ function downloadPDF() {
       const batchOz  = ing.oz * c.servings;
       const bottlesR = Math.round(batchOz / ing.cs);
       const batchStr = (Math.round(batchOz * 10) / 10) + ' oz';
-      rect(ML, y, CW, 7, idx % 2 === 0 ? SURF2 : [26,26,23]);
+      rect(ML, y, CW, 7, idx % 2 === 0 ? [255,255,255] : [245,245,243]);
       text(ing.name,      ML + 3,        y + 3.5, 8, TEXT,  'left',  'normal');
       text(ing.oz + ' oz',ML + 90,       y + 3.5, 8, TEXT2, 'right', 'normal');
       text(batchStr,      ML + 118,      y + 3.5, 8, TEXT,  'right', 'normal');
       text(ing.ct,        ML + 153,      y + 3.5, 7, TEXT3, 'right', 'normal');
       // Bottle badge
-      rect(ML + CW - 14, y + 1, 13, 5, GOLD);
-      text(String(bottlesR), ML + CW - 7.5, y + 3.5, 7, DARK, 'center', 'bold');
+      rect(ML + CW - 14, y + 1, 13, 5, [20,20,20]);
+      text(String(bottlesR), ML + CW - 7.5, y + 3.5, 7, [255,255,255], 'center', 'bold');
       y += 7;
     });
 
@@ -1249,8 +1249,8 @@ function downloadPDF() {
         text(g, gx, y + 4, 8, TEXT2, 'left', 'normal');
         // Count pill
         const tw = doc.getTextWidth(g) + 4;
-        rect(gx + tw + 2, y + 1.5, 18, 5, [40,32,18]);
-        text(c.servings + ' pcs', gx + tw + 11, y + 4, 6.5, GOLD, 'center', 'normal');
+        rect(gx + tw + 2, y + 1.5, 18, 5, [220,218,213]);
+        text(c.servings + ' pcs', gx + tw + 11, y + 4, 6.5, [60,60,60], 'center', 'normal');
         gx += tw + 24;
       });
       y += 8;
