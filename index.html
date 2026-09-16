@@ -125,7 +125,6 @@ body {
 
 /* ══ APP SHELL ══ */
 #app { display: none; flex-direction: column; min-height: 100vh; }
-#app.visible { display: flex; }
 
 /* ══ TOP NAV ══ */
 .topnav {
@@ -628,8 +627,8 @@ body {
     <div class="lock-sub">Event Operations</div>
     <div class="lock-divider"></div>
     <div class="lock-title">Enter Access Code</div>
-    <input type="password" class="lock-input" id="pwInput" placeholder="••••••••" maxlength="20">
-    <button class="lock-btn" onclick="checkPassword()">Enter</button>
+    <input type="password" class="lock-input" id="pwInput" placeholder="••••••••" maxlength="20" onkeydown="if(event.key==='Enter'){doLogin()}">
+    <button class="lock-btn" onclick="doLogin()">Enter</button>
     <div class="lock-error" id="pwError"></div>
   </div>
 </div>
@@ -779,26 +778,18 @@ body {
 // Change this to your preferred password
 const PASSWORD = "375bar2026";
 
-function checkPassword() {
-  const val = document.getElementById('pwInput').value.trim();
-  const inp = document.getElementById('pwInput');
-  const err = document.getElementById('pwError');
+function doLogin() {
+  var val = document.getElementById('pwInput').value.trim();
   if (val === PASSWORD) {
     document.getElementById('lockScreen').style.display = 'none';
-    document.getElementById('app').classList.add('visible');
+    document.getElementById('app').style.display = 'flex';
     loadMasterSheet();
   } else {
-    inp.classList.add('error');
-    err.textContent = 'Incorrect access code. Please try again.';
-    inp.value = '';
-    setTimeout(() => { inp.classList.remove('error'); err.textContent = ''; }, 3000);
+    document.getElementById('pwError').textContent = 'Incorrect code. Try again.';
+    document.getElementById('pwInput').value = '';
+    setTimeout(function(){ document.getElementById('pwError').textContent = ''; }, 3000);
   }
 }
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('pwInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') { checkPassword(); }
-  });
-});
 
 // ══ MASTER RECIPE DATA — loaded live from Google Sheet ════════
 // Sheet ID and tab name
