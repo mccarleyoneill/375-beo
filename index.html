@@ -780,7 +780,7 @@ body {
 const PASSWORD = "375bar2026";
 
 function checkPassword() {
-  const val = document.getElementById('pwInput').value;
+  const val = document.getElementById('pwInput').value.trim();
   const inp = document.getElementById('pwInput');
   const err = document.getElementById('pwError');
   if (val === PASSWORD) {
@@ -794,10 +794,10 @@ function checkPassword() {
     setTimeout(() => { inp.classList.remove('error'); err.textContent = ''; }, 3000);
   }
 }
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('lockScreen').style.display !== 'none') {
-    checkPassword();
-  }
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('pwInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { checkPassword(); }
+  });
 });
 
 // ══ MASTER RECIPE DATA — loaded live from Google Sheet ════════
@@ -932,147 +932,6 @@ const FALLBACK_RECIPES = [
     {name:"BOLS TRIPLE SEC",oz:0.5,ct:"LITER BOTTLE",cs:33.8},
     {name:"GIFFARD PECHE",oz:0.5,ct:"750ML BOTTLE",cs:25.36}]}
 ];
-  {name:"GRILL OLD FASHIONED",popScore:0.6,glassware:"ROCKS",garnish1:"LEMON TWIST",garnish2:"",ingredients:[
-    {name:"MAKERS MARK BOURBON",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"MAKERS SEAGRAM BARREL",oz:1,ct:"750ML BOTTLE",cs:25.36},
-    {name:"CANE SYRUP",oz:0.25,ct:"QUART BOTTLE",cs:32},
-    {name:"ANGOSTURA",oz:0.0625,ct:"OZ",cs:1}]},
-  {name:"CARBONE NEGRONI",popScore:0.6,glassware:"ROCKS",garnish1:"LEMON TWIST",garnish2:"HALF ORANGE WHEEL",ingredients:[
-    {name:"CAMPARI",oz:1.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"BOATYARD GIN",oz:1,ct:"750ML BOTTLE",cs:25.36},
-    {name:"CARPANO ANTICA",oz:1,ct:"LITER BOTTLE",cs:33.8},
-    {name:"PUNT E MES",oz:0.25,ct:"750ML BOTTLE",cs:25.36}]},
-  {name:"ROCCO MARGARITA",popScore:1,glassware:"ROCKS",garnish1:"HALF GRAPEFRUIT WHEEL",garnish2:"",ingredients:[
-    {name:"PUEBLO VIEJO BLANCO",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"LIME JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"MANDARINE NAPOLEON",oz:0.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"HONEY SYRUP",oz:0.25,ct:"QUART BOTTLE",cs:32},
-    {name:"GRAPEFRUIT BITTERS",oz:0.042,ct:"OZ",cs:1}]},
-  {name:"SPRITZ TORRISI",popScore:0.6,glassware:"HIGHBALL",garnish1:"ORANGE WHEEL",garnish2:"",ingredients:[
-    {name:"APEROL",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"GIFFARD RHUBARB",oz:0.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"GIFFARD PECHE",oz:0.25,ct:"750ML BOTTLE",cs:25.36},
-    {name:"LEMON JUICE",oz:0.25,ct:"QUART BOTTLE",cs:32}]},
-  {name:"BELMONDO",popScore:0.6,glassware:"ROCK",garnish1:"LEMON WHEEL",garnish2:"",ingredients:[
-    {name:"PUEBLO VIEJO BLANCO",oz:1,ct:"LITER BOTTLE",cs:33.8},
-    {name:"SCHLADERER PEAR",oz:1,ct:"750ML BOTTLE",cs:25.36},
-    {name:"LEMON JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"SALERS",oz:0.25,ct:"750ML BOTTLE",cs:25.36},
-    {name:"HONEY SYRUP",oz:0.5,ct:"QUART BOTTLE",cs:32},
-    {name:"GINGER SYRUP",oz:0.25,ct:"QUART BOTTLE",cs:32}]},
-  {name:"ELDERFLOWER SPRITZ",popScore:0.7,glassware:"AP WINE",garnish1:"HALF LEMON WHEEL",garnish2:"",ingredients:[
-    {name:"ST GERMAIN",oz:1.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"BOLS TRIPLE SEC",oz:0.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"GIFFARD PECHE",oz:0.5,ct:"750ML BOTTLE",cs:25.36}]},
-  {name:"CALABRIAN COSMO",popScore:0.5,glassware:"COUPE",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
-    {name:"GREY GOOSE",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"LIME JUICE",oz:1,ct:"QUART BOTTLE",cs:32},
-    {name:"RED PEPPER CORDIAL",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"BOLS TRIPLE SEC",oz:0.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"APEROL",oz:0.5,ct:"LITER BOTTLE",cs:33.8}]},
-  {name:"GOLD DOLLAR",popScore:0.5,glassware:"HIGHBALL",garnish1:"MINT CROWN",garnish2:"",ingredients:[
-    {name:"PUEBLO VIEJO BLANCO",oz:1.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"CAZADORES REPOSADO",oz:0.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"PLANTATION PINEAPPLE",oz:0.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"PASSIONFRUIT CORDIAL",oz:2,ct:"QUART BOTTLE",cs:32},
-    {name:"LEMON JUICE",oz:0.25,ct:"QUART BOTTLE",cs:32}]},
-  {name:"THE MARTINI",popScore:0.6,glassware:"MARTINI",garnish1:"LEMON TWIST",garnish2:"OLIVE",ingredients:[
-    {name:"BOATYARD GIN",oz:3,ct:"750ML BOTTLE",cs:25.36},
-    {name:"NOILLY PRAT DRY",oz:0.5,ct:"LITER BOTTLE",cs:33.8}]},
-  {name:"KANGAROO",popScore:0.6,glassware:"MARTINI",garnish1:"LEMON TWIST",garnish2:"OLIVE",ingredients:[
-    {name:"GREY GOOSE",oz:3,ct:"LITER BOTTLE",cs:33.8},
-    {name:"NOILLY PRAT DRY",oz:0.25,ct:"LITER BOTTLE",cs:33.8}]},
-  {name:"CHAMPAGNE COCKTAIL",popScore:0.7,glassware:"COUPE",garnish1:"",garnish2:"",ingredients:[
-    {name:"GREY GOOSE",oz:1,ct:"LITER BOTTLE",cs:33.8},
-    {name:"SAUTERNE",oz:0.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"ST GERMAIN",oz:0.25,ct:"750ML BOTTLE",cs:25.36}]},
-  {name:"GRILL SOUR",popScore:0.8,glassware:"COUPE",garnish1:"LEMON WHEEL",garnish2:"",ingredients:[
-    {name:"BOATYARD GIN",oz:2,ct:"750ML BOTTLE",cs:25.36},
-    {name:"LEMON JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"LAVENDER HONEY",oz:0.75,ct:"QUART BOTTLE",cs:32}]},
-  {name:"MANHATTAN",popScore:0.6,glassware:"MARTINI",garnish1:"CHERRY",garnish2:"",ingredients:[
-    {name:"WILD TURKEY RYE",oz:2.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"CARPANO ANTICA",oz:0.66,ct:"LITER BOTTLE",cs:33.8},
-    {name:"CHERRY HEERING",oz:0.33,ct:"750ML BOTTLE",cs:25.36},
-    {name:"ANGOSTURA",oz:0.042,ct:"OZ",cs:1},
-    {name:"ELMAKULE BITTERS",oz:0.042,ct:"OZ",cs:1}]},
-  {name:"ESPRESSO MARTINI",popScore:1,glassware:"COUPE",garnish1:"",garnish2:"",ingredients:[
-    {name:"GREY GOOSE",oz:1.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"KAHLUA",oz:1.5,ct:"1.75L BOTTLE",cs:59.15},
-    {name:"DECAF ESPRESSO",oz:1.5,ct:"QUART BOTTLE",cs:32}]},
-  {name:"RASPBERRY",popScore:0.4,glassware:"HIGHBALL",garnish1:"RASPBERRY",garnish2:"",ingredients:[
-    {name:"PUEBLO VIEJO BLANCO",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"LIME JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"GRAPEFRUIT JUICE",oz:0.5,ct:"QUART BOTTLE",cs:32},
-    {name:"CANE SYRUP",oz:0.5,ct:"QUART BOTTLE",cs:32},
-    {name:"RASPBERRY PUREE",oz:0.75,ct:"LITER BOTTLE",cs:33.8}]},
-  {name:"SKINNY MARG",popScore:1,glassware:"ROCKS",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
-    {name:"PUEBLO VIEJO BLANCO",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"LIME JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"BOLS TRIPLE SEC",oz:0.75,ct:"LITER BOTTLE",cs:33.8}]},
-  {name:"COSMOPOLITAN",popScore:0.8,glassware:"COUPE",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
-    {name:"GREY GOOSE",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"BOLS TRIPLE SEC",oz:0.75,ct:"LITER BOTTLE",cs:33.8},
-    {name:"CRANBERRY JUICE",oz:0.5,ct:"OZ",cs:1},
-    {name:"LIME JUICE",oz:0.5,ct:"QUART BOTTLE",cs:32}]},
-  {name:"COASTAL SPRITZ",popScore:0.3,glassware:"HIGHBALL",garnish1:"HALF ORANGE WHEEL",garnish2:"",ingredients:[
-    {name:"PENTIRE APERITIF",oz:1.5,ct:"700ML BOTTLE",cs:23.67},
-    {name:"GRENADINE",oz:0.25,ct:"QUART BOTTLE",cs:32},
-    {name:"GRAPEFRUIT JUICE",oz:1,ct:"QUART BOTTLE",cs:32},
-    {name:"LEMON JUICE",oz:1,ct:"QUART BOTTLE",cs:32},
-    {name:"GRAPEFRUIT SODA",oz:1.5,ct:"8OZ BOTTLE",cs:8}]},
-  {name:"CUCUMBER LEMONADE",popScore:0.7,glassware:"ROCKS",garnish1:"CUCUMBER SLICE",garnish2:"",ingredients:[
-    {name:"ASSAM TEA",oz:3,ct:"QUART BOTTLE",cs:32},
-    {name:"LEMON JUICE",oz:1,ct:"QUART BOTTLE",cs:32},
-    {name:"CANE SYRUP",oz:1,ct:"QUART BOTTLE",cs:32},
-    {name:"CUCUMBER JUICE",oz:0.125,ct:"QUART BOTTLE",cs:32}]},
-  {name:"GRAPEFRUIT SODA NA",popScore:0.5,glassware:"HIGHBALL",garnish1:"HALF GRAPEFRUIT WHEEL",garnish2:"",ingredients:[
-    {name:"GRAPEFRUIT CORDIAL",oz:1.5,ct:"QUART BOTTLE",cs:32},
-    {name:"LEMON JUICE",oz:0.5,ct:"QUART BOTTLE",cs:32},
-    {name:"CLUB SODA",oz:5,ct:"8OZ BOTTLE",cs:8}]},
-  {name:"PUNCH NA",popScore:0.5,glassware:"COUPE",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
-    {name:"ORANGE JUICE",oz:2,ct:"QUART BOTTLE",cs:32},
-    {name:"LIME JUICE",oz:0.5,ct:"QUART BOTTLE",cs:32},
-    {name:"PASSIONFRUIT PUREE",oz:0.5,ct:"KG CONTAINER",cs:35.27},
-    {name:"ROSES GRENADINE",oz:0.75,ct:"25OZ BOTTLE",cs:25},
-    {name:"CLUB SODA",oz:1,ct:"8OZ BOTTLE",cs:8}]},
-  {name:"CLASSIC OLD FASHIONED",popScore:0.6,glassware:"ROCKS",garnish1:"ORANGE TWIST",garnish2:"",ingredients:[
-    {name:"MAKERS MARK BOURBON",oz:2.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"CANE SYRUP",oz:0.25,ct:"QUART BOTTLE",cs:32},
-    {name:"ANGOSTURA",oz:0.0625,ct:"OZ",cs:1}]},
-  {name:"CRANBERRY MOJITO NA",popScore:0.6,glassware:"HIGHBALL",garnish1:"MINT CROWN",garnish2:"",ingredients:[
-    {name:"LIME JUICE",oz:1,ct:"QUART BOTTLE",cs:32},
-    {name:"CRANBERRY JUICE",oz:1,ct:"OZ",cs:1},
-    {name:"MINT SYRUP",oz:0.75,ct:"QUART BOTTLE",cs:32}]},
-  {name:"BLUE HAWAII",popScore:0.7,glassware:"MARTINI",garnish1:"PINEAPPLE SLICE",garnish2:"",ingredients:[
-    {name:"GREY GOOSE",oz:0.75,ct:"LITER BOTTLE",cs:33.8},
-    {name:"BACARDI SUPERIOR",oz:0.75,ct:"LITER BOTTLE",cs:33.8},
-    {name:"BLUE CURACAO",oz:0.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"PINEAPPLE JUICE",oz:3,ct:"OZ",cs:1},
-    {name:"LIME JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"CANE SYRUP",oz:0.5,ct:"QUART BOTTLE",cs:32}]},
-  {name:"CLASSIC NEGRONI",popScore:0.8,glassware:"ROCKS",garnish1:"ORANGE TWIST",garnish2:"",ingredients:[
-    {name:"BOATYARD GIN",oz:1.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"CAMPARI",oz:1,ct:"LITER BOTTLE",cs:33.8},
-    {name:"COCCHI VDT",oz:1,ct:"750ML BOTTLE",cs:25.36}]},
-  {name:"CUCUMBER SHISO GIN",popScore:0.8,glassware:"ROCKS",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
-    {name:"BOATYARD GIN",oz:2,ct:"750ML BOTTLE",cs:25.36},
-    {name:"ST GERMAIN",oz:0.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"LIME JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"CANE SYRUP",oz:0.5,ct:"QUART BOTTLE",cs:32},
-    {name:"CUCUMBER JUICE",oz:0.25,ct:"QUART BOTTLE",cs:32}]},
-  {name:"LYCHEE MARTINI VODKA",popScore:0.8,glassware:"MARTINI",garnish1:"LYCHEE WHOLE",garnish2:"",ingredients:[
-    {name:"KETEL ONE",oz:2.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"GIFFARD LICHI LI",oz:0.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"ST GERMAIN",oz:0.25,ct:"750ML BOTTLE",cs:25.36},
-    {name:"LEMON JUICE",oz:0.5,ct:"QUART BOTTLE",cs:32},
-    {name:"LYCHEE PUREE",oz:1.5,ct:"KG CONTAINER",cs:35.27},
-    {name:"WHOLE MILK",oz:2,ct:"QUART BOTTLE",cs:32}]},
-  {name:"SPICY MATCHA MARGARITA",popScore:0.8,glassware:"ROCKS",garnish1:"JALAPENO SLICE",garnish2:"",ingredients:[
-    {name:"PUEBLO VIEJO BLANCO",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"NARANJA ORANGE LIQUEUR",oz:0.66,ct:"LITER BOTTLE",cs:33.8},
-    {name:"CANE SYRUP",oz:0.33,ct:"QUART BOTTLE",cs:32},
-    {name:"LIME JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32}]},
 const BAR_TYPES      = ["Grill Bar","Pool Bar","Sat 6ft","Sat 12ft","Sat 18ft","Passed Station"];
 const SERVICE_OPTS   = ["PASSED","FEATURED","ON REQUEST","STATIONARY"];
 const DRINKS_PER_GUEST = 2.2;
