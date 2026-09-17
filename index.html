@@ -333,7 +333,17 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
         <div class="form-block-header">Event Information</div>
         <div class="field-row cols-2">
           <div class="field"><label>Event Name</label><input type="text" id="i_name" placeholder="e.g. Smith Wedding"></div>
-          <div class="field"><label>Event Date</label><input type="text" id="i_date" placeholder="MM/DD/YYYY"></div>
+          <div class="field">
+            <label>Event Date</label>
+            <div style="display:grid;grid-template-columns:1fr 70px 80px;gap:6px;align-items:center;">
+              <div style="background:var(--surface3);border-radius:4px;padding:4px 8px;font-size:12px;color:var(--text3);cursor:not-allowed;" id="i_date_month_display">—</div>
+              <select id="i_date_day" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:4px 6px;font-family:inherit;outline:none;">
+                <option value="">Day</option>
+              </select>
+              <div style="background:var(--surface3);border-radius:4px;padding:4px 8px;font-size:12px;color:var(--text3);cursor:not-allowed;" id="i_date_year_display">—</div>
+            </div>
+            <input type="hidden" id="i_date">
+          </div>
         </div>
         <div class="field-row cols-2">
           <div class="field"><label>Event Time</label><input type="text" id="i_time" placeholder="e.g. 7:00 PM"></div>
@@ -729,10 +739,61 @@ async function loadWeek(week) {
   document.getElementById('collection-label').textContent =
     week.venue + '  ·  ' + week.week_start + ' – ' + week.week_end;
   await loadMasterSheet();
+  populateEventDateFromWeek(week);
   showScreen('screenApp');
   switchPane('input');
   renderCollection();
   await populateCompareDropdown();
+}
+
+function populateEventDateFromWeek(week) {
+  // Parse week_start to extract month and year
+  // Format stored: "January 1, 2026"
+  var parts = week.week_start.split(' ');
+  if (parts.length < 3) return;
+  var monthName = parts[0];
+  var year      = parts[2] ? parts[2].replace(',','') : '';
+  var monthIdx  = MONTHS.indexOf(monthName); // 0-based
+  if (monthIdx === -1) return;
+  var monthNum  = monthIdx + 1;
+
+  // Set locked month and year display
+  var mEl = document.getElementById('i_date_month_display');
+  var yEl = document.getElementById('i_date_year_display');
+  if (mEl) mEl.textContent = monthName;
+  if (yEl) yEl.textContent = year;
+
+  // Store on window for use when day changes
+  window._beoMonth     = monthName;
+  window._beoMonthNum  = monthNum;
+  window._beoYear      = year;
+
+  // Populate day dropdown with correct days for this month/year
+  var dayEl  = document.getElementById('i_date_day');
+  var numDays = daysInMonth(monthNum, parseInt(year));
+  if (dayEl) {
+    dayEl.innerHTML = '<option value="">Day</option>';
+    for (var d = 1; d <= numDays; d++) {
+      var opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = d;
+      dayEl.appendChild(opt);
+    }
+    // Update hidden date field when day changes
+    dayEl.onchange = function() {
+      var day = dayEl.value;
+      var hiddenDate = document.getElementById('i_date');
+      if (hiddenDate && day) {
+        hiddenDate.value = window._beoMonth + ' ' + day + ', ' + window._beoYear;
+      } else if (hiddenDate) {
+        hiddenDate.value = '';
+      }
+    };
+  }
+
+  // Clear hidden date until user picks a day
+  var hiddenDate = document.getElementById('i_date');
+  if (hiddenDate) hiddenDate.value = '';
 }
 
 function startNewWeek() {
@@ -1599,7 +1660,9 @@ function downloadCollectionTotals() {
 
 // ══ CLEAR FORM ════════════════════════════════════════════════
 function clearForm() {
-  ['i_name','i_date','i_time','i_location'].forEach(id => document.getElementById(id).value='');
+  ['i_name','i_time','i_location'].forEach(id => document.getElementById(id).value='');
+  var dayEl = document.getElementById('i_date_day'); if (dayEl) dayEl.value = '';
+  var hiddenDate = document.getElementById('i_date'); if (hiddenDate) hiddenDate.value = '';
   document.getElementById('i_guests').value='';
   document.getElementById('i_type').value='';
   document.getElementById('i_tequila').value='No';
