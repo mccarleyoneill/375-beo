@@ -227,14 +227,17 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 
 /* ══ DELETE MODAL ══ */
 #deleteWeekModal {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 9999 !important;
-  background: rgba(0,0,0,0.8) !important;
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.82);
   align-items: center;
   justify-content: center;
 }
-#deleteWeekModal.visible { display: flex !important; }
+#deleteWeekModal.visible {
+  display: flex !important;
+}
 
 @media print {
   .topnav, .nav-actions, .form-actions, #screenLock, #screenLanding { display: none !important; }
@@ -710,52 +713,50 @@ function restoreFormState() {
 }
 
 // ══ WEEK HISTORY ═════════════════════════════════════════════
+// Store weeks globally so onclick handlers can reference them by index
+var _weeksList = [];
+
 async function loadWeekHistory() {
   try {
     var weeks = await getWeeks();
     var el   = document.getElementById('weekHistoryList');
     var wrap = document.getElementById('weekHistory');
-    if (!weeks || weeks.length === 0) { wrap.style.display = 'none'; el.innerHTML = ''; return; }
+    if (!weeks || weeks.length === 0) {
+      wrap.style.display = 'none';
+      el.innerHTML = '';
+      _weeksList = [];
+      return;
+    }
+    _weeksList = weeks.slice(0, 8);
     wrap.style.display = 'block';
     el.innerHTML = '';
-    weeks.slice(0, 8).forEach(function(w) {
+    _weeksList.forEach(function(w, i) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:8px;';
 
-      // Outer wrapper — NOT clickable itself
-      var chip = document.createElement('div');
-      chip.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;overflow:hidden;margin-bottom:6px;';
-
-      // Left: Resume button (takes up most of the width)
       var resumeBtn = document.createElement('button');
-      resumeBtn.style.cssText = 'flex:1;background:none;border:none;text-align:left;padding:12px 16px;cursor:pointer;font-family:inherit;color:inherit;display:flex;justify-content:space-between;align-items:center;';
-      resumeBtn.innerHTML =
-        '<div class="wc-label">' + w.venue + ' · ' + w.week_start + ' – ' + w.week_end + '</div>' +
-        '<div class="wc-meta" style="font-size:11px;color:var(--text3);">Resume →</div>';
-      resumeBtn.addEventListener('click', function() { resumeWeek(w); });
-      resumeBtn.addEventListener('mouseenter', function() { resumeBtn.style.background = 'var(--surface2)'; });
-      resumeBtn.addEventListener('mouseleave', function() { resumeBtn.style.background = 'none'; });
+      resumeBtn.type = 'button';
+      resumeBtn.style.cssText = 'flex:1;background:none;border:none;border-right:1px solid var(--border2);text-align:left;padding:12px 16px;cursor:pointer;font-family:inherit;color:var(--text);display:flex;justify-content:space-between;align-items:center;';
+      resumeBtn.innerHTML = '<span style="font-size:13px;font-weight:500;">' + w.venue + ' \u00b7 ' + w.week_start + ' \u2013 ' + w.week_end + '</span><span style="font-size:11px;color:var(--text3);margin-left:12px;">Resume \u2192</span>';
+      resumeBtn.addEventListener('mouseover', function(){ resumeBtn.style.background = 'var(--surface2)'; });
+      resumeBtn.addEventListener('mouseout',  function(){ resumeBtn.style.background = 'none'; });
+      resumeBtn.addEventListener('click', (function(idx){ return function(e){ e.stopPropagation(); resumeWeek(_weeksList[idx]); }; })(i));
 
-      // Divider
-      var divider = document.createElement('div');
-      divider.style.cssText = 'width:1px;background:var(--border2);align-self:stretch;flex-shrink:0;';
-
-      // Right: Delete button (fixed width, clearly separate)
       var delBtn = document.createElement('button');
+      delBtn.type = 'button';
       delBtn.textContent = 'Delete';
-      delBtn.style.cssText = 'background:none;border:none;color:var(--red);padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;flex-shrink:0;transition:background 0.15s;';
-      delBtn.addEventListener('mouseenter', function() { delBtn.style.background = 'rgba(204,68,68,0.12)'; });
-      delBtn.addEventListener('mouseleave', function() { delBtn.style.background = 'none'; });
-      delBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        showDeleteWeekModal(w);
-      });
+      delBtn.style.cssText = 'background:none;border:none;color:var(--red);padding:12px 18px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;flex-shrink:0;';
+      delBtn.addEventListener('mouseover', function(){ delBtn.style.background = 'rgba(204,68,68,0.1)'; });
+      delBtn.addEventListener('mouseout',  function(){ delBtn.style.background = 'none'; });
+      delBtn.addEventListener('click', (function(idx){ return function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); showDeleteWeekModal(_weeksList[idx]); }; })(i));
 
-      chip.appendChild(resumeBtn);
-      chip.appendChild(divider);
-      chip.appendChild(delBtn);
-      el.appendChild(chip);
+      row.appendChild(resumeBtn);
+      row.appendChild(delBtn);
+      el.appendChild(row);
     });
   } catch(e) { console.error('loadWeekHistory:', e); }
 }
+
 
 async function startWeek() {
   var venue     = document.getElementById('l_venue').value.trim();
@@ -1753,7 +1754,7 @@ function showDeleteWeekModal(week) {
 function hideDeleteWeekModal() {
   _weekToDelete = null;
   var modal = document.getElementById('deleteWeekModal');
-  if (modal) { modal.style.display = 'none'; modal.classList.remove('visible'); }
+  if (modal) { modal.classList.remove('visible'); }
 }
 
 async function confirmDeleteWeek() {
@@ -1793,7 +1794,7 @@ function showLoading(on) {
 }
 </script>
 <!-- ══ DELETE WEEK MODAL ══ -->
-<div id="deleteWeekModal" onclick="if(event.target===this)hideDeleteWeekModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;">
+<div id="deleteWeekModal" onclick="if(event.target===this)hideDeleteWeekModal()">
   <div style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:32px;max-width:440px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
     <div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--red);margin-bottom:10px;">⚠ Delete Collection</div>
     <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;" id="deleteModalTitle"></div>
