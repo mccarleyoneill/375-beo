@@ -611,21 +611,24 @@ function parseCSV(text) {
   const recipes = {};
   for (let i = 1; i < rows.length; i++) {
     const r    = rows[i];
-    const name = (r[1] || '').trim().toUpperCase();
+    // Columns: 0=ID, 1=CocktailID, 2=Cocktail Name, 3=Ingredient, 4=PerServing,
+    //          5=Unit, 6=Order, 7=ContainerType, 8=ContainerSize,
+    //          9=Garnish1, 10=Garnish2, 11=Glassware, 12=PopScore
+    const name = (r[2] || '').trim().toUpperCase();
     if (!name) continue;
     if (!recipes[name]) {
       recipes[name] = {
-        name, popScore: parseFloat(r[11]) || 0.5,
-        glassware: (r[10]||'').trim(),
-        garnish1: (r[8]||'').trim(), garnish2: (r[9]||'').trim(),
+        name, popScore: parseFloat(r[12]) || 0.5,
+        glassware: (r[11]||'').trim(),
+        garnish1: (r[9]||'').trim(), garnish2: (r[10]||'').trim(),
         ingredients: []
       };
     }
-    const oz = parseFloat(r[3]) || 0;
-    const cs = parseFloat(r[7]) || 1;
+    const oz = parseFloat(r[4]) || 0;
+    const cs = parseFloat(r[8]) || 1;
     if (oz > 0) {
       recipes[name].ingredients.push({
-        name: (r[2]||'').trim(), oz, ct: (r[6]||'').trim(), cs, ord: parseInt(r[5])||0
+        name: (r[3]||'').trim(), oz, ct: (r[7]||'').trim(), cs, ord: parseInt(r[6])||0
       });
     }
   }
