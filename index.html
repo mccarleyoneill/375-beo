@@ -633,6 +633,7 @@ function saveFormState() {
     const state = {
       name    : document.getElementById('i_name')    ? document.getElementById('i_name').value : '',
       date    : document.getElementById('i_date')    ? document.getElementById('i_date').value : '',
+      dateDay : document.getElementById('i_date_day') ? document.getElementById('i_date_day').value : '',
       time    : document.getElementById('i_time')    ? document.getElementById('i_time').value : '',
       guests  : document.getElementById('i_guests')  ? document.getElementById('i_guests').value : '',
       location: document.getElementById('i_location')? document.getElementById('i_location').value : '',
@@ -664,6 +665,15 @@ function restoreFormState() {
     const state = JSON.parse(raw);
     if (document.getElementById('i_name'))     document.getElementById('i_name').value     = state.name     || '';
     if (document.getElementById('i_date'))     document.getElementById('i_date').value     = state.date     || '';
+    if (state.dateDay) {
+      var dayEl = document.getElementById('i_date_day');
+      if (dayEl) {
+        dayEl.value = state.dateDay;
+        // Also update hidden date field
+        var hidden = document.getElementById('i_date');
+        if (hidden && state.date) hidden.value = state.date;
+      }
+    }
     if (document.getElementById('i_time'))     document.getElementById('i_time').value     = state.time     || '';
     if (document.getElementById('i_guests'))   document.getElementById('i_guests').value   = state.guests   || '';
     if (document.getElementById('i_location')) document.getElementById('i_location').value = state.location || '';
@@ -747,53 +757,69 @@ async function loadWeek(week) {
 }
 
 function populateEventDateFromWeek(week) {
-  // Parse week_start to extract month and year
-  // Format stored: "January 1, 2026"
-  var parts = week.week_start.split(' ');
-  if (parts.length < 3) return;
-  var monthName = parts[0];
-  var year      = parts[2] ? parts[2].replace(',','') : '';
-  var monthIdx  = MONTHS.indexOf(monthName); // 0-based
-  if (monthIdx === -1) return;
-  var monthNum  = monthIdx + 1;
+  if (!week || !week.week_start) return;
 
-  // Set locked month and year display
+  // week_start stored as "January 7, 2026" — parse it
+  var raw   = week.week_start.trim();
+  var parts = raw.split(' ');
+
+  // Handle both "January 7, 2026" and "01/07/2026" formats
+  var monthName, monthNum, year;
+  if (parts.length >= 3 && isNaN(parseInt(parts[0]))) {
+    // Format: "January 7, 2026"
+    monthName = parts[0];
+    year      = parts[2].replace(',','').trim();
+    monthNum  = MONTHS.indexOf(monthName) + 1;
+  } else {
+    // Fallback: try MM/DD/YYYY
+    var slashParts = raw.split('/');
+    if (slashParts.length === 3) {
+      monthNum  = parseInt(slashParts[0]);
+      year      = slashParts[2];
+      monthName = MONTHS[monthNum - 1] || '';
+    }
+  }
+
+  if (!monthName || !year || monthNum < 1 || monthNum > 12) {
+    console.warn('Could not parse week_start:', raw);
+    return;
+  }
+
+  // Set locked displays
   var mEl = document.getElementById('i_date_month_display');
   var yEl = document.getElementById('i_date_year_display');
-  if (mEl) mEl.textContent = monthName;
-  if (yEl) yEl.textContent = year;
+  if (mEl) { mEl.textContent = monthName; mEl.style.color = 'var(--text2)'; }
+  if (yEl) { yEl.textContent = year;      yEl.style.color = 'var(--text2)'; }
 
-  // Store on window for use when day changes
-  window._beoMonth     = monthName;
-  window._beoMonthNum  = monthNum;
-  window._beoYear      = year;
+  // Store globally
+  window._beoMonth    = monthName;
+  window._beoMonthNum = monthNum;
+  window._beoYear     = year;
 
-  // Populate day dropdown with correct days for this month/year
-  var dayEl  = document.getElementById('i_date_day');
+  // Build day dropdown
+  var dayEl   = document.getElementById('i_date_day');
   var numDays = daysInMonth(monthNum, parseInt(year));
   if (dayEl) {
     dayEl.innerHTML = '<option value="">Day</option>';
     for (var d = 1; d <= numDays; d++) {
-      var opt = document.createElement('option');
-      opt.value = d;
+      var opt       = document.createElement('option');
+      opt.value     = d;
       opt.textContent = d;
       dayEl.appendChild(opt);
     }
-    // Update hidden date field when day changes
     dayEl.onchange = function() {
-      var day = dayEl.value;
-      var hiddenDate = document.getElementById('i_date');
-      if (hiddenDate && day) {
-        hiddenDate.value = window._beoMonth + ' ' + day + ', ' + window._beoYear;
-      } else if (hiddenDate) {
-        hiddenDate.value = '';
+      var hidden = document.getElementById('i_date');
+      if (hidden) {
+        hidden.value = dayEl.value
+          ? window._beoMonth + ' ' + dayEl.value + ', ' + window._beoYear
+          : '';
       }
     };
   }
 
-  // Clear hidden date until user picks a day
-  var hiddenDate = document.getElementById('i_date');
-  if (hiddenDate) hiddenDate.value = '';
+  // Clear hidden date field
+  var hidden = document.getElementById('i_date');
+  if (hidden) hidden.value = '';
 }
 
 function startNewWeek() {
