@@ -386,7 +386,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 
     <!-- EVENT COLLECTION -->
     <div class="pane" id="pane-collection">
-    <div class="out-wrap">
+    <div class="out-wrap" style="max-width:960px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
         <div>
           <div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Event Collection</div>
@@ -611,24 +611,31 @@ function parseCSV(text) {
   const recipes = {};
   for (let i = 1; i < rows.length; i++) {
     const r    = rows[i];
-    // Columns: 0=ID, 1=CocktailID, 2=Cocktail Name, 3=Ingredient, 4=PerServing,
-    //          5=Unit, 6=Order, 7=ContainerType, 8=ContainerSize,
-    //          9=Garnish1, 10=Garnish2, 11=Glassware, 12=PopScore
+    // A=0=CocktailID, B=1=Venue, C=2=Cocktail, D=3=Ingredient, E=4=PerServing,
+    // F=5=Unit, G=6=Order, H=7=Category, I=8=SubCategory, J=9=ContainerType,
+    // K=10=ContainerSize, L=11=Garnish1, M=12=Garnish2, N=13=Glassware, O=14=PopScore
     const name = (r[2] || '').trim().toUpperCase();
     if (!name) continue;
     if (!recipes[name]) {
       recipes[name] = {
-        name, popScore: parseFloat(r[12]) || 0.5,
-        glassware: (r[11]||'').trim(),
-        garnish1: (r[9]||'').trim(), garnish2: (r[10]||'').trim(),
+        name,
+        popScore  : parseFloat(r[14]) || 0.5,
+        glassware : (r[13]||'').trim(),
+        garnish1  : (r[11]||'').trim(),
+        garnish2  : (r[12]||'').trim(),
         ingredients: []
       };
     }
     const oz = parseFloat(r[4]) || 0;
-    const cs = parseFloat(r[8]) || 1;
+    const cs = parseFloat(r[10]) || 1;
     if (oz > 0) {
       recipes[name].ingredients.push({
-        name: (r[3]||'').trim(), oz, ct: (r[7]||'').trim(), cs, ord: parseInt(r[6])||0
+        name    : (r[3]||'').trim(),
+        oz, ct  : (r[9]||'').trim(),
+        cs,
+        ord     : parseInt(r[6])||0,
+        category: (r[7]||'').trim().toUpperCase(),
+        subCat  : (r[8]||'').trim()
       });
     }
   }
@@ -785,35 +792,6 @@ function goToCollection() {
   switchPane('collection');
 }
 
-function renderCollection() {
-  const el = document.getElementById('collectionList');
-  if (!currentEvents || currentEvents.length === 0) {
-    el.innerHTML = '<div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div>';
-    return;
-  }
-  let html = '';
-  currentEvents.forEach((ev, idx) => {
-    const d = ev.beo_data;
-    const totalBottles = calcTotalBottles(d);
-    html += `<div class="collection-event-card">
-      <div class="collection-event-header">
-        <div>
-          <span class="ev-num">BEO ${idx+1}</span>
-          <span class="ev-name">${d.name}</span>
-          <span class="ev-meta">${d.date} · ${d.guests} guests · ${d.totalDrinks} drinks · ${totalBottles} bottles</span>
-        </div>
-        <div class="ev-actions">
-          <button onclick="viewSavedEvent('${ev.id}')" class="btn-sm btn-outline">View</button>
-          <button onclick="removeSavedEvent('${ev.id}')" class="btn-sm btn-red">Remove</button>
-        </div>
-      </div>
-      <div class="collection-event-body">`;
-    d.selected.forEach(c => { html += `<span class="ev-cocktail-tag">${c.name} (${c.servings})</span>`; });
-    html += '</div></div>';
-  });
-  el.innerHTML = html;
-}
-
 function calcTotalBottles(d) {
   let total = 0;
   d.selected.forEach(c => {
@@ -821,6 +799,138 @@ function calcTotalBottles(d) {
     c.recipe.ingredients.forEach(ing => { total += Math.round((ing.oz * c.servings) / ing.cs); });
   });
   return total;
+}
+
+function buildIngredientTotals() {
+  // Returns { LIQUOR: [{name, subCat, totalOz, ct, cs, bottles}], JUICE: [...], ... }
+  const cats = {};
+  currentEvents.forEach(ev => {
+    const d = ev.beo_data;
+    d.selected.forEach(c => {
+      if (!c.recipe) return;
+      c.recipe.ingredients.forEach(ing => {
+        const cat    = ing.category || 'OTHER';
+        const subCat = ing.subCat   || '';
+        const key    = ing.name.toUpperCase();
+        if (!cats[cat]) cats[cat] = {};
+        if (!cats[cat][key]) {
+          cats[cat][key] = { name: ing.name, subCat, totalOz: 0, ct: ing.ct, cs: ing.cs };
+        }
+        cats[cat][key].totalOz += ing.oz * c.servings;
+      });
+    });
+  });
+  // Convert to sorted arrays
+  const result = {};
+  Object.keys(cats).sort().forEach(cat => {
+    result[cat] = Object.values(cats[cat])
+      .map(item => ({
+        ...item,
+        totalOz: Math.round(item.totalOz * 10) / 10,
+        bottles: Math.round(item.totalOz / item.cs)
+      }))
+      .sort((a,b) => b.totalOz - a.totalOz);
+  });
+  return result;
+}
+
+function buildGarnishTotals() {
+  const garnishes = {};
+  currentEvents.forEach(ev => {
+    const d = ev.beo_data;
+    d.selected.forEach(c => {
+      if (!c.recipe) return;
+      [c.recipe.garnish1, c.recipe.garnish2].filter(g => g && g !== '/' && g !== '').forEach(g => {
+        const key = g.toUpperCase();
+        if (!garnishes[key]) garnishes[key] = { name: g, total: 0 };
+        garnishes[key].total += c.servings;
+      });
+    });
+  });
+  return Object.values(garnishes).sort((a,b) => b.total - a.total);
+}
+
+function renderCollection() {
+  const el = document.getElementById('collectionList');
+  if (!currentEvents || currentEvents.length === 0) {
+    el.innerHTML = '<div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div>';
+    return;
+  }
+
+  const catTotals  = buildIngredientTotals();
+  const garnishTot = buildGarnishTotals();
+
+  // Category display order and labels
+  const CAT_ORDER = ['LIQUOR','JUICE','PREP ITEM','NA BEV','OTHER'];
+  const CAT_LABELS = { LIQUOR: 'Weekly Liquor Totals', JUICE: 'Weekly Juice Totals', 'PREP ITEM': 'Weekly Prep Item Totals', 'NA BEV': 'Weekly NA Beverage Totals', OTHER: 'Weekly Other Totals' };
+
+  let html = '';
+
+  // ── BEO EVENT LIST ──────────────────────────────────────────
+  html += collectionSectionHdr('Events in Collection', currentEvents.length + ' BEO' + (currentEvents.length>1?'s':'') + ' · ' + currentEvents.reduce((s,ev)=>s+ev.beo_data.guests,0) + ' total guests');
+  currentEvents.forEach((ev, idx) => {
+    const d = ev.beo_data;
+    html += `<div class="collection-event-card" style="margin-bottom:8px">
+      <div class="collection-event-header">
+        <div>
+          <span class="ev-num">BEO ${idx+1}</span>
+          <span class="ev-name">${d.name}</span>
+          <span class="ev-meta">${d.date} · ${d.guests} guests · ${d.totalDrinks} drinks</span>
+        </div>
+        <div class="ev-actions">
+          <button onclick="viewSavedEvent('${ev.id}')" class="btn-sm btn-outline">View</button>
+          <button onclick="removeSavedEvent('${ev.id}')" class="btn-sm btn-red">Remove</button>
+        </div>
+      </div>
+      <div class="collection-event-body">`;
+
+    // Cocktails selected — grouped per BEO
+    html += '<div style="padding:8px 18px 4px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)">Cocktails Selected</div>';
+    html += '<div style="padding:0 18px 10px;display:flex;flex-wrap:wrap;gap:6px;">';
+    d.selected.forEach(c => { html += `<span class="ev-cocktail-tag">${c.name}</span>`; });
+    html += '</div></div></div>';
+  });
+
+  html += '<div style="height:24px"></div>';
+
+  // ── INGREDIENT TOTALS BY CATEGORY ───────────────────────────
+  CAT_ORDER.forEach(cat => {
+    if (!catTotals[cat] || catTotals[cat].length === 0) return;
+    const items = catTotals[cat];
+    const totalBottles = items.reduce((s,i) => s + i.bottles, 0);
+    html += collectionSectionHdr(CAT_LABELS[cat] || cat, items.length + ' items · ' + totalBottles + ' total containers');
+    html += '<div class="cocktail-card" style="margin-bottom:16px"><table class="ing-tbl"><thead><tr>';
+    html += '<th>Ingredient</th><th>Sub Category</th><th>Container</th><th class="r">Total Ounces</th><th class="r">Containers Needed</th>';
+    html += '</tr></thead><tbody>';
+    items.forEach((item, idx) => {
+      html += `<tr>
+        <td class="ing-name">${item.name}</td>
+        <td style="color:var(--text3);font-size:11px">${item.subCat}</td>
+        <td style="color:var(--text3);font-size:11px">${item.ct}</td>
+        <td class="r">${item.totalOz} oz</td>
+        <td class="r"><span class="bottles-badge">${item.bottles}</span></td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+  });
+
+  // ── GARNISH TOTALS ───────────────────────────────────────────
+  if (garnishTot.length > 0) {
+    html += collectionSectionHdr('Weekly Garnish Totals', garnishTot.length + ' types');
+    html += '<div class="cocktail-card" style="margin-bottom:16px"><table class="ing-tbl"><thead><tr>';
+    html += '<th>Garnish</th><th class="r">Total Pieces Needed</th>';
+    html += '</tr></thead><tbody>';
+    garnishTot.forEach(g => {
+      html += `<tr><td class="ing-name">${g.name}</td><td class="r"><span class="bottles-badge">${g.total} pcs</span></td></tr>`;
+    });
+    html += '</tbody></table></div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function collectionSectionHdr(title, sub) {
+  return `<div class="out-section-hdr" style="margin-top:0">${title} <span>${sub||''}</span></div>`;
 }
 
 function viewSavedEvent(id) {
