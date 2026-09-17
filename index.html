@@ -3,770 +3,401 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>375 Bar · BEO</title>
+<title>Beverage Log · 375 Bar</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap');
 
 :root {
-  --bg:        #0e0e0c;
-  --surface:   #161614;
-  --surface2:  #1e1e1b;
-  --surface3:  #252521;
-  --border:    #2e2e29;
-  --border2:   #3a3a34;
-  --gold:      #c8a96e;
-  --gold-dim:  #8b6f3f;
-  --gold-bg:   #1c1810;
-  --text:      #f0ece4;
-  --text2:     #a09880;
-  --text3:     #5a5648;
-  --red:       #cc4444;
-  --radius:    6px;
+  --bg:       #0e0e0c;
+  --surface:  #161614;
+  --surface2: #1e1e1b;
+  --surface3: #252521;
+  --border:   #2e2e29;
+  --border2:  #3a3a34;
+  --gold:     #c8a96e;
+  --gold-dim: #8b6f3f;
+  --gold-bg:  #1c1810;
+  --text:     #f0ece4;
+  --text2:    #a09880;
+  --text3:    #5a5648;
+  --red:      #cc4444;
+  --green:    #4a9e6a;
+  --radius:   6px;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  line-height: 1.5;
-  min-height: 100vh;
-}
-
-/* ══ SCROLLBAR ══ */
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.5; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-/* ══ PASSWORD SCREEN ══ */
-#lockScreen {
-  position: fixed; inset: 0;
+/* ══ SCREENS ══ */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ══ LOCK SCREEN ══ */
+#screenLock {
+  align-items: center; justify-content: center;
   background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  flex-direction: column;
-  gap: 0;
 }
-.lock-box {
-  width: 360px;
-  text-align: center;
-}
-.lock-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 28px;
-  font-weight: 400;
-  color: var(--text);
-  letter-spacing: 0.08em;
-  margin-bottom: 4px;
-}
-.lock-sub {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 48px;
-}
-.lock-title {
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text3);
-  margin-bottom: 16px;
-}
+.lock-box { width: 360px; text-align: center; }
+.lock-logo { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); letter-spacing: 0.08em; margin-bottom: 4px; }
+.lock-sub  { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 48px; }
+.lock-divider { width: 40px; height: 1px; background: var(--border2); margin: 0 auto 32px; }
+.lock-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); margin-bottom: 16px; }
 .lock-input {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-size: 16px;
-  font-family: inherit;
-  padding: 14px 18px;
-  text-align: center;
-  letter-spacing: 0.2em;
-  outline: none;
-  transition: border-color 0.2s;
-  margin-bottom: 12px;
+  width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius); color: var(--text); font-size: 16px;
+  font-family: inherit; padding: 14px 18px; text-align: center;
+  letter-spacing: 0.2em; outline: none; transition: border-color 0.2s; margin-bottom: 12px;
 }
 .lock-input:focus { border-color: var(--gold); }
 .lock-input.error { border-color: var(--red); }
 .lock-btn {
-  width: 100%;
-  background: var(--gold);
-  color: #0e0e0c;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 14px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.2s;
+  width: 100%; background: var(--gold); color: #0e0e0c; border: none;
+  border-radius: var(--radius); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; padding: 14px;
+  cursor: pointer; font-family: inherit; transition: background 0.2s;
 }
 .lock-btn:hover { background: #d4b87a; }
-.lock-error {
-  font-size: 11px;
-  color: var(--red);
-  margin-top: 10px;
-  height: 16px;
+.lock-error { font-size: 11px; color: var(--red); margin-top: 10px; height: 16px; }
+
+/* ══ LANDING SCREEN ══ */
+#screenLanding {
+  align-items: center; justify-content: center;
+  background: var(--bg);
 }
-.lock-divider {
-  width: 40px; height: 1px;
-  background: var(--border2);
-  margin: 32px auto;
+.landing-box { width: 440px; }
+.landing-header { text-align: center; margin-bottom: 40px; }
+.landing-header .brand { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.landing-header h1 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 400; color: var(--text); letter-spacing: 0.02em; }
+.landing-header p { font-size: 12px; color: var(--text3); margin-top: 6px; }
+.landing-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.landing-card-header { background: var(--gold-bg); border-bottom: 1px solid var(--border); padding: 12px 20px; font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+.landing-field { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; }
+.landing-field:last-of-type { border-bottom: none; }
+.landing-field label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); }
+.landing-field select, .landing-field input {
+  background: none; border: none; outline: none; color: var(--text);
+  font-size: 13px; font-family: inherit; padding: 0; width: 100%;
 }
+.landing-field select option { background: var(--surface2); }
+.landing-field-row { display: grid; grid-template-columns: 1fr 1fr; }
+.landing-field-row .landing-field:first-child { border-right: 1px solid var(--border); }
+.landing-actions { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.btn-primary { width: 100%; padding: 13px; background: var(--gold); color: #0e0e0c; border: none; border-radius: var(--radius); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+.btn-primary:hover { background: #d4b87a; }
+.btn-ghost { width: 100%; padding: 11px; background: none; color: var(--text2); border: 1px solid var(--border2); border-radius: var(--radius); font-size: 11px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.btn-ghost:hover { border-color: var(--text2); color: var(--text); }
+.week-history { margin-top: 24px; }
+.week-history-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; text-align: center; }
+.week-history-list { display: flex; flex-direction: column; gap: 6px; }
+.week-chip {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; transition: border-color 0.15s;
+}
+.week-chip:hover { border-color: var(--gold); }
+.week-chip .wc-label { font-size: 12px; color: var(--text); }
+.week-chip .wc-meta { font-size: 10px; color: var(--text3); }
 
 /* ══ APP SHELL ══ */
-#app { display: none; flex-direction: column; min-height: 100vh; }
-
-/* ══ TOP NAV ══ */
+#screenApp { flex-direction: column; }
 .topnav {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 24px; display: flex; align-items: center;
+  justify-content: space-between; height: 52px;
+  position: sticky; top: 0; z-index: 50;
 }
-.nav-brand {
-  font-family: 'Playfair Display', serif;
-  font-size: 16px;
-  letter-spacing: 0.06em;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.nav-brand .dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--gold);
-}
-.nav-tabs {
-  display: flex;
-  gap: 0;
-}
-.nav-tab {
-  padding: 0 18px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text3);
-  border: none;
-  background: none;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s;
-  font-family: inherit;
-}
+.nav-brand { font-family: 'Playfair Display', serif; font-size: 15px; letter-spacing: 0.06em; color: var(--text); display: flex; align-items: center; gap: 10px; }
+.nav-brand .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+.nav-week { font-size: 10px; color: var(--text3); letter-spacing: 0.06em; }
+.nav-tabs { display: flex; }
+.nav-tab { padding: 0 16px; height: 52px; display: flex; align-items: center; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; font-family: inherit; }
 .nav-tab:hover { color: var(--text2); }
 .nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 .nav-actions { display: flex; gap: 8px; align-items: center; }
-.btn-sm {
-  padding: 7px 14px;
-  border-radius: var(--radius);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-  border: none;
-}
-.btn-outline {
-  background: none;
-  border: 1px solid var(--border2);
-  color: var(--text2);
-}
+.btn-sm { padding: 6px 12px; border-radius: var(--radius); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: inherit; transition: all 0.15s; border: none; }
+.btn-outline { background: none; border: 1px solid var(--border2); color: var(--text2); }
 .btn-outline:hover { border-color: var(--text2); color: var(--text); }
-.btn-gold {
-  background: var(--gold);
-  color: #0e0e0c;
-  font-weight: 700;
-}
+.btn-gold { background: var(--gold); color: #0e0e0c; font-weight: 700; }
 .btn-gold:hover { background: #d4b87a; }
-
-/* ══ MAIN CONTENT ══ */
+.btn-red { background: none; border: 1px solid var(--red); color: var(--red); }
 .main { flex: 1; overflow-y: auto; }
 .pane { display: none; }
 .pane.active { display: block; }
 
-/* ══ INPUT FORM ══ */
-.form-wrap {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 40px 24px 80px;
-}
-.form-page-title {
-  margin-bottom: 32px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-.form-page-title h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  font-weight: 400;
-  color: var(--text);
-  letter-spacing: 0.02em;
-}
-.form-page-title .hint {
-  font-size: 11px;
-  color: var(--text3);
-}
-
-.form-block {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 16px;
-  overflow: hidden;
-}
-.form-block-header {
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gold);
-  background: var(--gold-bg);
-}
-
-.field-row {
-  display: grid;
-  border-bottom: 1px solid var(--border);
-}
+/* ══ FORM ══ */
+.form-wrap { max-width: 740px; margin: 0 auto; padding: 32px 24px 80px; }
+.form-page-title { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-end; }
+.form-page-title h1 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; }
+.form-page-title .hint { font-size: 10px; color: var(--text3); }
+.form-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; }
+.form-block-header { padding: 10px 18px; border-bottom: 1px solid var(--border); font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); background: var(--gold-bg); display: flex; justify-content: space-between; align-items: center; }
+.field-row { display: grid; border-bottom: 1px solid var(--border); }
 .field-row.cols-2 { grid-template-columns: 1fr 1fr; }
 .field-row.cols-1 { grid-template-columns: 1fr; }
 .field-row:last-child { border-bottom: none; }
-
-.field {
-  padding: 14px 20px;
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
+.field { padding: 12px 18px; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
 .field:last-child { border-right: none; }
-.field label {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text3);
-}
-.field input, .field select {
-  background: none;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font-size: 13px;
-  font-family: inherit;
-  padding: 0;
-  width: 100%;
-}
+.field label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); }
+.field input, .field select { background: none; border: none; outline: none; color: var(--text); font-size: 13px; font-family: inherit; padding: 0; width: 100%; }
 .field input::placeholder { color: var(--text3); }
 .field select option { background: var(--surface2); }
-
-/* Cocktail rows */
 .c-table { width: 100%; border-collapse: collapse; }
-.c-table th {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text3);
-  padding: 10px 16px;
-  text-align: left;
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-}
-.c-table td {
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-  padding: 0;
-}
+.c-table th { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); padding: 8px 14px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.c-table td { border-bottom: 1px solid var(--border); vertical-align: middle; padding: 0; }
 .c-table tr:last-child td { border-bottom: none; }
-.c-table .rnum {
-  font-size: 11px;
-  color: var(--text3);
-  text-align: center;
-  padding: 12px 16px;
-  width: 40px;
-  font-weight: 500;
-}
-.c-table select, .c-table input[type=number] {
-  width: 100%;
-  background: none;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font-size: 13px;
-  font-family: inherit;
-  padding: 12px 16px;
-  cursor: pointer;
-}
+.c-table .rnum { font-size: 11px; color: var(--text3); text-align: center; padding: 10px 14px; width: 36px; font-weight: 500; }
+.c-table select, .c-table input[type=number] { width: 100%; background: none; border: none; outline: none; color: var(--text); font-size: 13px; font-family: inherit; padding: 10px 14px; cursor: pointer; }
 .c-table select option { background: var(--surface2); }
 .c-table tr:hover td { background: var(--surface2); }
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 24px;
-}
-.btn-lg {
-  padding: 12px 28px;
-  border-radius: var(--radius);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-  border: none;
-}
+.form-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-lg { padding: 11px 24px; border-radius: var(--radius); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; font-family: inherit; transition: all 0.15s; border: none; }
 .btn-lg.gold { background: var(--gold); color: #0e0e0c; }
 .btn-lg.gold:hover { background: #d4b87a; }
-.btn-lg.ghost {
-  background: none;
-  border: 1px solid var(--border2);
-  color: var(--text2);
-}
+.btn-lg.ghost { background: none; border: 1px solid var(--border2); color: var(--text2); }
 .btn-lg.ghost:hover { border-color: var(--text2); color: var(--text); }
 
 /* ══ OUTPUT ══ */
-.out-wrap {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 24px 80px;
-}
-
-/* Output doc */
-.out-doc {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.out-doc-header {
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-  padding: 28px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-.out-doc-header .left .brand-sm {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 6px;
-}
-.out-doc-header .left h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px;
-  font-weight: 400;
-  color: var(--text);
-  letter-spacing: 0.02em;
-}
-.out-doc-header .right {
-  text-align: right;
-  font-size: 11px;
-  color: var(--text2);
-  line-height: 2;
-}
-.out-doc-header .right strong { color: var(--text); }
-
-.out-info-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-bottom: 1px solid var(--border);
-}
-.out-info-cell {
-  padding: 14px 20px;
-  border-right: 1px solid var(--border);
-}
+.out-wrap { max-width: 800px; margin: 0 auto; padding: 32px 24px 80px; }
+.out-doc { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.out-doc-header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 24px 28px; display: flex; justify-content: space-between; align-items: flex-start; }
+.out-doc-header .brand-sm { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.out-doc-header h2 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 400; color: var(--text); }
+.out-doc-header .right { text-align: right; font-size: 11px; color: var(--text2); line-height: 2; }
+.out-info-bar { display: grid; grid-template-columns: repeat(4,1fr); border-bottom: 1px solid var(--border); }
+.out-info-cell { padding: 12px 18px; border-right: 1px solid var(--border); }
 .out-info-cell:last-child { border-right: none; }
-.out-info-cell .lbl {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text3);
-  margin-bottom: 4px;
-}
-.out-info-cell .val {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-}
+.out-info-cell .lbl { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 3px; }
+.out-info-cell .val { font-size: 13px; font-weight: 500; color: var(--text); }
 .out-info-cell.gold-cell { background: var(--gold-bg); }
 .out-info-cell.gold-cell .val { color: var(--gold); font-weight: 700; }
-
-.out-body { padding: 24px 32px; }
-
-.out-section-hdr {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin: 24px 0 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+.out-body { padding: 20px 28px; }
+.out-section-hdr { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin: 20px 0 10px; display: flex; justify-content: space-between; align-items: center; }
 .out-section-hdr:first-child { margin-top: 0; }
-.out-section-hdr span {
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--text3);
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-/* Bar chips */
+.out-section-hdr span { font-size: 10px; font-weight: 400; color: var(--text3); letter-spacing: 0; text-transform: none; }
 .bar-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-.bar-chip {
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--text2);
-}
-.bar-chip .qty {
-  background: var(--gold);
-  color: #0e0e0c;
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-/* Cocktail cards */
-.cocktail-card {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 14px;
-  overflow: hidden;
-}
-.cc-head {
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--surface3);
-}
-.cc-head .cname {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 0.03em;
-}
-.cc-head .cmeta {
-  display: flex;
-  gap: 12px;
-  font-size: 11px;
-  color: var(--text2);
-  align-items: center;
-}
-.cc-head .tag {
-  background: var(--gold-bg);
-  border: 1px solid var(--gold-dim);
-  color: var(--gold);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 3px;
-}
-
+.bar-chip { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 7px 12px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; color: var(--text2); }
+.bar-chip .qty { background: var(--gold); color: #0e0e0c; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
+.cocktail-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+.cc-head { padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--surface3); }
+.cc-head .cname { font-size: 13px; font-weight: 600; color: var(--text); }
+.cc-head .cmeta { display: flex; gap: 12px; font-size: 11px; color: var(--text2); align-items: center; }
+.cc-head .tag { background: var(--gold-bg); border: 1px solid var(--gold-dim); color: var(--gold); font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; }
 .ing-tbl { width: 100%; border-collapse: collapse; }
-.ing-tbl th {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text3);
-  padding: 8px 20px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
+.ing-tbl th { font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); padding: 7px 18px; text-align: left; border-bottom: 1px solid var(--border); }
 .ing-tbl th.r { text-align: right; }
-.ing-tbl td {
-  padding: 9px 20px;
-  font-size: 12px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text2);
-}
+.ing-tbl td { padding: 8px 18px; font-size: 12px; border-bottom: 1px solid var(--border); color: var(--text2); }
 .ing-tbl tr:last-child td { border-bottom: none; }
 .ing-tbl td.ing-name { color: var(--text); font-weight: 500; }
 .ing-tbl td.r { text-align: right; }
-.bottles-badge {
-  display: inline-block;
-  background: var(--gold);
-  color: #0e0e0c;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 9px;
-  border-radius: 3px;
-  letter-spacing: 0.04em;
-}
-
-.garnish-row {
-  background: var(--gold-bg);
-  border-top: 1px solid #2a2210;
-  padding: 10px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.garnish-row .g-lbl {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--gold-dim);
-}
-.garnish-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--text2);
-}
-.garnish-item .g-count {
-  background: rgba(200,169,110,0.15);
-  color: var(--gold);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 3px;
-}
-
-.out-footer {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  color: var(--text3);
-}
-
-/* Empty state */
-.empty-out {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  color: var(--text3);
-  text-align: center;
-  gap: 12px;
-}
-.empty-out .icon { font-size: 40px; opacity: 0.3; }
+.bottles-badge { display: inline-block; background: var(--gold); color: #0e0e0c; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 3px; }
+.garnish-row { background: var(--gold-bg); border-top: 1px solid #2a2210; padding: 9px 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.garnish-row .g-lbl { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-dim); }
+.garnish-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text2); }
+.garnish-item .g-count { background: rgba(200,169,110,0.15); color: var(--gold); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+.out-footer { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); }
+.empty-out { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; color: var(--text3); text-align: center; gap: 10px; }
+.empty-out .icon { font-size: 36px; opacity: 0.3; }
 .empty-out p { font-size: 12px; line-height: 1.7; }
 
-/* ══ PRINT / PDF STYLES ══ */
+/* ══ COLLECTION ══ */
+.collection-event-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.collection-event-header { padding: 12px 18px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.collection-event-header .ev-num { font-size: 10px; color: var(--text3); font-weight: 600; margin-right: 10px; }
+.collection-event-header .ev-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.collection-event-header .ev-meta { font-size: 11px; color: var(--text3); margin-left: 10px; }
+.collection-event-header .ev-actions { display: flex; gap: 6px; }
+.collection-event-body { padding: 10px 18px; display: flex; flex-wrap: wrap; gap: 6px; }
+.ev-cocktail-tag { background: var(--surface3); border: 1px solid var(--border); border-radius: 3px; padding: 3px 9px; font-size: 11px; color: var(--text2); }
+
+/* ══ STATUS TOAST ══ */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); padding: 12px 18px; font-size: 12px; color: var(--text); z-index: 999; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.toast.show { display: block; }
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error { border-color: var(--red); color: var(--red); }
+
+/* ══ LOADING ══ */
+.loading-overlay { position: fixed; inset: 0; background: rgba(14,14,12,0.8); display: none; align-items: center; justify-content: center; z-index: 998; flex-direction: column; gap: 14px; }
+.loading-overlay.show { display: flex; }
+.spinner { width: 28px; height: 28px; border: 2px solid var(--border2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 @media print {
-  body { background: #fff; color: #000; }
-  .topnav, .form-actions, .nav-actions, #lockScreen { display: none !important; }
+  .topnav, .nav-actions, .form-actions, #screenLock, #screenLanding { display: none !important; }
   .pane { display: block !important; }
-  #pane-input { display: none !important; }
-  .out-wrap { padding: 0; max-width: 100%; }
-  .out-doc { border: none; background: #fff; }
-  .out-doc-header { background: #f5f5f5; }
-  .cocktail-card { background: #fafafa; border: 1px solid #ddd; }
-  .cc-head { background: #f0f0f0; }
-  ::-webkit-scrollbar { display: none; }
+  #pane-input, #pane-collection { display: none !important; }
 }
 </style>
 </head>
 <body>
 
-<!-- ══ LOCK SCREEN ══ -->
-<div id="lockScreen">
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div style="font-size:11px;color:var(--text3);letter-spacing:0.08em">Please wait...</div>
+</div>
+
+<!-- ══ SCREEN 1: LOCK ══ -->
+<div class="screen active" id="screenLock">
   <div class="lock-box">
-    <div class="lock-logo">375 Bar</div>
-    <div class="lock-sub">Event Operations</div>
+    <div class="lock-logo">Beverage Log</div>
+    <div class="lock-sub">Bar Operations Platform</div>
     <div class="lock-divider"></div>
-    <div class="lock-title">Enter Access Code</div>
-    <input type="password" class="lock-input" id="pwInput" placeholder="••••••••" maxlength="20" onkeydown="if(event.key==='Enter'){doLogin()}">
+    <div class="lock-label">Enter Access Code</div>
+    <input type="password" class="lock-input" id="pwInput" placeholder="••••••••" maxlength="20"
+           onkeydown="if(event.key==='Enter')doLogin()">
     <button class="lock-btn" onclick="doLogin()">Enter</button>
     <div class="lock-error" id="pwError"></div>
   </div>
 </div>
 
-<!-- ══ APP ══ -->
-<div id="app">
+<!-- ══ SCREEN 2: LANDING ══ -->
+<div class="screen" id="screenLanding">
+  <div class="landing-box">
+    <div class="landing-header">
+      <div class="brand">Beverage Log · Bar Operations</div>
+      <h1>Start a Week</h1>
+      <p>Select your venue and week to begin building your event collection</p>
+    </div>
+    <div class="landing-card">
+      <div class="landing-card-header">Session Details</div>
+      <div class="landing-field">
+        <label>Venue</label>
+        <select id="l_venue">
+          <option value="375 EVENTS">375 Events</option>
+        </select>
+      </div>
+      <div class="landing-field-row">
+        <div class="landing-field">
+          <label>Week Starting</label>
+          <input type="text" id="l_week_start" placeholder="MM/DD/YYYY">
+        </div>
+        <div class="landing-field">
+          <label>Week Ending</label>
+          <input type="text" id="l_week_end" placeholder="MM/DD/YYYY">
+        </div>
+      </div>
+    </div>
+    <div class="landing-actions">
+      <button class="btn-primary" onclick="startWeek()">Start Week →</button>
+    </div>
+    <div class="week-history" id="weekHistory" style="display:none">
+      <div class="week-history-label">Previous Weeks — click to resume</div>
+      <div class="week-history-list" id="weekHistoryList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: APP ══ -->
+<div class="screen" id="screenApp">
 
   <nav class="topnav">
-    <div class="nav-brand">
-      <div class="dot"></div>
-      375 Bar · BEO
+    <div>
+      <div class="nav-brand"><div class="dot"></div>Beverage Log</div>
+      <div class="nav-week" id="navWeekLabel"></div>
     </div>
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchPane('input')" id="tab-input">Input Form</button>
+      <button class="nav-tab active" onclick="switchPane('input')" id="tab-input">BEO Input</button>
       <button class="nav-tab" onclick="switchPane('output')" id="tab-output">Batch Output</button>
+      <button class="nav-tab" onclick="goToCollection()" id="tab-collection">Event Collection</button>
     </div>
     <div class="nav-actions">
-      <button class="btn-sm btn-outline" onclick="clearForm()">Clear Form</button>
-      <button class="btn-sm btn-gold" onclick="generateAndSwitch()">Generate Output</button>
+      <button class="btn-sm btn-outline" onclick="startNewWeek()">New Week</button>
+      <button class="btn-sm btn-gold" onclick="generateAndSave()">Generate Output</button>
     </div>
   </nav>
 
   <div class="main">
 
-    <!-- INPUT PANE -->
+    <!-- BEO INPUT -->
     <div class="pane active" id="pane-input">
     <div class="form-wrap">
-
       <div class="form-page-title">
         <h1>Banquet Event Order</h1>
-        <span class="hint">All fields used to calculate batch recipes</span>
+        <span class="hint">Output auto-saves to your event collection</span>
       </div>
 
-      <!-- Event Info -->
       <div class="form-block">
         <div class="form-block-header">Event Information</div>
         <div class="field-row cols-2">
-          <div class="field">
-            <label>Event Name</label>
-            <input type="text" id="i_name" placeholder="e.g. Smith Wedding">
-          </div>
-          <div class="field">
-            <label>Event Date</label>
-            <input type="text" id="i_date" placeholder="MM / DD / YYYY">
-          </div>
+          <div class="field"><label>Event Name</label><input type="text" id="i_name" placeholder="e.g. Smith Wedding"></div>
+          <div class="field"><label>Event Date</label><input type="text" id="i_date" placeholder="MM/DD/YYYY"></div>
         </div>
         <div class="field-row cols-2">
-          <div class="field">
-            <label>Event Time</label>
-            <input type="text" id="i_time" placeholder="e.g. 7:00 PM">
-          </div>
-          <div class="field">
-            <label>Guest Count</label>
-            <input type="number" id="i_guests" placeholder="0" min="1">
-          </div>
+          <div class="field"><label>Event Time</label><input type="text" id="i_time" placeholder="e.g. 7:00 PM"></div>
+          <div class="field"><label>Guest Count</label><input type="number" id="i_guests" placeholder="0" min="1"></div>
         </div>
         <div class="field-row cols-2">
-          <div class="field">
-            <label>Event Type</label>
-            <select id="i_type">
-              <option value="">— Select —</option>
-              <option>Corporate</option>
-              <option>Social</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Tequila Upgrade</label>
-            <select id="i_tequila">
-              <option>No</option>
-              <option>Yes</option>
-            </select>
+          <div class="field"><label>Location at Venue</label><input type="text" id="i_location" placeholder="Pool, Rooftop, Garden..."></div>
+          <div class="field"><label>Event Type</label>
+            <select id="i_type"><option value="">— Select —</option><option>Corporate</option><option>Social</option></select>
           </div>
         </div>
         <div class="field-row cols-1">
-          <div class="field">
-            <label>Location</label>
-            <input type="text" id="i_location" placeholder="Pool, Rooftop, Main Room...">
+          <div class="field"><label>Tequila Upgrade</label>
+            <select id="i_tequila"><option>No</option><option>Yes</option></select>
           </div>
         </div>
       </div>
 
-      <!-- Cocktail Selection -->
       <div class="form-block">
-        <div class="form-block-header">Cocktail Selection — Select up to 8 <span id="loadingMsg" style="font-weight:400;font-style:italic;margin-left:12px;font-size:10px;letter-spacing:0"></span></div>
+        <div class="form-block-header">
+          Cocktail Selection — Select up to 8
+          <span id="loadingMsg" style="font-weight:400;font-style:italic;font-size:10px;letter-spacing:0;color:var(--text3)"></span>
+        </div>
         <table class="c-table">
-          <thead>
-            <tr>
-              <th style="width:40px">#</th>
-              <th>Cocktail</th>
-              <th style="width:160px">Service Type</th>
-            </tr>
-          </thead>
+          <thead><tr><th style="width:36px">#</th><th>Cocktail</th><th style="width:155px">Service Type</th></tr></thead>
           <tbody id="cocktailRows"></tbody>
         </table>
       </div>
 
-      <!-- Bar Setup -->
       <div class="form-block">
         <div class="form-block-header">Bar Setup — Select up to 6</div>
         <table class="c-table">
-          <thead>
-            <tr>
-              <th style="width:40px">#</th>
-              <th>Bar Type</th>
-              <th style="width:100px">Qty</th>
-            </tr>
-          </thead>
+          <thead><tr><th style="width:36px">#</th><th>Bar Type</th><th style="width:90px">Qty</th></tr></thead>
           <tbody id="barRows"></tbody>
         </table>
       </div>
 
       <div class="form-actions">
-        <button class="btn-lg gold" onclick="generateAndSwitch()">Generate Batch Output</button>
+        <button class="btn-lg gold" onclick="generateAndSave()">Generate Batch Output</button>
         <button class="btn-lg ghost" onclick="clearForm()">Clear Form</button>
       </div>
-
     </div>
     </div>
 
-    <!-- OUTPUT PANE -->
+    <!-- BATCH OUTPUT -->
     <div class="pane" id="pane-output">
     <div class="out-wrap">
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div style="font-size:11px;color:var(--text3)" id="out-meta"></div>
         <div style="display:flex;gap:8px;">
-          <button class="btn-sm btn-outline" onclick="window.print()">🖨 Print</button>
-          <button class="btn-sm btn-gold" onclick="downloadPDF()">↓ Download PDF</button>
+          <button class="btn-sm btn-outline" onclick="downloadCurrentBEO()">↓ Download BEO PDF</button>
+          <button class="btn-sm btn-gold" onclick="goToCollection()">View Collection →</button>
         </div>
       </div>
+      <div id="outputDoc"><div class="empty-out"><div class="icon">🍸</div><p>Fill in the BEO Input form<br>and click <strong style="color:var(--text2)">Generate Batch Output</strong></p></div></div>
+    </div>
+    </div>
 
-      <div id="outputDoc">
-        <div class="empty-out">
-          <div class="icon">🍸</div>
-          <p>Fill in the event details on the Input Form<br>and click <strong style="color:var(--text2)">Generate Batch Output</strong></p>
+    <!-- EVENT COLLECTION -->
+    <div class="pane" id="pane-collection">
+    <div class="out-wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+          <div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Event Collection</div>
+          <div id="collection-label" style="font-size:13px;color:var(--text);font-weight:500;"></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-sm btn-outline" onclick="downloadAllBEOs()">↓ Download All BEOs</button>
+          <button class="btn-sm btn-gold" onclick="downloadCollectionTotals()">↓ Collection Totals PDF</button>
         </div>
       </div>
-
+      <div id="collectionList"><div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div></div>
     </div>
     </div>
 
@@ -774,91 +405,219 @@ body {
 </div>
 
 <script>
-// ══ PASSWORD ══════════════════════════════════════════════════
-// Change this to your preferred password
-const PASSWORD = "375bar2026";
+// ══ CONFIG ════════════════════════════════════════════════════
+const PASSWORD    = "375bar2026";
+const SUPABASE_URL = "https://hqicvgyqtqvwzocfqikm.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxaWN2Z3lxdHF2d3pvY2ZxaWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NjUxMjYsImV4cCI6MjEwNTI0MTEyNn0.xWe4vrhsqV2HtU-dSyqFRGYyKn4_Nf-PwYv2OFPqO7I";
+const SHEET_ID    = "1kkXEBh3ACAPsGiwl4M1Cp4tUa7UpQLfAUkgGjaggGB8";
+const SHEET_TAB   = "MASTER SHEET";
+const DRINKS_PER_GUEST = 2.2;
+const BAR_TYPES   = ["Grill Bar","Pool Bar","Sat 6ft","Sat 12ft","Sat 18ft","Passed Station"];
+const SERVICE_OPTS = ["PASSED","FEATURED","ON REQUEST","STATIONARY"];
 
+// ══ STATE ════════════════════════════════════════════════════
+let MASTER = [];
+let currentWeek = null;   // { id, venue, week_start, week_end }
+let currentEvents = [];   // events for current week
+let lastBEO = null;
+
+// ══ SUPABASE HELPERS ═════════════════════════════════════════
+async function sbFetch(path, opts) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': opts && opts.method === 'POST' ? 'return=representation' : ''
+    },
+    ...opts
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function getWeeks() {
+  return await sbFetch('weeks?order=created_at.desc');
+}
+
+async function createWeek(venue, weekStart, weekEnd) {
+  const rows = await sbFetch('weeks?venue=eq.' + encodeURIComponent(venue) +
+    '&week_start=eq.' + encodeURIComponent(weekStart) +
+    '&week_end=eq.' + encodeURIComponent(weekEnd));
+  if (rows && rows.length > 0) return rows[0];
+  const result = await sbFetch('weeks', {
+    method: 'POST',
+    body: JSON.stringify({ venue, week_start: weekStart, week_end: weekEnd })
+  });
+  return Array.isArray(result) ? result[0] : result;
+}
+
+async function getEvents(weekId) {
+  return await sbFetch('events?week_id=eq.' + weekId + '&order=created_at.asc');
+}
+
+async function saveEvent(weekId, beoData) {
+  const result = await sbFetch('events', {
+    method: 'POST',
+    body: JSON.stringify({
+      week_id: weekId,
+      event_name: beoData.name,
+      event_date: beoData.date,
+      event_time: beoData.time,
+      location: beoData.location,
+      event_type: beoData.type,
+      guest_count: beoData.guests,
+      tequila_upg: beoData.tequila,
+      total_drinks: beoData.totalDrinks,
+      beo_data: beoData
+    })
+  });
+  return Array.isArray(result) ? result[0] : result;
+}
+
+async function deleteEvent(eventId) {
+  await sbFetch('events?id=eq.' + eventId, { method: 'DELETE' });
+}
+
+// ══ LOGIN ═════════════════════════════════════════════════════
 function doLogin() {
   var val = document.getElementById('pwInput').value.trim();
   if (val === PASSWORD) {
-    document.getElementById('lockScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    loadMasterSheet();
+    showScreen('screenLanding');
+    loadWeekHistory();
   } else {
+    document.getElementById('pwInput').classList.add('error');
     document.getElementById('pwError').textContent = 'Incorrect code. Try again.';
     document.getElementById('pwInput').value = '';
-    setTimeout(function(){ document.getElementById('pwError').textContent = ''; }, 3000);
+    setTimeout(function() {
+      document.getElementById('pwInput').classList.remove('error');
+      document.getElementById('pwError').textContent = '';
+    }, 3000);
   }
 }
 
-// ══ MASTER RECIPE DATA — loaded live from Google Sheet ════════
-// Sheet ID and tab name
-const SHEET_ID  = "1kkXEBh3ACAPsGiwl4M1Cp4tUa7UpQLfAUkgGjaggGB8";
-const SHEET_TAB = "MASTER SHEET";
+// ══ SCREEN MANAGEMENT ════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
 
-let MASTER = [];  // populated by loadMasterSheet()
+function switchPane(name) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  var pane = document.getElementById('pane-' + name);
+  var tab  = document.getElementById('tab-' + name);
+  if (pane) pane.classList.add('active');
+  if (tab)  tab.classList.add('active');
+}
 
+// ══ WEEK HISTORY ═════════════════════════════════════════════
+async function loadWeekHistory() {
+  try {
+    const weeks = await getWeeks();
+    const el = document.getElementById('weekHistoryList');
+    const wrap = document.getElementById('weekHistory');
+    if (!weeks || weeks.length === 0) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    el.innerHTML = weeks.slice(0, 8).map(w => `
+      <div class="week-chip" onclick="resumeWeek(${JSON.stringify(w).replace(/"/g,'&quot;')})">
+        <div>
+          <div class="wc-label">${w.venue} · ${w.week_start} – ${w.week_end}</div>
+        </div>
+        <div class="wc-meta">Resume →</div>
+      </div>`).join('');
+  } catch(e) { console.error('loadWeekHistory:', e); }
+}
+
+async function startWeek() {
+  const venue     = document.getElementById('l_venue').value.trim();
+  const weekStart = document.getElementById('l_week_start').value.trim();
+  const weekEnd   = document.getElementById('l_week_end').value.trim();
+  if (!venue || !weekStart || !weekEnd) { showToast('Please fill in all fields', 'error'); return; }
+
+  showLoading(true);
+  try {
+    const week = await createWeek(venue, weekStart, weekEnd);
+    await loadWeek(week);
+  } catch(e) { showToast('Could not start week: ' + e.message, 'error'); }
+  showLoading(false);
+}
+
+async function resumeWeek(week) {
+  showLoading(true);
+  try { await loadWeek(week); }
+  catch(e) { showToast('Could not load week', 'error'); }
+  showLoading(false);
+}
+
+async function loadWeek(week) {
+  currentWeek = week;
+  currentEvents = await getEvents(week.id) || [];
+  document.getElementById('navWeekLabel').textContent =
+    week.venue + '  ·  ' + week.week_start + ' – ' + week.week_end;
+  document.getElementById('collection-label').textContent =
+    week.venue + ' · ' + week.week_start + ' – ' + week.week_end;
+  await loadMasterSheet();
+  showScreen('screenApp');
+  switchPane('input');
+  renderCollection();
+}
+
+function startNewWeek() {
+  currentWeek = null;
+  currentEvents = [];
+  document.getElementById('l_week_start').value = '';
+  document.getElementById('l_week_end').value = '';
+  showScreen('screenLanding');
+  loadWeekHistory();
+}
+
+// ══ MASTER SHEET ═════════════════════════════════════════════
 async function loadMasterSheet() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`;
-  showLoadingState(true);
+  const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+    '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(SHEET_TAB);
+  document.getElementById('loadingMsg').textContent = 'Loading recipes...';
   try {
     const res  = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
     const parsed = parseCSV(text);
-    if (parsed.length === 0) throw new Error('No recipes parsed — check sheet name and sharing settings');
+    if (parsed.length === 0) throw new Error('No recipes found');
     MASTER = parsed;
-    showLoadingState(false);
-    buildRows();
-  } catch (e) {
-    console.error('Sheet load error:', e);
-    showLoadingState(false, 'Could not load recipes from Google Sheets. Make sure the sheet is shared as Anyone with the link can view. Using built-in recipe list instead.');
-    MASTER = FALLBACK_RECIPES;
-    buildRows();
+    document.getElementById('loadingMsg').textContent = '';
+  } catch(e) {
+    document.getElementById('loadingMsg').textContent = '⚠ Could not load recipes — check sheet sharing';
+    console.error(e);
   }
-}
-
-function showLoadingState(loading, error) {
-  const el = document.getElementById('loadingMsg');
-  if (!el) return;
-  if (error) { el.textContent = '⚠ ' + error; el.style.color = 'var(--red)'; }
-  else if (loading) { el.textContent = 'Loading recipe data from Google Sheets...'; el.style.color = 'var(--text3)'; }
-  else { el.textContent = ''; }
+  buildRows();
 }
 
 function parseCSV(text) {
-  // Parse CSV — handles quoted fields
   const lines = text.trim().split('\n');
   const rows  = lines.map(line => {
-    const cols = [];
-    let cur = '', inQ = false;
+    const cols = []; let cur = '', inQ = false;
     for (let i = 0; i < line.length; i++) {
       const c = line[i];
       if (c === '"') { inQ = !inQ; }
       else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
       else { cur += c; }
     }
-    cols.push(cur.trim());
-    return cols;
+    cols.push(cur.trim()); return cols;
   });
-
-  // Skip header row
-  // Cols: 0=ID, 1=Cocktail, 2=Ingredient, 3=PerServing, 4=Unit,
-  //       5=Order, 6=ContainerType, 7=ContainerSize,
-  //       8=Garnish1, 9=Garnish2, 10=Glassware, 11=PopScore
   const recipes = {};
   for (let i = 1; i < rows.length; i++) {
     const r    = rows[i];
     const name = (r[1] || '').trim().toUpperCase();
     if (!name) continue;
-
     if (!recipes[name]) {
       recipes[name] = {
-        name      : name,
-        popScore  : parseFloat(r[11]) || 0.5,
-        glassware : (r[10] || '').trim(),
-        garnish1  : (r[8]  || '').trim(),
-        garnish2  : (r[9]  || '').trim(),
+        name, popScore: parseFloat(r[11]) || 0.5,
+        glassware: (r[10]||'').trim(),
+        garnish1: (r[8]||'').trim(), garnish2: (r[9]||'').trim(),
         ingredients: []
       };
     }
@@ -866,125 +625,62 @@ function parseCSV(text) {
     const cs = parseFloat(r[7]) || 1;
     if (oz > 0) {
       recipes[name].ingredients.push({
-        name: (r[2] || '').trim(),
-        oz  : oz,
-        ct  : (r[6] || '').trim(),
-        cs  : cs,
-        ord : parseInt(r[5]) || 0
+        name: (r[2]||'').trim(), oz, ct: (r[6]||'').trim(), cs, ord: parseInt(r[5])||0
       });
     }
   }
-
-  // Sort ingredients by order field within each recipe
   return Object.values(recipes).map(rec => {
-    rec.ingredients.sort((a, b) => a.ord - b.ord);
-    return rec;
-  }).sort((a, b) => a.name.localeCompare(b.name));
+    rec.ingredients.sort((a,b) => a.ord - b.ord); return rec;
+  }).sort((a,b) => a.name.localeCompare(b.name));
 }
 
-// Legacy placeholder so nothing breaks before load
-const MASTER_PLACEHOLDER = [];
-
-// Fallback recipes in case Google Sheet can't be reached
-const FALLBACK_RECIPES = [
-  {name:"MARGARITA",popScore:1,glassware:"ROCKS",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
-    {name:"PUEBLO VIEJO BLANCO",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"BOLS TRIPLE SEC",oz:0.75,ct:"LITER BOTTLE",cs:33.8},
-    {name:"AGAVE SYRUP",oz:0.25,ct:"QUART BOTTLE",cs:32},
-    {name:"LIME JUICE",oz:1,ct:"QUART BOTTLE",cs:32}]},
-  {name:"SKINNY MARG",popScore:1,glassware:"ROCKS",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
-    {name:"PUEBLO VIEJO BLANCO",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"LIME JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"BOLS TRIPLE SEC",oz:0.75,ct:"LITER BOTTLE",cs:33.8}]},
-  {name:"ESPRESSO MARTINI",popScore:1,glassware:"COUPE",garnish1:"",garnish2:"",ingredients:[
-    {name:"GREY GOOSE",oz:1.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"KAHLUA",oz:1.5,ct:"1.75L BOTTLE",cs:59.15},
-    {name:"DECAF ESPRESSO",oz:1.5,ct:"QUART BOTTLE",cs:32}]},
-  {name:"GRILL SOUR",popScore:0.8,glassware:"COUPE",garnish1:"LEMON WHEEL",garnish2:"",ingredients:[
-    {name:"BOATYARD GIN",oz:2,ct:"750ML BOTTLE",cs:25.36},
-    {name:"LEMON JUICE",oz:0.75,ct:"QUART BOTTLE",cs:32},
-    {name:"LAVENDER HONEY",oz:0.75,ct:"QUART BOTTLE",cs:32}]},
-  {name:"CLASSIC NEGRONI",popScore:0.8,glassware:"ROCKS",garnish1:"ORANGE TWIST",garnish2:"",ingredients:[
-    {name:"BOATYARD GIN",oz:1.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"CAMPARI",oz:1,ct:"LITER BOTTLE",cs:33.8},
-    {name:"COCCHI VDT",oz:1,ct:"750ML BOTTLE",cs:25.36}]},
-  {name:"COSMOPOLITAN",popScore:0.8,glassware:"COUPE",garnish1:"LIME WHEEL",garnish2:"",ingredients:[
-    {name:"GREY GOOSE",oz:2,ct:"LITER BOTTLE",cs:33.8},
-    {name:"BOLS TRIPLE SEC",oz:0.75,ct:"LITER BOTTLE",cs:33.8},
-    {name:"CRANBERRY JUICE",oz:0.5,ct:"OZ",cs:1},
-    {name:"LIME JUICE",oz:0.5,ct:"QUART BOTTLE",cs:32}]},
-  {name:"MANHATTAN",popScore:0.6,glassware:"MARTINI",garnish1:"CHERRY",garnish2:"",ingredients:[
-    {name:"WILD TURKEY RYE",oz:2.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"CARPANO ANTICA",oz:0.66,ct:"LITER BOTTLE",cs:33.8},
-    {name:"CHERRY HEERING",oz:0.33,ct:"750ML BOTTLE",cs:25.36},
-    {name:"ANGOSTURA",oz:0.042,ct:"OZ",cs:1}]},
-  {name:"ELDERFLOWER SPRITZ",popScore:0.7,glassware:"AP WINE",garnish1:"HALF LEMON WHEEL",garnish2:"",ingredients:[
-    {name:"ST GERMAIN",oz:1.5,ct:"750ML BOTTLE",cs:25.36},
-    {name:"BOLS TRIPLE SEC",oz:0.5,ct:"LITER BOTTLE",cs:33.8},
-    {name:"GIFFARD PECHE",oz:0.5,ct:"750ML BOTTLE",cs:25.36}]}
-];
-const BAR_TYPES      = ["Grill Bar","Pool Bar","Sat 6ft","Sat 12ft","Sat 18ft","Passed Station"];
-const SERVICE_OPTS   = ["PASSED","FEATURED","ON REQUEST","STATIONARY"];
-const DRINKS_PER_GUEST = 2.2;
-
-// ══ BUILD INPUT ROWS (called after MASTER loads) ═══════════════════════
+// ══ BUILD ROWS ════════════════════════════════════════════════
 function buildRows() {
-  const cocktailNames = MASTER.map(r => r.name).sort();
+  const names = MASTER.map(r => r.name);
   const ct = document.getElementById('cocktailRows');
   ct.innerHTML = '';
   for (let i = 0; i < 8; i++) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="rnum">${i+1}</td>
-      <td><select id="c${i}">
-        <option value="">— Select Cocktail —</option>
-        ${cocktailNames.map(n => `<option>${n}</option>`).join('')}
-      </select></td>
-      <td><select id="s${i}">
-        ${SERVICE_OPTS.map((s,si) => `<option${si===0?' selected':''}>${s}</option>`).join('')}
-      </select></td>`;
+    tr.innerHTML = `<td class="rnum">${i+1}</td>
+      <td><select id="c${i}"><option value="">— Select —</option>${names.map(n=>`<option>${n}</option>`).join('')}</select></td>
+      <td><select id="s${i}">${SERVICE_OPTS.map((s,si)=>`<option${si===0?' selected':''}>${s}</option>`).join('')}</select></td>`;
     ct.appendChild(tr);
   }
-
   const bt = document.getElementById('barRows');
   bt.innerHTML = '';
   for (let j = 0; j < 6; j++) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="rnum">${j+1}</td>
-      <td><select id="b${j}">
-        <option value="">— Select Bar Type —</option>
-        ${BAR_TYPES.map(b => `<option>${b}</option>`).join('')}
-      </select></td>
+    tr.innerHTML = `<td class="rnum">${j+1}</td>
+      <td><select id="b${j}"><option value="">— Select —</option>${BAR_TYPES.map(b=>`<option>${b}</option>`).join('')}</select></td>
       <td><input type="number" id="bq${j}" min="1" placeholder="—" style="text-align:center"></td>`;
     bt.appendChild(tr);
   }
 }
 
-// ══ GENERATE ══════════════════════════════════════════════════
-function generateAndSwitch() {
-  const name     = document.getElementById('i_name').value    || 'Untitled Event';
-  const date     = document.getElementById('i_date').value    || '—';
-  const time     = document.getElementById('i_time').value    || '—';
-  const guests   = parseInt(document.getElementById('i_guests').value) || 0;
-  const location = document.getElementById('i_location').value || '—';
-  const type     = document.getElementById('i_type').value    || '—';
-  const tequila  = document.getElementById('i_tequila').value;
+// ══ GENERATE + AUTO SAVE ══════════════════════════════════════
+async function generateAndSave() {
+  const name    = document.getElementById('i_name').value    || 'Untitled Event';
+  const date    = document.getElementById('i_date').value    || '—';
+  const time    = document.getElementById('i_time').value    || '—';
+  const guests  = parseInt(document.getElementById('i_guests').value) || 0;
+  const location= document.getElementById('i_location').value|| '—';
+  const type    = document.getElementById('i_type').value    || '—';
+  const tequila = document.getElementById('i_tequila').value;
 
-  if (!guests) { alert('Please enter a guest count.'); return; }
+  if (!guests) { showToast('Please enter a guest count', 'error'); return; }
 
   const selected = [];
   for (let i = 0; i < 8; i++) {
-    const cname = document.getElementById(`c${i}`).value;
-    const svc   = document.getElementById(`s${i}`).value;
+    const cname = document.getElementById('c'+i).value;
+    const svc   = document.getElementById('s'+i).value;
     if (cname) selected.push({ name: cname, service: svc, recipe: MASTER.find(r => r.name === cname) });
   }
-  if (!selected.length) { alert('Please select at least one cocktail.'); return; }
+  if (!selected.length) { showToast('Please select at least one cocktail', 'error'); return; }
 
   const bars = [];
   for (let j = 0; j < 6; j++) {
-    const btype = document.getElementById(`b${j}`).value;
-    const bqty  = parseInt(document.getElementById(`bq${j}`).value) || 1;
+    const btype = document.getElementById('b'+j).value;
+    const bqty  = parseInt(document.getElementById('bq'+j).value) || 1;
     if (btype) bars.push({ type: btype, qty: bqty });
   }
 
@@ -995,300 +691,429 @@ function generateAndSwitch() {
     c.servings = Math.round(totalDrinks * w);
   });
 
-  const beoData = { name, date, time, guests, location, type, tequila, selected, bars, totalDrinks };
-  window._lastBEO = beoData;
+  const beoData = { name, date, time, guests, location, type, tequila, selected, bars, totalDrinks,
+    venue: currentWeek ? currentWeek.venue : '375 EVENTS',
+    weekStart: currentWeek ? currentWeek.week_start : '—',
+    weekEnd: currentWeek ? currentWeek.week_end : '—' };
+
+  lastBEO = beoData;
   renderOutput(beoData);
   switchPane('output');
+
+  // Auto-save to Supabase
+  if (currentWeek) {
+    showLoading(true);
+    try {
+      const saved = await saveEvent(currentWeek.id, beoData);
+      currentEvents.push(saved);
+      renderCollection();
+      showToast('✓ ' + name + ' saved to collection', 'success');
+    } catch(e) {
+      showToast('Generated but could not save: ' + e.message, 'error');
+    }
+    showLoading(false);
+  }
 }
 
-// ══ RENDER OUTPUT ═════════════════════════════════════════════
+// ══ RENDER OUTPUT ════════════════════════════════════════════
 function renderOutput(d) {
   const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
-  document.getElementById('out-meta').textContent = `Generated ${now}`;
+  document.getElementById('out-meta').textContent = 'Generated ' + now;
 
   let html = `<div class="out-doc">
     <div class="out-doc-header">
-      <div class="left">
-        <div class="brand-sm">375 Bar Group · Batch Recipe Sheet</div>
-        <h2>${d.name}</h2>
-      </div>
-      <div class="right">
-        <strong>${d.date}</strong><br>
-        ${d.time}<br>
-        ${d.location}
-      </div>
+      <div class="left"><div class="brand-sm">375 Bar Group · Batch Recipe Sheet</div><h2>${d.name}</h2></div>
+      <div class="right"><strong>${d.date}</strong><br>${d.time}<br>${d.location}</div>
     </div>
     <div class="out-info-bar">
       <div class="out-info-cell"><div class="lbl">Guests</div><div class="val">${d.guests}</div></div>
       <div class="out-info-cell"><div class="lbl">Event Type</div><div class="val">${d.type}</div></div>
       <div class="out-info-cell"><div class="lbl">Tequila Upgrade</div><div class="val">${d.tequila}</div></div>
       <div class="out-info-cell gold-cell"><div class="lbl">Total Drinks</div><div class="val">${d.totalDrinks}</div></div>
-    </div>
-    <div class="out-body">`;
+    </div><div class="out-body">`;
 
-  if (d.bars.length) {
-    html += `<div class="out-section-hdr">Bar Setup</div><div class="bar-chips">`;
-    d.bars.forEach(b => {
-      html += `<div class="bar-chip">${b.type}<span class="qty">${b.qty}</span></div>`;
-    });
-    html += `</div>`;
+  if (d.bars && d.bars.length) {
+    html += '<div class="out-section-hdr">Bar Setup</div><div class="bar-chips">';
+    d.bars.forEach(b => { html += `<div class="bar-chip">${b.type}<span class="qty">${b.qty}</span></div>`; });
+    html += '</div>';
   }
 
-  html += `<div class="out-section-hdr">Batch Recipes <span>${d.selected.length} cocktail${d.selected.length>1?'s':''} · ${d.totalDrinks} total drinks @ ${DRINKS_PER_GUEST} per guest</span></div>`;
+  html += `<div class="out-section-hdr">Batch Recipes <span>${d.selected.length} cocktail${d.selected.length>1?'s':''} · ${d.totalDrinks} total drinks</span></div>`;
 
   d.selected.forEach(c => {
     const r = c.recipe;
-    html += `<div class="cocktail-card">
-      <div class="cc-head">
-        <span class="cname">${c.name}</span>
-        <span class="cmeta">
-          <span class="tag">${c.service}</span>
-          <span>${c.servings} servings</span>
-          ${r ? `<span style="color:var(--text3)">${r.glassware}</span>` : ''}
-        </span>
-      </div>`;
-
-    if (!r) {
-      html += `<div style="padding:12px 20px;font-size:12px;color:var(--red);">⚠ Recipe not found in master list</div></div>`;
-      return;
-    }
-
+    html += `<div class="cocktail-card"><div class="cc-head">
+      <span class="cname">${c.name}</span>
+      <span class="cmeta"><span class="tag">${c.service}</span><span>${c.servings} servings</span>${r?`<span style="color:var(--text3)">${r.glassware}</span>`:''}</span>
+    </div>`;
+    if (!r) { html += `<div style="padding:10px 18px;font-size:12px;color:var(--red)">⚠ Recipe not found</div></div>`; return; }
     html += `<table class="ing-tbl"><thead><tr>
-      <th>Ingredient</th>
-      <th class="r">Per Serving</th>
-      <th class="r">Batch Total</th>
-      <th class="r">Container</th>
-      <th class="r">Bottles</th>
+      <th>Ingredient</th><th class="r">Per Serving</th><th class="r">Batch Total</th><th class="r">Container</th><th class="r">Bottles</th>
     </tr></thead><tbody>`;
-
     r.ingredients.forEach(ing => {
       const batchOz  = ing.oz * c.servings;
       const bottlesR = Math.round(batchOz / ing.cs);
-      const batchStr = (Math.round(batchOz * 10) / 10) + ' oz';
       html += `<tr>
         <td class="ing-name">${ing.name}</td>
         <td class="r">${ing.oz} oz</td>
-        <td class="r">${batchStr}</td>
+        <td class="r">${Math.round(batchOz*10)/10} oz</td>
         <td class="r" style="font-size:11px;color:var(--text3)">${ing.ct}</td>
         <td class="r"><span class="bottles-badge">${bottlesR}</span></td>
       </tr>`;
     });
-
-    html += `</tbody></table>`;
-
+    html += '</tbody></table>';
     const garnishes = [r.garnish1, r.garnish2].filter(g => g && g !== '/' && g !== '');
     if (garnishes.length) {
-      html += `<div class="garnish-row"><span class="g-lbl">Garnish</span>`;
-      garnishes.forEach(g => {
-        html += `<div class="garnish-item">${g}<span class="g-count">${c.servings} pcs</span></div>`;
-      });
-      html += `</div>`;
+      html += '<div class="garnish-row"><span class="g-lbl">Garnish</span>';
+      garnishes.forEach(g => { html += `<div class="garnish-item">${g}<span class="g-count">${c.servings} pcs</span></div>`; });
+      html += '</div>';
     }
-    html += `</div>`;
+    html += '</div>';
   });
 
-  html += `<div class="out-footer">
-    <span>Generated ${now}</span>
-    <span>375 Bar Group · Confidential</span>
-  </div></div></div>`;
-
+  html += `<div class="out-footer"><span>Generated ${now}</span><span>375 Bar Group · Confidential</span></div>`;
+  html += '</div></div>';
   document.getElementById('outputDoc').innerHTML = html;
 }
 
-// ══ PDF DOWNLOAD ══════════════════════════════════════════════
-function downloadPDF() {
+// ══ COLLECTION ════════════════════════════════════════════════
+function goToCollection() {
+  renderCollection();
+  switchPane('collection');
+}
+
+function renderCollection() {
+  const el = document.getElementById('collectionList');
+  if (!currentEvents || currentEvents.length === 0) {
+    el.innerHTML = '<div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div>';
+    return;
+  }
+  let html = '';
+  currentEvents.forEach((ev, idx) => {
+    const d = ev.beo_data;
+    const totalBottles = calcTotalBottles(d);
+    html += `<div class="collection-event-card">
+      <div class="collection-event-header">
+        <div>
+          <span class="ev-num">BEO ${idx+1}</span>
+          <span class="ev-name">${d.name}</span>
+          <span class="ev-meta">${d.date} · ${d.guests} guests · ${d.totalDrinks} drinks · ${totalBottles} bottles</span>
+        </div>
+        <div class="ev-actions">
+          <button onclick="viewSavedEvent('${ev.id}')" class="btn-sm btn-outline">View</button>
+          <button onclick="removeSavedEvent('${ev.id}')" class="btn-sm btn-red">Remove</button>
+        </div>
+      </div>
+      <div class="collection-event-body">`;
+    d.selected.forEach(c => { html += `<span class="ev-cocktail-tag">${c.name} (${c.servings})</span>`; });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+function calcTotalBottles(d) {
+  let total = 0;
+  d.selected.forEach(c => {
+    if (!c.recipe) return;
+    c.recipe.ingredients.forEach(ing => { total += Math.round((ing.oz * c.servings) / ing.cs); });
+  });
+  return total;
+}
+
+function viewSavedEvent(id) {
+  const ev = currentEvents.find(e => e.id === id);
+  if (!ev) return;
+  lastBEO = ev.beo_data;
+  renderOutput(ev.beo_data);
+  switchPane('output');
+}
+
+async function removeSavedEvent(id) {
+  if (!confirm('Remove this event from the collection?')) return;
+  showLoading(true);
+  try {
+    await deleteEvent(id);
+    currentEvents = currentEvents.filter(e => e.id !== id);
+    renderCollection();
+    showToast('Event removed', 'success');
+  } catch(e) { showToast('Could not remove event', 'error'); }
+  showLoading(false);
+}
+
+// ══ PDF — SINGLE BEO ═════════════════════════════════════════
+function downloadCurrentBEO() {
+  if (!lastBEO) { showToast('Generate a BEO first', 'error'); return; }
+  generateBEOPDF(lastBEO);
+}
+
+function downloadAllBEOs() {
+  if (!currentEvents || currentEvents.length === 0) { showToast('No events in collection', 'error'); return; }
+  currentEvents.forEach((ev, idx) => {
+    setTimeout(() => generateBEOPDF(ev.beo_data), idx * 800);
+  });
+  showToast('Downloading ' + currentEvents.length + ' BEO PDFs...', 'success');
+}
+
+function generateBEOPDF(d) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
-
-  // Pull current output data from last generate call
-  if (!window._lastBEO) { alert('Please generate the output first.'); return; }
-  const d = window._lastBEO;
-
-  const PW = 215.9; // letter width mm
-  const PH = 279.4; // letter height mm
-  const ML = 16;    // margin left
-  const MR = 16;    // margin right
-  const CW = PW - ML - MR; // content width
+  const PW = 215.9, PH = 279.4, ML = 16, MR = 16, CW = PW - ML - MR;
   let y = 0;
 
-  // Colors — clean white PDF
-  const DARK    = [20, 20, 20];
-  const GOLD    = [20, 20, 20];
-  const TEXT    = [20, 20, 20];
-  const TEXT2   = [80, 80, 80];
-  const TEXT3   = [120, 120, 120];
-  const SURFACE = [255, 255, 255];
-  const SURF2   = [245, 245, 243];
-  const SURF3   = [235, 233, 228];
-  const GOLDBG  = [235, 233, 228];
-  const WHITE   = [255, 255, 255];
+  const DARK=[20,20,20], TEXT=[20,20,20], TEXT2=[80,80,80], TEXT3=[120,120,120];
+  const SURF2=[245,245,243], SURF3=[235,233,228], GOLDBG=[235,233,228], WHITE=[255,255,255];
 
-  function addPage() {
-    doc.addPage();
-    y = 16;
+  function addPage() { doc.addPage(); y = 16; }
+  function checkY(n) { if (y + n > PH - 16) addPage(); }
+  function rect(x,ry,w,h,color) { doc.setFillColor(...color); doc.rect(x,ry,w,h,'F'); }
+  function txt(str,x,ty,size,color,align,style) {
+    doc.setFontSize(size||10); doc.setTextColor(...(color||TEXT));
+    doc.setFont('helvetica',style||'normal');
+    doc.text(String(str),x,ty,{align:align||'left',baseline:'middle'});
   }
 
-  function checkY(needed) {
-    if (y + needed > PH - 16) addPage();
-  }
-
-  function rect(x, ry, w, h, color) {
-    doc.setFillColor(...color);
-    doc.rect(x, ry, w, h, 'F');
-  }
-
-  function text(str, x, ty, size, color, align, style) {
-    doc.setFontSize(size || 10);
-    doc.setTextColor(...(color || [240,236,228]));
-    doc.setFont('helvetica', style || 'normal');
-    doc.text(String(str), x, ty, { align: align || 'left', baseline: 'middle' });
-  }
-
-  // ── HEADER ─────────────────────────────────────────────────
-  rect(0, 0, PW, 28, [235,233,228]);
-  text('375 BAR GROUP', ML, 9, 7.5, [120,120,120], 'left', 'bold');
-  text('BATCH RECIPE SHEET', ML, 14, 7.5, [160,160,160], 'left', 'normal');
-  text(d.name.toUpperCase(), ML, 22, 13, [20,20,20], 'left', 'bold');
-  text(d.date + '  ·  ' + d.time + '  ·  ' + d.location, PW - MR, 22, 8, [100,100,100], 'right', 'normal');
+  // Header
+  rect(0,0,PW,28,SURF3);
+  txt('375 BAR GROUP',ML,9,7.5,[120,120,120],'left','bold');
+  txt('BATCH RECIPE SHEET',ML,14,7.5,[160,160,160],'left','normal');
+  txt(d.name.toUpperCase(),ML,22,13,DARK,'left','bold');
+  txt(d.date+'  ·  '+d.time+'  ·  '+d.location, PW-MR,22,8,TEXT3,'right','normal');
   y = 30;
 
-  // ── INFO BAR ───────────────────────────────────────────────
-  const infoW = CW / 4;
-  const infos = [
-    ['GUESTS', d.guests],
-    ['EVENT TYPE', d.type],
-    ['TEQUILA UPGRADE', d.tequila],
-    ['TOTAL DRINKS', d.totalDrinks]
-  ];
-  infos.forEach((inf, i) => {
-    const x = ML + i * infoW;
-    const isLast = i === 3;
-    rect(x, y, infoW, 14, isLast ? GOLDBG : SURF2);
-    text(inf[0], x + 4, y + 4.5, 6, TEXT3, 'left', 'bold');
-    text(String(inf[1]), x + 4, y + 10.5, 9, isLast ? GOLD : TEXT, 'left', 'bold');
+  // Info bar
+  const infoW = CW/4;
+  [['GUESTS',d.guests],['EVENT TYPE',d.type],['TEQUILA UPGRADE',d.tequila],['TOTAL DRINKS',d.totalDrinks]].forEach((inf,i) => {
+    const x = ML + i*infoW;
+    rect(x,y,infoW,14,i===3?GOLDBG:SURF2);
+    txt(inf[0],x+4,y+4.5,6,TEXT3,'left','bold');
+    txt(String(inf[1]),x+4,y+10.5,9,DARK,'left','bold');
   });
   y += 16;
 
-  // ── BAR SETUP ──────────────────────────────────────────────
-  if (d.bars.length) {
-    checkY(20);
-    rect(ML, y, CW, 7, SURF3);
-    text('BAR SETUP', ML + 3, y + 3.5, 7, GOLD, 'left', 'bold');
-    y += 8;
+  // Bars
+  if (d.bars && d.bars.length) {
+    checkY(20); rect(ML,y,CW,7,SURF3);
+    txt('BAR SETUP',ML+3,y+3.5,7,TEXT3,'left','bold'); y += 8;
     let bx = ML;
     d.bars.forEach(b => {
-      rect(bx, y, 40, 8, SURF2);
-      text(b.type, bx + 3, y + 4, 8, TEXT, 'left', 'normal');
-      rect(bx + 32, y + 1, 6, 6, [20,20,20]);
-      text(String(b.qty), bx + 35, y + 4, 7, [255,255,255], 'center', 'bold');
-      bx += 43;
-      if (bx > PW - MR - 40) { bx = ML; y += 10; }
-    });
-    y += 12;
+      rect(bx,y,40,8,SURF2);
+      txt(b.type,bx+3,y+4,8,DARK,'left','normal');
+      rect(bx+32,y+1,6,6,DARK);
+      txt(String(b.qty),bx+35,y+4,7,WHITE,'center','bold');
+      bx += 43; if (bx > PW-MR-40) { bx=ML; y+=10; }
+    }); y += 12;
   }
 
-  // ── COCKTAIL CARDS ─────────────────────────────────────────
-  rect(ML, y, CW, 7, SURF3);
-  text('BATCH RECIPES', ML + 3, y + 3.5, 7, GOLD, 'left', 'bold');
-  text(d.selected.length + ' cocktails  ·  ' + d.totalDrinks + ' total drinks  ·  ' + DRINKS_PER_GUEST + ' per guest', PW - MR - 3, y + 3.5, 6, TEXT3, 'right', 'normal');
+  // Recipes header
+  rect(ML,y,CW,7,SURF3);
+  txt('BATCH RECIPES',ML+3,y+3.5,7,TEXT3,'left','bold');
+  txt(d.selected.length+' cocktails · '+d.totalDrinks+' drinks · '+DRINKS_PER_GUEST+'/guest', PW-MR-3,y+3.5,6,TEXT3,'right','normal');
   y += 9;
 
   d.selected.forEach(c => {
     const r = c.recipe;
-    const ingCount = r ? r.ingredients.length : 0;
-    const garnishes = r ? [r.garnish1, r.garnish2].filter(g => g && g !== '/' && g !== '') : [];
-    const cardH = 9 + 6 + (ingCount * 7) + (garnishes.length ? 8 : 0) + 4;
-    checkY(cardH);
+    if (!r) return;
+    const garnishes = [r.garnish1,r.garnish2].filter(g=>g&&g!=='/'&&g!=='');
+    checkY(9+6+(r.ingredients.length*7)+(garnishes.length?8:0)+4);
 
-    // Card header
-    rect(ML, y, CW, 9, SURF3);
-    text(c.name, ML + 3, y + 4.5, 9, TEXT, 'left', 'bold');
-    // Service tag
-    rect(PW - MR - 48, y + 1.5, 22, 6, [220,218,213]);
-    text(c.service, PW - MR - 37, y + 4.5, 6.5, [40,40,40], 'center', 'bold');
-    text(c.servings + ' servings', PW - MR - 24, y + 4.5, 7, TEXT2, 'left', 'normal');
+    rect(ML,y,CW,9,SURF3);
+    txt(c.name,ML+3,y+4.5,9,DARK,'left','bold');
+    rect(PW-MR-48,y+1.5,22,6,GOLDBG);
+    txt(c.service,PW-MR-37,y+4.5,6.5,TEXT3,'center','bold');
+    txt(c.servings+' servings',PW-MR-24,y+4.5,7,TEXT2,'left','normal');
     y += 9;
 
-    if (!r) {
-      rect(ML, y, CW, 8, SURF2);
-      text('⚠ Recipe not found', ML + 3, y + 4, 8, [204,68,68], 'left', 'normal');
-      y += 10; return;
-    }
-
-    // Column headers
-    rect(ML, y, CW, 6, SURF2);
-    text('INGREDIENT',    ML + 3,        y + 3, 6, TEXT3, 'left',  'bold');
-    text('PER SERVING',   ML + 90,       y + 3, 6, TEXT3, 'right', 'bold');
-    text('BATCH TOTAL',   ML + 118,      y + 3, 6, TEXT3, 'right', 'bold');
-    text('CONTAINER',     ML + 153,      y + 3, 6, TEXT3, 'right', 'bold');
-    text('BOTTLES',       ML + CW - 1,   y + 3, 6, TEXT3, 'right', 'bold');
+    rect(ML,y,CW,6,SURF2);
+    txt('INGREDIENT',ML+3,y+3,6,TEXT3,'left','bold');
+    txt('PER SERVING',ML+90,y+3,6,TEXT3,'right','bold');
+    txt('BATCH TOTAL',ML+118,y+3,6,TEXT3,'right','bold');
+    txt('CONTAINER',ML+153,y+3,6,TEXT3,'right','bold');
+    txt('BOTTLES',ML+CW-1,y+3,6,TEXT3,'right','bold');
     y += 6;
 
-    // Ingredients
-    r.ingredients.forEach((ing, idx) => {
+    r.ingredients.forEach((ing,idx) => {
       const batchOz  = ing.oz * c.servings;
       const bottlesR = Math.round(batchOz / ing.cs);
-      const batchStr = (Math.round(batchOz * 10) / 10) + ' oz';
-      rect(ML, y, CW, 7, idx % 2 === 0 ? [255,255,255] : [245,245,243]);
-      text(ing.name,      ML + 3,        y + 3.5, 8, TEXT,  'left',  'normal');
-      text(ing.oz + ' oz',ML + 90,       y + 3.5, 8, TEXT2, 'right', 'normal');
-      text(batchStr,      ML + 118,      y + 3.5, 8, TEXT,  'right', 'normal');
-      text(ing.ct,        ML + 153,      y + 3.5, 7, TEXT3, 'right', 'normal');
-      // Bottle badge
-      rect(ML + CW - 14, y + 1, 13, 5, [20,20,20]);
-      text(String(bottlesR), ML + CW - 7.5, y + 3.5, 7, [255,255,255], 'center', 'bold');
+      rect(ML,y,CW,7,idx%2===0?WHITE:SURF2);
+      txt(ing.name,ML+3,y+3.5,8,DARK,'left','normal');
+      txt(ing.oz+' oz',ML+90,y+3.5,8,TEXT2,'right','normal');
+      txt((Math.round(batchOz*10)/10)+' oz',ML+118,y+3.5,8,DARK,'right','normal');
+      txt(ing.ct,ML+153,y+3.5,7,TEXT3,'right','normal');
+      rect(ML+CW-14,y+1,13,5,DARK);
+      txt(String(bottlesR),ML+CW-7.5,y+3.5,7,WHITE,'center','bold');
       y += 7;
     });
 
-    // Garnishes
     if (garnishes.length) {
-      rect(ML, y, CW, 8, GOLDBG);
-      text('GARNISH', ML + 3, y + 4, 6.5, GOLD, 'left', 'bold');
-      let gx = ML + 22;
+      rect(ML,y,CW,8,GOLDBG);
+      txt('GARNISH',ML+3,y+4,6.5,TEXT3,'left','bold');
+      let gx = ML+22;
       garnishes.forEach(g => {
-        text(g, gx, y + 4, 8, TEXT2, 'left', 'normal');
-        // Count pill
-        const tw = doc.getTextWidth(g) + 4;
-        rect(gx + tw + 2, y + 1.5, 18, 5, [220,218,213]);
-        text(c.servings + ' pcs', gx + tw + 11, y + 4, 6.5, [60,60,60], 'center', 'normal');
-        gx += tw + 24;
-      });
-      y += 8;
+        txt(g,gx,y+4,8,TEXT2,'left','normal');
+        const tw = doc.getTextWidth(g)+4;
+        rect(gx+tw+2,y+1.5,18,5,[220,218,213]);
+        txt(c.servings+' pcs',gx+tw+11,y+4,6.5,TEXT3,'center','normal');
+        gx += tw+24;
+      }); y += 8;
     }
     y += 4;
   });
 
-  // ── FOOTER ─────────────────────────────────────────────────
   checkY(10);
   const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
-  doc.setDrawColor(...TEXT3);
-  doc.setLineWidth(0.3);
-  doc.line(ML, y, PW - MR, y);
-  y += 5;
-  text('Generated ' + now, ML, y, 7, TEXT3, 'left', 'normal');
-  text('375 Bar Group · Confidential', PW - MR, y, 7, TEXT3, 'right', 'normal');
+  doc.setDrawColor(...TEXT3); doc.setLineWidth(0.3); doc.line(ML,y,PW-MR,y); y += 5;
+  txt('Generated '+now,ML,y,7,TEXT3,'left','normal');
+  txt('375 Bar Group · Confidential',PW-MR,y,7,TEXT3,'right','normal');
 
-  // Save
-  const fileName = (d.name || 'BEO').replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ /g,'_');
-  doc.save('375Bar_BEO_' + fileName + '.pdf');
+  const fname = (d.name||'BEO').replace(/[^a-zA-Z0-9 ]/g,'').trim().replace(/ /g,'_');
+  doc.save('375Bar_BEO_'+fname+'.pdf');
+}
+
+// ══ COLLECTION TOTALS PDF ════════════════════════════════════
+function downloadCollectionTotals() {
+  if (!currentEvents || currentEvents.length === 0) { showToast('No events in collection', 'error'); return; }
+
+  const spirits = {}, garnishes = {};
+  currentEvents.forEach(ev => {
+    const d = ev.beo_data;
+    d.selected.forEach(c => {
+      if (!c.recipe) return;
+      c.recipe.ingredients.forEach(ing => {
+        const bottles = Math.round((ing.oz * c.servings) / ing.cs);
+        const key = ing.name+'||'+ing.ct;
+        if (!spirits[key]) spirits[key] = { name: ing.name, ct: ing.ct, total: 0, events: [] };
+        spirits[key].total += bottles;
+        spirits[key].events.push({ name: d.name, bottles });
+      });
+      [c.recipe.garnish1, c.recipe.garnish2].filter(g=>g&&g!=='/'&&g!=='').forEach(g => {
+        if (!garnishes[g]) garnishes[g] = { name: g, total: 0, events: [] };
+        garnishes[g].total += c.servings;
+        garnishes[g].events.push({ name: d.name, qty: c.servings });
+      });
+    });
+  });
+
+  const spiritList  = Object.values(spirits).sort((a,b) => b.total - a.total);
+  const garnishList = Object.values(garnishes).sort((a,b) => b.total - a.total);
+  const totalBottles = spiritList.reduce((s,sp) => s+sp.total, 0);
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  const PW=215.9, PH=279.4, ML=16, MR=16, CW=PW-ML-MR;
+  let y = 0;
+  const DARK=[20,20,20], TEXT2=[80,80,80], TEXT3=[120,120,120];
+  const SURF2=[245,245,243], SURF3=[235,233,228], WHITE=[255,255,255];
+
+  function addPage() { doc.addPage(); y = 16; }
+  function checkY(n) { if (y+n > PH-16) addPage(); }
+  function rect(x,ry,w,h,c) { doc.setFillColor(...c); doc.rect(x,ry,w,h,'F'); }
+  function txt(str,x,ty,size,color,align,style) {
+    doc.setFontSize(size||10); doc.setTextColor(...(color||DARK));
+    doc.setFont('helvetica',style||'normal');
+    doc.text(String(str),x,ty,{align:align||'left',baseline:'middle'});
+  }
+
+  const weekLabel = currentWeek ? currentWeek.week_start+' – '+currentWeek.week_end : 'All Events';
+
+  // Header
+  rect(0,0,PW,28,SURF3);
+  txt('375 BAR GROUP · WEEKLY LIQUOR ORDER',ML,9,7.5,[120,120,120],'left','bold');
+  txt('COLLECTION TOTALS',ML,14,7.5,[160,160,160],'left','normal');
+  txt('WEEK: '+weekLabel.toUpperCase(),ML,22,12,DARK,'left','bold');
+  txt(currentEvents.length+' events · '+totalBottles+' total bottles',PW-MR,22,8,TEXT3,'right','normal');
+  y = 30;
+
+  // Event list
+  rect(ML,y,CW,7,SURF3);
+  txt('EVENTS IN THIS COLLECTION',ML+3,y+3.5,7,TEXT3,'left','bold'); y += 8;
+  currentEvents.forEach((ev,i) => {
+    const d = ev.beo_data;
+    rect(ML,y,CW,7,i%2===0?WHITE:SURF2);
+    txt((i+1)+'.  '+d.name,ML+3,y+3.5,8,DARK,'left','bold');
+    txt(d.date+'  ·  '+d.guests+' guests  ·  '+d.totalDrinks+' drinks',PW-MR-3,y+3.5,7,TEXT2,'right','normal');
+    y += 7;
+  }); y += 8;
+
+  // Spirits
+  checkY(20);
+  rect(ML,y,CW,7,SURF3);
+  txt('SPIRITS & INGREDIENTS ORDER',ML+3,y+3.5,7,TEXT3,'left','bold');
+  txt(spiritList.length+' items · '+totalBottles+' bottles total',PW-MR-3,y+3.5,6,TEXT3,'right','normal');
+  y += 8;
+
+  rect(ML,y,CW,6,SURF2);
+  txt('INGREDIENT',ML+3,y+3,6,TEXT3,'left','bold');
+  txt('CONTAINER',ML+110,y+3,6,TEXT3,'right','bold');
+  txt('TOTAL BOTTLES',ML+150,y+3,6,TEXT3,'right','bold');
+  txt('EVENT BREAKDOWN',ML+CW-1,y+3,6,TEXT3,'right','bold');
+  y += 6;
+
+  spiritList.forEach((sp,idx) => {
+    checkY(8);
+    const breakdown = sp.events.map(e=>e.name+'('+e.bottles+')').join(' · ');
+    rect(ML,y,CW,8,idx%2===0?WHITE:SURF2);
+    txt(sp.name,ML+3,y+4,8,DARK,'left','normal');
+    txt(sp.ct,ML+110,y+4,7,TEXT3,'right','normal');
+    rect(ML+152,y+1.5,12,5,DARK);
+    txt(String(sp.total),ML+158,y+4,7,WHITE,'center','bold');
+    txt(breakdown,ML+CW-1,y+4,6,TEXT3,'right','normal');
+    y += 8;
+  }); y += 8;
+
+  // Garnishes
+  if (garnishList.length) {
+    checkY(20);
+    rect(ML,y,CW,7,SURF3);
+    txt('GARNISH TOTALS',ML+3,y+3.5,7,TEXT3,'left','bold');
+    txt(garnishList.length+' types',PW-MR-3,y+3.5,6,TEXT3,'right','normal');
+    y += 8;
+
+    rect(ML,y,CW,6,SURF2);
+    txt('GARNISH',ML+3,y+3,6,TEXT3,'left','bold');
+    txt('TOTAL PIECES',ML+150,y+3,6,TEXT3,'right','bold');
+    txt('EVENT BREAKDOWN',ML+CW-1,y+3,6,TEXT3,'right','bold');
+    y += 6;
+
+    garnishList.forEach((g,idx) => {
+      checkY(8);
+      const breakdown = g.events.map(e=>e.name+'('+e.qty+')').join(' · ');
+      rect(ML,y,CW,8,idx%2===0?WHITE:SURF2);
+      txt(g.name,ML+3,y+4,8,DARK,'left','normal');
+      rect(ML+152,y+1.5,12,5,DARK);
+      txt(String(g.total),ML+158,y+4,7,WHITE,'center','bold');
+      txt(breakdown,ML+CW-1,y+4,6,TEXT3,'right','normal');
+      y += 8;
+    });
+  }
+
+  checkY(10);
+  const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+  doc.setDrawColor(...TEXT3); doc.setLineWidth(0.3); doc.line(ML,y,PW-MR,y); y+=5;
+  txt('Generated '+now,ML,y,7,TEXT3,'left','normal');
+  txt('375 Bar Group · Confidential',PW-MR,y,7,TEXT3,'right','normal');
+  doc.save('375Bar_CollectionTotals_'+weekLabel.replace(/ /g,'_')+'.pdf');
+  showToast('Collection Totals PDF downloaded', 'success');
 }
 
 // ══ CLEAR FORM ════════════════════════════════════════════════
 function clearForm() {
-  ['i_name','i_date','i_time','i_location'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('i_guests').value = '';
-  document.getElementById('i_type').value = '';
-  document.getElementById('i_tequila').value = 'No';
+  ['i_name','i_date','i_time','i_location'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('i_guests').value='';
+  document.getElementById('i_type').value='';
+  document.getElementById('i_tequila').value='No';
   buildRows();
-  switchPane('input');
 }
 
-// ══ NAVIGATION ════════════════════════════════════════════════
-function switchPane(name) {
-  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(`pane-${name}`).classList.add('active');
-  document.getElementById(`tab-${name}`).classList.add('active');
+// ══ UTILITIES ════════════════════════════════════════════════
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' '+type : '');
+  setTimeout(() => { el.className = 'toast'; }, 3500);
+}
+
+function showLoading(on) {
+  document.getElementById('loadingOverlay').classList.toggle('show', on);
 }
 </script>
 </body>
