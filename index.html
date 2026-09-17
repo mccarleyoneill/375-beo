@@ -387,17 +387,30 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     <!-- EVENT COLLECTION -->
     <div class="pane" id="pane-collection">
     <div class="out-wrap" style="max-width:960px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <div>
-          <div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Event Collection</div>
-          <div id="collection-label" style="font-size:13px;color:var(--text);font-weight:500;"></div>
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Event Collection</div>
+            <div id="collection-label" style="font-size:13px;color:var(--text);font-weight:500;"></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn-sm btn-outline" onclick="downloadAllBEOs()">↓ Download All BEOs</button>
+            <button class="btn-sm btn-gold" onclick="downloadCollectionTotals()">↓ Collection Totals PDF</button>
+            <button class="btn-sm" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;" onclick="deleteCollection()">Delete Collection</button>
+          </div>
         </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn-sm btn-outline" onclick="downloadAllBEOs()">↓ Download All BEOs</button>
-          <button class="btn-sm btn-gold" onclick="downloadCollectionTotals()">↓ Collection Totals PDF</button>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:16px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);white-space:nowrap;">Compare with week:</div>
+          <select id="compareWeekSelect" onchange="loadCompareWeek()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;flex:1;max-width:320px;">
+            <option value="">— Select a previous week —</option>
+          </select>
+          <button class="btn-sm btn-outline" onclick="clearComparison()" id="clearCompareBtn" style="display:none">✕ Clear Comparison</button>
         </div>
       </div>
-      <div id="collectionList"><div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div></div>
+      <div id="collectionWrapper" style="display:grid;grid-template-columns:1fr;gap:20px;">
+        <div id="collectionList"><div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div></div>
+        <div id="collectionCompare" style="display:none"></div>
+      </div>
     </div>
     </div>
 
@@ -507,12 +520,74 @@ function showScreen(id) {
 }
 
 function switchPane(name) {
+  if (name !== 'input') saveFormState();
   document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   var pane = document.getElementById('pane-' + name);
   var tab  = document.getElementById('tab-' + name);
   if (pane) pane.classList.add('active');
   if (tab)  tab.classList.add('active');
+  if (name === 'input') restoreFormState();
+}
+
+function saveFormState() {
+  try {
+    const state = {
+      name    : document.getElementById('i_name')    ? document.getElementById('i_name').value : '',
+      date    : document.getElementById('i_date')    ? document.getElementById('i_date').value : '',
+      time    : document.getElementById('i_time')    ? document.getElementById('i_time').value : '',
+      guests  : document.getElementById('i_guests')  ? document.getElementById('i_guests').value : '',
+      location: document.getElementById('i_location')? document.getElementById('i_location').value : '',
+      type    : document.getElementById('i_type')    ? document.getElementById('i_type').value : '',
+      tequila : document.getElementById('i_tequila') ? document.getElementById('i_tequila').value : 'No',
+      cocktails: [],
+      bars: []
+    };
+    for (let i = 0; i < 8; i++) {
+      state.cocktails.push({
+        name: document.getElementById('c'+i) ? document.getElementById('c'+i).value : '',
+        svc : document.getElementById('s'+i) ? document.getElementById('s'+i).value : 'PASSED'
+      });
+    }
+    for (let j = 0; j < 6; j++) {
+      state.bars.push({
+        type: document.getElementById('b'+j) ? document.getElementById('b'+j).value : '',
+        qty : document.getElementById('bq'+j) ? document.getElementById('bq'+j).value : ''
+      });
+    }
+    sessionStorage.setItem('beoFormState', JSON.stringify(state));
+  } catch(e) { console.warn('Could not save form state', e); }
+}
+
+function restoreFormState() {
+  try {
+    const raw = sessionStorage.getItem('beoFormState');
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    if (document.getElementById('i_name'))     document.getElementById('i_name').value     = state.name     || '';
+    if (document.getElementById('i_date'))     document.getElementById('i_date').value     = state.date     || '';
+    if (document.getElementById('i_time'))     document.getElementById('i_time').value     = state.time     || '';
+    if (document.getElementById('i_guests'))   document.getElementById('i_guests').value   = state.guests   || '';
+    if (document.getElementById('i_location')) document.getElementById('i_location').value = state.location || '';
+    if (document.getElementById('i_type'))     document.getElementById('i_type').value     = state.type     || '';
+    if (document.getElementById('i_tequila'))  document.getElementById('i_tequila').value  = state.tequila  || 'No';
+    if (state.cocktails) {
+      state.cocktails.forEach((c, i) => {
+        const cEl = document.getElementById('c'+i);
+        const sEl = document.getElementById('s'+i);
+        if (cEl) cEl.value = c.name || '';
+        if (sEl) sEl.value = c.svc  || 'PASSED';
+      });
+    }
+    if (state.bars) {
+      state.bars.forEach((b, j) => {
+        const bEl  = document.getElementById('b'+j);
+        const bqEl = document.getElementById('bq'+j);
+        if (bEl)  bEl.value  = b.type || '';
+        if (bqEl) bqEl.value = b.qty  || '';
+      });
+    }
+  } catch(e) { console.warn('Could not restore form state', e); }
 }
 
 // ══ WEEK HISTORY ═════════════════════════════════════════════
@@ -789,6 +864,7 @@ function renderOutput(d) {
 // ══ COLLECTION ════════════════════════════════════════════════
 function goToCollection() {
   renderCollection();
+  populateCompareDropdown();
   switchPane('collection');
 }
 
@@ -931,6 +1007,147 @@ function renderCollection() {
 
 function collectionSectionHdr(title, sub) {
   return `<div class="out-section-hdr" style="margin-top:0">${title} <span>${sub||''}</span></div>`;
+}
+
+// ── DELETE COLLECTION ─────────────────────────────────────────
+async function deleteCollection() {
+  if (!currentEvents || currentEvents.length === 0) { showToast('Nothing to delete', 'error'); return; }
+  const wkLabel = currentWeek ? currentWeek.week_start + ' to ' + currentWeek.week_end : '';
+  const confirmed = confirm('Deleting this collection will permanently remove all ' + currentEvents.length + ' events and all totals for week ' + wkLabel + '. This cannot be undone. Are you sure?');
+  if (!confirmed) return;
+  showLoading(true);
+  try {
+    // Delete week from Supabase — cascade deletes all events
+    await sbFetch('weeks?id=eq.' + currentWeek.id, { method: 'DELETE' });
+    currentEvents = [];
+    currentWeek   = null;
+    showToast('Collection deleted', 'success');
+    startNewWeek();
+  } catch(e) { showToast('Could not delete: ' + e.message, 'error'); }
+  showLoading(false);
+}
+
+// ── WEEK COMPARISON ───────────────────────────────────────────
+var compareEvents  = [];
+var compareWeekObj = null;
+
+async function populateCompareDropdown() {
+  try {
+    const weeks = await getWeeks();
+    const sel   = document.getElementById('compareWeekSelect');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">— Select a previous week —</option>';
+    weeks.forEach(w => {
+      if (currentWeek && w.id === currentWeek.id) return; // skip current
+      const opt = document.createElement('option');
+      opt.value = w.id;
+      opt.textContent = w.venue + ' · ' + w.week_start + ' – ' + w.week_end;
+      sel.appendChild(opt);
+    });
+  } catch(e) { console.error('populateCompareDropdown:', e); }
+}
+
+async function loadCompareWeek() {
+  const sel = document.getElementById('compareWeekSelect');
+  const id  = sel ? sel.value : '';
+  if (!id) { clearComparison(); return; }
+  showLoading(true);
+  try {
+    const evs = await getEvents(id);
+    compareEvents  = evs || [];
+    compareWeekObj = { id };
+    // Get week label from option text
+    const opt = sel.querySelector('option[value="' + id + '"]');
+    const label = opt ? opt.textContent : 'Previous Week';
+    renderComparison(label);
+    document.getElementById('clearCompareBtn').style.display = 'inline-block';
+    document.getElementById('collectionWrapper').style.gridTemplateColumns = '1fr 1fr';
+  } catch(e) { showToast('Could not load comparison week', 'error'); }
+  showLoading(false);
+}
+
+function clearComparison() {
+  compareEvents  = [];
+  compareWeekObj = null;
+  const cmp = document.getElementById('collectionCompare');
+  if (cmp) { cmp.style.display = 'none'; cmp.innerHTML = ''; }
+  const btn = document.getElementById('clearCompareBtn');
+  if (btn) btn.style.display = 'none';
+  const sel = document.getElementById('compareWeekSelect');
+  if (sel) sel.value = '';
+  document.getElementById('collectionWrapper').style.gridTemplateColumns = '1fr';
+}
+
+function renderComparison(weekLabel) {
+  const el = document.getElementById('collectionCompare');
+  if (!el) return;
+  el.style.display = 'block';
+
+  // Build totals for compare week
+  const savedEvents  = currentEvents;
+  currentEvents      = compareEvents;
+  const catTotals    = buildIngredientTotals();
+  const garnishTot   = buildGarnishTotals();
+  currentEvents      = savedEvents;
+
+  const CAT_ORDER  = ['LIQUOR','JUICE','PREP ITEM','NA BEV','OTHER'];
+  const CAT_LABELS = { LIQUOR: 'Liquor Totals', JUICE: 'Juice Totals', 'PREP ITEM': 'Prep Item Totals', 'NA BEV': 'NA Beverage Totals', OTHER: 'Other Totals' };
+
+  let html = '';
+
+  // Header
+  html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 18px;margin-bottom:16px;">';
+  html += '<div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Comparison Week</div>';
+  html += '<div style="font-size:13px;color:var(--text);font-weight:500;">' + weekLabel + '</div>';
+  html += '<div style="font-size:11px;color:var(--text3);margin-top:4px;">' + compareEvents.length + ' events · ' + compareEvents.reduce((s,ev)=>s+ev.beo_data.guests,0) + ' total guests</div>';
+  html += '</div>';
+
+  // Events
+  compareEvents.forEach((ev, idx) => {
+    const d = ev.beo_data;
+    html += `<div class="collection-event-card" style="margin-bottom:8px;opacity:0.85">
+      <div class="collection-event-header">
+        <div><span class="ev-num">BEO ${idx+1}</span><span class="ev-name">${d.name}</span><span class="ev-meta">${d.date} · ${d.guests} guests</span></div>
+      </div>
+      <div style="padding:4px 18px 10px;display:flex;flex-wrap:wrap;gap:6px;">`;
+    d.selected.forEach(c => { html += `<span class="ev-cocktail-tag">${c.name}</span>`; });
+    html += '</div></div>';
+  });
+
+  html += '<div style="height:16px"></div>';
+
+  // Category totals
+  CAT_ORDER.forEach(cat => {
+    if (!catTotals[cat] || catTotals[cat].length === 0) return;
+    const items = catTotals[cat];
+    const totalBottles = items.reduce((s,i) => s + i.bottles, 0);
+    html += collectionSectionHdr(CAT_LABELS[cat] || cat, items.length + ' items · ' + totalBottles + ' containers');
+    html += '<div class="cocktail-card" style="margin-bottom:14px"><table class="ing-tbl"><thead><tr>';
+    html += '<th>Ingredient</th><th class="r">Total oz</th><th class="r">Containers</th>';
+    html += '</tr></thead><tbody>';
+    items.forEach(item => {
+      html += `<tr>
+        <td class="ing-name">${item.name}</td>
+        <td class="r">${item.totalOz} oz</td>
+        <td class="r"><span class="bottles-badge">${item.bottles}</span></td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+  });
+
+  // Garnishes
+  if (garnishTot.length > 0) {
+    html += collectionSectionHdr('Garnish Totals', garnishTot.length + ' types');
+    html += '<div class="cocktail-card" style="margin-bottom:14px"><table class="ing-tbl"><thead><tr>';
+    html += '<th>Garnish</th><th class="r">Total Pieces</th>';
+    html += '</tr></thead><tbody>';
+    garnishTot.forEach(g => {
+      html += `<tr><td class="ing-name">${g.name}</td><td class="r"><span class="bottles-badge">${g.total} pcs</span></td></tr>`;
+    });
+    html += '</tbody></table></div>';
+  }
+
+  el.innerHTML = html;
 }
 
 function viewSavedEvent(id) {
@@ -1214,6 +1431,7 @@ function clearForm() {
   document.getElementById('i_guests').value='';
   document.getElementById('i_type').value='';
   document.getElementById('i_tequila').value='No';
+  try { sessionStorage.removeItem('beoFormState'); } catch(e) {}
   buildRows();
 }
 
