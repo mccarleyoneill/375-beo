@@ -271,14 +271,22 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
           <option value="375 EVENTS">375 Events</option>
         </select>
       </div>
-      <div class="landing-field-row">
-        <div class="landing-field">
-          <label>Week Starting</label>
-          <input type="text" id="l_week_start" placeholder="MM/DD/YYYY">
+      <!-- Week Starting -->
+      <div style="padding:10px 20px 6px;border-bottom:1px solid var(--border);">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Week Starting</div>
+        <div style="display:grid;grid-template-columns:1fr 70px 80px;gap:8px;">
+          <select id="l_start_month" onchange="updateStartDays()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:7px 8px;font-family:inherit;outline:none;"></select>
+          <select id="l_start_day"   style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:7px 8px;font-family:inherit;outline:none;"></select>
+          <select id="l_start_year"  style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:7px 8px;font-family:inherit;outline:none;"></select>
         </div>
-        <div class="landing-field">
-          <label>Week Ending</label>
-          <input type="text" id="l_week_end" placeholder="MM/DD/YYYY">
+      </div>
+      <!-- Week Ending -->
+      <div style="padding:10px 20px 14px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Week Ending</div>
+        <div style="display:grid;grid-template-columns:1fr 70px 80px;gap:8px;">
+          <select id="l_end_month" onchange="updateEndDays()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:7px 8px;font-family:inherit;outline:none;"></select>
+          <select id="l_end_day"   style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:7px 8px;font-family:inherit;outline:none;"></select>
+          <select id="l_end_year"  style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:7px 8px;font-family:inherit;outline:none;"></select>
         </div>
       </div>
     </div>
@@ -386,53 +394,35 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 
     <!-- EVENT COLLECTION -->
     <div class="pane" id="pane-collection">
-    <div class="out-wrap" style="max-width:960px">
-      <div style="margin-bottom:20px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <div>
-            <div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Event Collection</div>
-            <div id="collection-label" style="font-size:13px;color:var(--text);font-weight:500;"></div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <button class="btn-sm btn-outline" onclick="downloadAllBEOs()">↓ Download All BEOs</button>
-            <button class="btn-sm btn-gold" onclick="downloadCollectionTotals()">↓ Collection Totals PDF</button>
-            <button class="btn-sm" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;" onclick="deleteCollection()">Delete Collection</button>
-          </div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:16px;">
-          <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);white-space:nowrap;">Compare with week:</div>
-          <select id="compareWeekSelect" onchange="loadCompareWeek()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;flex:1;">
-            <option value="">— Select a previous week —</option>
-          </select>
-          <button class="btn-sm btn-outline" onclick="clearComparison()" id="clearCompareBtn" style="display:none">✕ Clear Comparison</button>
-        </div>
-        <!-- Comparison view — appears below selector when active -->
-        <div id="comparisonContainer" style="display:none;margin-top:16px;">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--border);border-radius:6px;overflow:hidden;">
-            <!-- Left header: Prior week -->
-            <div style="background:var(--surface2);padding:14px 18px;border-bottom:1px solid var(--border);">
-              <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;">◀ Prior Week</div>
-              <div id="priorWeekLabel" style="font-size:13px;font-weight:600;color:var(--text);"></div>
-              <div id="priorWeekMeta" style="font-size:11px;color:var(--text3);margin-top:2px;"></div>
-            </div>
-            <!-- Right header: Current week -->
-            <div style="background:var(--surface2);padding:14px 18px;border-bottom:1px solid var(--border);">
-              <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Current Week ▶</div>
-              <div id="currentWeekLabel" style="font-size:13px;font-weight:600;color:var(--gold);"></div>
-              <div id="currentWeekMeta" style="font-size:11px;color:var(--text3);margin-top:2px;"></div>
-            </div>
-          </div>
-          <!-- Side by side content -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;" id="comparisonBody"></div>
-        </div>
-      </div>
-      <div id="collectionWrapper">
-        <div id="collectionList"><div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div></div>
-      </div>
-    </div>
-    </div>
+    <div style="max-width:1200px;margin:0 auto;padding:32px 24px 80px;">
 
-  </div>
+      <!-- Page header -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Event Collection</div>
+          <div id="collection-label" style="font-size:20px;font-family:'Playfair Display',serif;font-weight:400;color:var(--text);"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn-sm btn-outline" onclick="downloadAllBEOs()">↓ Download All BEOs</button>
+          <button class="btn-sm btn-gold" onclick="downloadCollectionTotals()">↓ Collection Totals PDF</button>
+          <button class="btn-sm" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;" onclick="deleteCollection()">Delete Collection</button>
+        </div>
+      </div>
+
+      <!-- Compare week selector -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:14px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);white-space:nowrap;">Compare with prior week:</div>
+        <select id="compareWeekSelect" onchange="loadCompareWeek()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:7px 10px;font-family:inherit;flex:1;">
+          <option value="">— Select a prior week to compare —</option>
+        </select>
+        <button class="btn-sm btn-outline" onclick="clearComparison()" id="clearCompareBtn" style="display:none;white-space:nowrap;">✕ Clear</button>
+      </div>
+
+      <!-- Main content area: single or split -->
+      <div id="collectionMain"></div>
+
+    </div>
+    </div>
 </div>
 
 <script>
@@ -515,10 +505,90 @@ async function deleteEvent(eventId) {
 }
 
 // ══ LOGIN ═════════════════════════════════════════════════════
+// ══ DATE DROPDOWN HELPERS ════════════════════════════════════
+var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+function daysInMonth(month, year) {
+  if (month === 2) {
+    return (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 29 : 28;
+  }
+  return DAYS_IN_MONTH[month - 1];
+}
+
+function buildMonthSelect(el) {
+  el.innerHTML = '<option value="">Month</option>';
+  MONTHS.forEach(function(m, i) {
+    var opt = document.createElement('option');
+    opt.value = i + 1;
+    opt.textContent = m;
+    el.appendChild(opt);
+  });
+}
+
+function buildDaySelect(el, numDays, selected) {
+  var cur = selected || el.value;
+  el.innerHTML = '<option value="">Day</option>';
+  for (var d = 1; d <= numDays; d++) {
+    var opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    if (parseInt(cur) === d) opt.selected = true;
+    el.appendChild(opt);
+  }
+}
+
+function buildYearSelect(el) {
+  el.innerHTML = '<option value="">Year</option>';
+  for (var y = 2026; y <= 2040; y++) {
+    var opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    el.appendChild(opt);
+  }
+}
+
+function initDateDropdowns() {
+  buildMonthSelect(document.getElementById('l_start_month'));
+  buildMonthSelect(document.getElementById('l_end_month'));
+  buildDaySelect(document.getElementById('l_start_day'), 31);
+  buildDaySelect(document.getElementById('l_end_day'), 31);
+  buildYearSelect(document.getElementById('l_start_year'));
+  buildYearSelect(document.getElementById('l_end_year'));
+}
+
+function updateStartDays() {
+  var m = parseInt(document.getElementById('l_start_month').value);
+  var y = parseInt(document.getElementById('l_start_year').value) || 2026;
+  buildDaySelect(document.getElementById('l_start_day'), m ? daysInMonth(m, y) : 31);
+}
+
+function updateEndDays() {
+  var m = parseInt(document.getElementById('l_end_month').value);
+  var y = parseInt(document.getElementById('l_end_year').value) || 2026;
+  buildDaySelect(document.getElementById('l_end_day'), m ? daysInMonth(m, y) : 31);
+}
+
+function getDateString(prefix) {
+  var m = document.getElementById(prefix + '_month').value;
+  var d = document.getElementById(prefix + '_day').value;
+  var y = document.getElementById(prefix + '_year').value;
+  if (!m || !d || !y) return null;
+  return MONTHS[parseInt(m)-1] + ' ' + d + ', ' + y;
+}
+
+function clearDateDropdowns() {
+  ['l_start_month','l_start_day','l_start_year','l_end_month','l_end_day','l_end_year'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
 function doLogin() {
   var val = document.getElementById('pwInput').value.trim();
   if (val === PASSWORD) {
     showScreen('screenLanding');
+    initDateDropdowns();
     loadWeekHistory();
   } else {
     document.getElementById('pwInput').classList.add('error');
@@ -611,26 +681,30 @@ function restoreFormState() {
 // ══ WEEK HISTORY ═════════════════════════════════════════════
 async function loadWeekHistory() {
   try {
-    const weeks = await getWeeks();
-    const el = document.getElementById('weekHistoryList');
-    const wrap = document.getElementById('weekHistory');
-    if (!weeks || weeks.length === 0) { wrap.style.display = 'none'; return; }
+    var weeks = await getWeeks();
+    var el   = document.getElementById('weekHistoryList');
+    var wrap = document.getElementById('weekHistory');
+    if (!weeks || weeks.length === 0) { wrap.style.display = 'none'; el.innerHTML = ''; return; }
     wrap.style.display = 'block';
-    el.innerHTML = weeks.slice(0, 8).map(w => `
-      <div class="week-chip" onclick="resumeWeek(${JSON.stringify(w).replace(/"/g,'&quot;')})">
-        <div>
-          <div class="wc-label">${w.venue} · ${w.week_start} – ${w.week_end}</div>
-        </div>
-        <div class="wc-meta">Resume →</div>
-      </div>`).join('');
+    // Build chips using DOM to avoid quote escaping issues
+    el.innerHTML = '';
+    weeks.slice(0, 8).forEach(function(w) {
+      var chip = document.createElement('div');
+      chip.className = 'week-chip';
+      chip.innerHTML = '<div><div class="wc-label">' + w.venue + ' · ' + w.week_start + ' – ' + w.week_end + '</div></div><div class="wc-meta">Resume →</div>';
+      chip.addEventListener('click', function() { resumeWeek(w); });
+      el.appendChild(chip);
+    });
   } catch(e) { console.error('loadWeekHistory:', e); }
 }
 
 async function startWeek() {
-  const venue     = document.getElementById('l_venue').value.trim();
-  const weekStart = document.getElementById('l_week_start').value.trim();
-  const weekEnd   = document.getElementById('l_week_end').value.trim();
-  if (!venue || !weekStart || !weekEnd) { showToast('Please fill in all fields', 'error'); return; }
+  var venue     = document.getElementById('l_venue').value.trim();
+  var weekStart = getDateString('l_start');
+  var weekEnd   = getDateString('l_end');
+  if (!venue) { showToast('Please select a venue', 'error'); return; }
+  if (!weekStart) { showToast('Please complete the Week Starting date', 'error'); return; }
+  if (!weekEnd)   { showToast('Please complete the Week Ending date', 'error'); return; }
 
   showLoading(true);
   try {
@@ -685,8 +759,7 @@ function startNewWeek() {
   }
   // Clear comparison state
   clearComparison();
-  document.getElementById('l_week_start').value = '';
-  document.getElementById('l_week_end').value   = '';
+  clearDateDropdowns();
   showScreen('screenLanding');
   loadWeekHistory();
 }
@@ -902,216 +975,304 @@ function renderOutput(d) {
 }
 
 // ══ COLLECTION ════════════════════════════════════════════════
+var compareEvents  = [];
+var compareWeekObj = null;
+
 function goToCollection() {
-  renderCollection();
+  renderCollectionPage();
   populateCompareDropdown();
   switchPane('collection');
 }
 
+// ── CALCULATE TOTALS ─────────────────────────────────────────
 function calcTotalBottles(d) {
-  let total = 0;
-  d.selected.forEach(c => {
+  var total = 0;
+  d.selected.forEach(function(c) {
     if (!c.recipe) return;
-    c.recipe.ingredients.forEach(ing => { total += Math.round((ing.oz * c.servings) / ing.cs); });
+    c.recipe.ingredients.forEach(function(ing) { total += Math.round((ing.oz * c.servings) / ing.cs); });
   });
   return total;
 }
 
-function buildIngredientTotals() {
-  // Returns { LIQUOR: [{name, subCat, totalOz, ct, cs, bottles}], JUICE: [...], ... }
-  const cats = {};
-  currentEvents.forEach(ev => {
-    const d = ev.beo_data;
-    d.selected.forEach(c => {
+function buildIngredientTotals(evList) {
+  var cats = {};
+  evList.forEach(function(ev) {
+    var d = ev.beo_data;
+    d.selected.forEach(function(c) {
       if (!c.recipe) return;
-      c.recipe.ingredients.forEach(ing => {
-        const cat    = ing.category || 'OTHER';
-        const subCat = ing.subCat   || '';
-        const key    = ing.name.toUpperCase();
+      c.recipe.ingredients.forEach(function(ing) {
+        var cat    = (ing.category || 'OTHER').toUpperCase().trim();
+        var subCat = ing.subCat || '';
+        var key    = (ing.name || '').toUpperCase().trim();
         if (!cats[cat]) cats[cat] = {};
-        if (!cats[cat][key]) {
-          cats[cat][key] = { name: ing.name, subCat, totalOz: 0, ct: ing.ct, cs: ing.cs };
-        }
-        cats[cat][key].totalOz += ing.oz * c.servings;
+        if (!cats[cat][key]) cats[cat][key] = { name: ing.name, subCat: subCat, totalOz: 0, ct: ing.ct, cs: ing.cs };
+        cats[cat][key].totalOz += (ing.oz * c.servings);
       });
     });
   });
-  // Convert to sorted arrays
-  const result = {};
-  Object.keys(cats).sort().forEach(cat => {
-    result[cat] = Object.values(cats[cat])
-      .map(item => ({
-        ...item,
-        totalOz: Math.round(item.totalOz * 10) / 10,
-        bottles: Math.round(item.totalOz / item.cs)
-      }))
-      .sort((a,b) => b.totalOz - a.totalOz);
+  var result = {};
+  Object.keys(cats).sort().forEach(function(cat) {
+    result[cat] = Object.values(cats[cat]).map(function(item) {
+      return { name: item.name, subCat: item.subCat, ct: item.ct,
+               totalOz: Math.round(item.totalOz * 10) / 10,
+               bottles: Math.round(item.totalOz / item.cs) };
+    }).sort(function(a,b) { return b.totalOz - a.totalOz; });
   });
   return result;
 }
 
-function buildGarnishTotals() {
-  const garnishes = {};
-  currentEvents.forEach(ev => {
-    const d = ev.beo_data;
-    d.selected.forEach(c => {
+function buildGarnishTotals(evList) {
+  var g = {};
+  evList.forEach(function(ev) {
+    var d = ev.beo_data;
+    d.selected.forEach(function(c) {
       if (!c.recipe) return;
-      [c.recipe.garnish1, c.recipe.garnish2].filter(g => g && g !== '/' && g !== '').forEach(g => {
-        const key = g.toUpperCase();
-        if (!garnishes[key]) garnishes[key] = { name: g, total: 0 };
-        garnishes[key].total += c.servings;
+      [c.recipe.garnish1, c.recipe.garnish2].filter(function(x){return x && x !== '/' && x !== '';}).forEach(function(name) {
+        var k = name.toUpperCase().trim();
+        if (!g[k]) g[k] = { name: name, total: 0 };
+        g[k].total += c.servings;
       });
     });
   });
-  return Object.values(garnishes).sort((a,b) => b.total - a.total);
+  return Object.values(g).sort(function(a,b){return b.total-a.total;});
 }
 
-function renderCollection() {
-  const el = document.getElementById('collectionList');
+// ── MAIN RENDER ───────────────────────────────────────────────
+function renderCollectionPage() {
+  var main = document.getElementById('collectionMain');
+  if (!main) return;
+
+  // Update label
+  if (currentWeek) {
+    document.getElementById('collection-label').textContent =
+      currentWeek.venue + ' · ' + currentWeek.week_start + ' – ' + currentWeek.week_end;
+  }
+
   if (!currentEvents || currentEvents.length === 0) {
-    el.innerHTML = '<div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div>';
+    main.innerHTML = '<div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div>';
     return;
   }
 
-  const catTotals  = buildIngredientTotals();
-  const garnishTot = buildGarnishTotals();
+  var isComparing = compareEvents.length > 0;
 
-  // Category display order and labels
-  const CAT_ORDER = ['LIQUOR','JUICE','PREP ITEM','NA BEV','OTHER'];
-  const CAT_LABELS = { LIQUOR: 'Weekly Liquor Totals', JUICE: 'Weekly Juice Totals', 'PREP ITEM': 'Weekly Prep Item Totals', 'NA BEV': 'Weekly NA Beverage Totals', OTHER: 'Weekly Other Totals' };
+  if (isComparing) {
+    renderSplitView(main);
+  } else {
+    renderSingleView(main, currentEvents, false);
+  }
+}
 
-  let html = '';
+// Single column view
+function renderSingleView(container, evList, isCompare) {
+  var html = renderEventsBlock(evList);
 
-  // ── BEO EVENT LIST ──────────────────────────────────────────
-  html += collectionSectionHdr('Events in Collection', currentEvents.length + ' BEO' + (currentEvents.length>1?'s':'') + ' · ' + currentEvents.reduce((s,ev)=>s+ev.beo_data.guests,0) + ' total guests');
-  currentEvents.forEach((ev, idx) => {
-    const d = ev.beo_data;
-    html += `<div class="collection-event-card" style="margin-bottom:8px">
-      <div class="collection-event-header">
-        <div>
-          <span class="ev-num">BEO ${idx+1}</span>
-          <span class="ev-name">${d.name}</span>
-          <span class="ev-meta">${d.date} · ${d.guests} guests · ${d.totalDrinks} drinks</span>
-        </div>
-        <div class="ev-actions">
-          <button onclick="viewSavedEvent('${ev.id}')" class="btn-sm btn-outline">View</button>
-          <button onclick="removeSavedEvent('${ev.id}')" class="btn-sm btn-red">Remove</button>
-        </div>
-      </div>
-      <div class="collection-event-body">`;
+  var CAT_ORDER  = ['LIQUOR','JUICE','PREP ITEM','NA BEV','OTHER'];
+  var CAT_LABELS = {
+    'LIQUOR':    'Weekly Liquor Totals',
+    'JUICE':     'Weekly Juice Totals',
+    'PREP ITEM': 'Weekly Prep Item Totals',
+    'NA BEV':    'Weekly NA Beverage Totals',
+    'OTHER':     'Weekly Other Totals'
+  };
 
-    // Cocktails selected — grouped per BEO
-    html += '<div style="padding:8px 18px 4px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)">Cocktails Selected</div>';
-    html += '<div style="padding:0 18px 10px;display:flex;flex-wrap:wrap;gap:6px;">';
-    d.selected.forEach(c => { html += `<span class="ev-cocktail-tag">${c.name}</span>`; });
-    html += '</div></div></div>';
+  var cats    = buildIngredientTotals(evList);
+  var garnish = buildGarnishTotals(evList);
+
+  CAT_ORDER.forEach(function(cat) {
+    if (!cats[cat] || cats[cat].length === 0) return;
+    html += renderIngSection(CAT_LABELS[cat], cats[cat]);
   });
 
-  html += '<div style="height:24px"></div>';
+  if (garnish.length > 0) html += renderGarnishSection(garnish);
 
-  // ── INGREDIENT TOTALS BY CATEGORY ───────────────────────────
-  CAT_ORDER.forEach(cat => {
-    if (!catTotals[cat] || catTotals[cat].length === 0) return;
-    const items = catTotals[cat];
-    const totalBottles = items.reduce((s,i) => s + i.bottles, 0);
-    html += collectionSectionHdr(CAT_LABELS[cat] || cat, items.length + ' items · ' + totalBottles + ' total containers');
-    html += '<div class="cocktail-card" style="margin-bottom:16px"><table class="ing-tbl"><thead><tr>';
-    html += '<th>Ingredient</th><th>Sub Category</th><th>Container</th><th class="r">Total Ounces</th><th class="r">Containers Needed</th>';
-    html += '</tr></thead><tbody>';
-    items.forEach((item, idx) => {
-      html += `<tr>
-        <td class="ing-name">${item.name}</td>
-        <td style="color:var(--text3);font-size:11px">${item.subCat}</td>
-        <td style="color:var(--text3);font-size:11px">${item.ct}</td>
-        <td class="r">${item.totalOz} oz</td>
-        <td class="r"><span class="bottles-badge">${item.bottles}</span></td>
-      </tr>`;
-    });
-    html += '</tbody></table></div>';
-  });
+  container.innerHTML = html;
+}
 
-  // ── GARNISH TOTALS ───────────────────────────────────────────
-  if (garnishTot.length > 0) {
-    html += collectionSectionHdr('Weekly Garnish Totals', garnishTot.length + ' types');
-    html += '<div class="cocktail-card" style="margin-bottom:16px"><table class="ing-tbl"><thead><tr>';
-    html += '<th>Garnish</th><th class="r">Total Pieces Needed</th>';
-    html += '</tr></thead><tbody>';
-    garnishTot.forEach(g => {
-      html += `<tr><td class="ing-name">${g.name}</td><td class="r"><span class="bottles-badge">${g.total} pcs</span></td></tr>`;
-    });
-    html += '</tbody></table></div>';
+// Split view — prior week left, current week right
+function renderSplitView(container) {
+  var priorLabel   = '';
+  var currentLabel = currentWeek
+    ? currentWeek.venue + ' · ' + currentWeek.week_start + ' – ' + currentWeek.week_end : 'Current Week';
+
+  var sel = document.getElementById('compareWeekSelect');
+  if (sel && sel.value) {
+    var opt = sel.querySelector('option[value="' + sel.value + '"]');
+    if (opt) priorLabel = opt.textContent.trim();
   }
 
-  el.innerHTML = html;
+  var CAT_ORDER  = ['LIQUOR','JUICE','PREP ITEM','NA BEV','OTHER'];
+  var CAT_LABELS = {
+    'LIQUOR':    'Weekly Liquor Totals',
+    'JUICE':     'Weekly Juice Totals',
+    'PREP ITEM': 'Weekly Prep Item Totals',
+    'NA BEV':    'Weekly NA Beverage Totals',
+    'OTHER':     'Weekly Other Totals'
+  };
+
+  var priorCats    = buildIngredientTotals(compareEvents);
+  var currentCats  = buildIngredientTotals(currentEvents);
+  var priorGarnish = buildGarnishTotals(compareEvents);
+  var curGarnish   = buildGarnishTotals(currentEvents);
+
+  // Collect all categories that exist in either week
+  var allCats = [];
+  CAT_ORDER.forEach(function(cat) {
+    var p = priorCats[cat]   || [];
+    var c = currentCats[cat] || [];
+    if (p.length > 0 || c.length > 0) allCats.push(cat);
+  });
+
+  // Build HTML
+  var html = '';
+
+  // ── Column headers ──────────────────────────────────────────
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">';
+
+  // Prior week header
+  html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px 18px;">';
+  html += '<div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;">◀ Prior Week</div>';
+  html += '<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;">' + priorLabel + '</div>';
+  html += '<div style="font-size:11px;color:var(--text3);">' + compareEvents.length + ' event' + (compareEvents.length!==1?'s':'') + ' · ' + compareEvents.reduce(function(s,e){return s+e.beo_data.guests;},0) + ' total guests</div>';
+  html += '</div>';
+
+  // Current week header
+  html += '<div style="background:var(--gold-bg);border:1px solid var(--gold-dim);border-radius:6px;padding:16px 18px;">';
+  html += '<div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;">Current Week ▶</div>';
+  html += '<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;">' + currentLabel + '</div>';
+  html += '<div style="font-size:11px;color:var(--text3);">' + currentEvents.length + ' event' + (currentEvents.length!==1?'s':'') + ' · ' + currentEvents.reduce(function(s,e){return s+e.beo_data.guests;},0) + ' total guests</div>';
+  html += '</div>';
+  html += '</div>';
+
+  // ── Events side by side ──────────────────────────────────────
+  html += splitRow(
+    renderEventsBlock(compareEvents),
+    renderEventsBlock(currentEvents)
+  );
+
+  // ── Category totals side by side ─────────────────────────────
+  allCats.forEach(function(cat) {
+    var priorItems   = priorCats[cat]   || [];
+    var currentItems = currentCats[cat] || [];
+    html += splitRow(
+      renderIngSection(CAT_LABELS[cat], priorItems),
+      renderIngSection(CAT_LABELS[cat], currentItems)
+    );
+  });
+
+  // ── Garnish side by side ─────────────────────────────────────
+  if (priorGarnish.length > 0 || curGarnish.length > 0) {
+    html += splitRow(
+      renderGarnishSection(priorGarnish),
+      renderGarnishSection(curGarnish)
+    );
+  }
+
+  container.innerHTML = html;
 }
 
-function collectionSectionHdr(title, sub) {
-  return `<div class="out-section-hdr" style="margin-top:0">${title} <span>${sub||''}</span></div>`;
+function splitRow(leftHtml, rightHtml) {
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">' +
+    '<div>' + leftHtml + '</div>' +
+    '<div>' + rightHtml + '</div>' +
+    '</div>';
 }
 
-// ── DELETE COLLECTION ─────────────────────────────────────────
-async function deleteCollection() {
-  if (!currentEvents || currentEvents.length === 0) { showToast('Nothing to delete', 'error'); return; }
-  const wkLabel = currentWeek ? currentWeek.week_start + ' to ' + currentWeek.week_end : '';
-  const confirmed = confirm('Deleting this collection will permanently remove all ' + currentEvents.length + ' events and all totals for week ' + wkLabel + '. This cannot be undone. Are you sure?');
-  if (!confirmed) return;
-  showLoading(true);
-  try {
-    // Delete week from Supabase — cascade deletes all events
-    await sbFetch('weeks?id=eq.' + currentWeek.id, { method: 'DELETE' });
-    currentEvents = [];
-    currentWeek   = null;
-    showToast('Collection deleted', 'success');
-    startNewWeek();
-  } catch(e) { showToast('Could not delete: ' + e.message, 'error'); }
-  showLoading(false);
+// ── BLOCK RENDERERS ───────────────────────────────────────────
+function renderEventsBlock(evList) {
+  var html = secHdr('Events in Collection', evList.length + ' BEO' + (evList.length!==1?'s':''));
+  if (evList.length === 0) return html + '<div style="font-size:12px;color:var(--text3);padding:12px 0">No events</div>';
+  evList.forEach(function(ev, idx) {
+    var d = ev.beo_data;
+    var isCurrent = currentEvents.some(function(e){return e.id===ev.id;});
+    html += '<div class="collection-event-card" style="margin-bottom:8px;">';
+    html += '<div class="collection-event-header">';
+    html += '<div><span class="ev-num">BEO ' + (idx+1) + '</span><span class="ev-name">' + d.name + '</span><span class="ev-meta">' + d.date + ' · ' + d.guests + ' guests · ' + d.totalDrinks + ' drinks</span></div>';
+    if (isCurrent) {
+      html += '<div class="ev-actions">';
+      html += '<button onclick="viewSavedEvent(\'' + ev.id + '\')" class="btn-sm btn-outline">View</button>';
+      html += '<button onclick="removeSavedEvent(\'' + ev.id + '\')" class="btn-sm btn-red">Remove</button>';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '<div style="padding:6px 18px 10px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;">Cocktails Selected</div>';
+    html += '<div style="padding:0 18px 10px;display:flex;flex-wrap:wrap;gap:5px;">';
+    d.selected.forEach(function(c){html += '<span class="ev-cocktail-tag">' + c.name + '</span>';});
+    html += '</div></div>';
+  });
+  return html;
 }
 
-// ── WEEK COMPARISON ───────────────────────────────────────────
-var compareEvents  = [];
-var compareWeekObj = null;
+function renderIngSection(title, items) {
+  var totalContainers = items.reduce(function(s,i){return s+i.bottles;},0);
+  var html = secHdr(title, items.length + ' items · ' + totalContainers + ' containers');
+  if (items.length === 0) return html + '<div style="font-size:12px;color:var(--text3);padding:8px 0;">None this week</div>';
+  html += '<div class="cocktail-card"><table class="ing-tbl"><thead><tr>';
+  html += '<th>Ingredient</th><th>Sub Cat</th><th>Container</th><th class="r">Total oz</th><th class="r">Qty</th>';
+  html += '</tr></thead><tbody>';
+  items.forEach(function(item) {
+    html += '<tr><td class="ing-name">' + item.name + '</td>';
+    html += '<td style="font-size:10px;color:var(--text3);">' + (item.subCat||'—') + '</td>';
+    html += '<td style="font-size:10px;color:var(--text3);">' + (item.ct||'—') + '</td>';
+    html += '<td class="r">' + item.totalOz + ' oz</td>';
+    html += '<td class="r"><span class="bottles-badge">' + item.bottles + '</span></td></tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
 
+function renderGarnishSection(garnishList) {
+  var html = secHdr('Weekly Garnish Totals', garnishList.length + ' types');
+  if (!garnishList || garnishList.length === 0) return html + '<div style="font-size:12px;color:var(--text3);padding:8px 0;">None this week</div>';
+  html += '<div class="cocktail-card"><table class="ing-tbl"><thead><tr>';
+  html += '<th>Garnish</th><th class="r">Total Pieces</th>';
+  html += '</tr></thead><tbody>';
+  garnishList.forEach(function(g){
+    html += '<tr><td class="ing-name">' + g.name + '</td><td class="r"><span class="bottles-badge">' + g.total + ' pcs</span></td></tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function secHdr(title, sub) {
+  return '<div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;">' +
+    '<span>' + title + '</span>' +
+    (sub ? '<span style="font-size:10px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">' + sub + '</span>' : '') +
+    '</div>';
+}
+
+// ── COMPARE DROPDOWN ─────────────────────────────────────────
 async function populateCompareDropdown() {
   try {
-    const weeks = await getWeeks();
-    const sel   = document.getElementById('compareWeekSelect');
+    var weeks = await getWeeks();
+    var sel   = document.getElementById('compareWeekSelect');
     if (!sel) return;
-    sel.innerHTML = '<option value="">— Select a previous week to compare —</option>';
-    if (!weeks || weeks.length === 0) {
-      sel.innerHTML += '<option disabled>No previous weeks found</option>';
-      return;
-    }
+    sel.innerHTML = '<option value="">— Select a prior week to compare —</option>';
+    if (!weeks || weeks.length === 0) return;
     var added = 0;
     weeks.forEach(function(w) {
-      if (currentWeek && w.id === currentWeek.id) return; // skip current week
+      if (currentWeek && w.id === currentWeek.id) return;
       var opt = document.createElement('option');
-      opt.value = w.id;
+      opt.value       = w.id;
       opt.textContent = w.venue + '  ·  ' + w.week_start + ' – ' + w.week_end;
       sel.appendChild(opt);
       added++;
     });
-    if (added === 0) {
-      sel.innerHTML += '<option disabled>No other weeks to compare</option>';
-    }
-  } catch(e) {
-    console.error('populateCompareDropdown:', e);
-    showToast('Could not load previous weeks', 'error');
-  }
+    if (added === 0) sel.innerHTML += '<option disabled>No other weeks yet</option>';
+  } catch(e) { console.error('populateCompareDropdown:', e); }
 }
 
 async function loadCompareWeek() {
-  const sel = document.getElementById('compareWeekSelect');
-  const id  = sel ? sel.value : '';
+  var sel = document.getElementById('compareWeekSelect');
+  var id  = sel ? sel.value : '';
   if (!id) { clearComparison(); return; }
   showLoading(true);
   try {
-    const evs = await getEvents(id);
+    var evs = await getEvents(id);
     compareEvents  = evs || [];
-    compareWeekObj = { id };
-    const opt   = sel.querySelector('option[value="' + id + '"]');
-    const label = opt ? opt.textContent.trim() : 'Prior Week';
-    renderComparison(label);
-    document.getElementById('clearCompareBtn').style.display = 'inline-block';
+    compareWeekObj = { id: id };
+    var btn = document.getElementById('clearCompareBtn');
+    if (btn) btn.style.display = 'inline-block';
+    renderCollectionPage();
   } catch(e) { showToast('Could not load comparison week', 'error'); }
   showLoading(false);
 }
@@ -1119,142 +1280,16 @@ async function loadCompareWeek() {
 function clearComparison() {
   compareEvents  = [];
   compareWeekObj = null;
-  var ctr = document.getElementById('comparisonContainer');
-  if (ctr) ctr.style.display = 'none';
   var btn = document.getElementById('clearCompareBtn');
   if (btn) btn.style.display = 'none';
   var sel = document.getElementById('compareWeekSelect');
   if (sel) sel.value = '';
+  renderCollectionPage();
 }
 
-function buildTotalsForEvents(evList) {
-  var savedEvents = currentEvents;
-  currentEvents   = evList;
-  var cats    = buildIngredientTotals();
-  var garnish = buildGarnishTotals();
-  currentEvents   = savedEvents;
-  return { cats: cats, garnish: garnish };
-}
-
-function renderComparison(priorLabel) {
-  var ctr = document.getElementById('comparisonContainer');
-  if (!ctr) return;
-  ctr.style.display = 'block';
-
-  // Build totals for both weeks
-  var priorTotals   = buildTotalsForEvents(compareEvents);
-  var currentTotals = buildTotalsForEvents(currentEvents);
-
-  var currentLabel = currentWeek
-    ? currentWeek.venue + '  ·  ' + currentWeek.week_start + ' – ' + currentWeek.week_end
-    : 'Current Week';
-
-  // Set header labels
-  document.getElementById('priorWeekLabel').textContent   = priorLabel;
-  document.getElementById('currentWeekLabel').textContent = currentLabel;
-  document.getElementById('priorWeekMeta').textContent    =
-    compareEvents.length + ' event' + (compareEvents.length!==1?'s':'') + '  ·  ' +
-    compareEvents.reduce(function(s,ev){return s+ev.beo_data.guests;},0) + ' total guests';
-  document.getElementById('currentWeekMeta').textContent  =
-    currentEvents.length + ' event' + (currentEvents.length!==1?'s':'') + '  ·  ' +
-    currentEvents.reduce(function(s,ev){return s+ev.beo_data.guests;},0) + ' total guests';
-
-  var CAT_ORDER  = ['LIQUOR','JUICE','PREP ITEM','NA BEV','OTHER'];
-  var CAT_LABELS = { LIQUOR:'Weekly Liquor Totals', JUICE:'Weekly Juice Totals', 'PREP ITEM':'Weekly Prep Totals', 'NA BEV':'Weekly NA Bev Totals', OTHER:'Other Totals' };
-
-  var body = document.getElementById('comparisonBody');
-  body.innerHTML = '';
-
-  // Events sections side by side
-  body.innerHTML += compareSectionRow(
-    renderCompareEvents(compareEvents),
-    renderCompareEvents(currentEvents)
-  );
-
-  // Category sections
-  CAT_ORDER.forEach(function(cat) {
-    var priorItems   = priorTotals.cats[cat]   || [];
-    var currentItems = currentTotals.cats[cat] || [];
-    if (priorItems.length === 0 && currentItems.length === 0) return;
-    var label = CAT_LABELS[cat] || cat;
-    body.innerHTML += compareSectionRow(
-      renderCompareIngTable(priorItems, label),
-      renderCompareIngTable(currentItems, label)
-    );
-  });
-
-  // Garnish sections
-  if (priorTotals.garnish.length > 0 || currentTotals.garnish.length > 0) {
-    body.innerHTML += compareSectionRow(
-      renderCompareGarnishTable(priorTotals.garnish),
-      renderCompareGarnishTable(currentTotals.garnish)
-    );
-  }
-}
-
-function compareSectionRow(leftHtml, rightHtml) {
-  return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px 16px;">' + leftHtml + '</div>' +
-         '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:14px 16px;">' + rightHtml + '</div>';
-}
-
-function renderCompareEvents(evList) {
-  if (evList.length === 0) return '<div style="font-size:11px;color:var(--text3);padding:8px 0">No events</div>';
-  var html = '<div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Events</div>';
-  evList.forEach(function(ev, idx) {
-    var d = ev.beo_data;
-    html += '<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);">';
-    html += '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">BEO ' + (idx+1) + ' · ' + d.name + '</div>';
-    html += '<div style="font-size:10px;color:var(--text3);margin-bottom:6px;">' + d.date + '  ·  ' + d.guests + ' guests  ·  ' + d.totalDrinks + ' drinks</div>';
-    html += '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
-    d.selected.forEach(function(c) { html += '<span style="background:var(--surface3);border:1px solid var(--border);border-radius:3px;padding:2px 7px;font-size:10px;color:var(--text2);">' + c.name + '</span>'; });
-    html += '</div></div>';
-  });
-  return html;
-}
-
-function renderCompareIngTable(items, label) {
-  var totalContainers = items.reduce(function(s,i){return s+i.bottles;},0);
-  var html = '<div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">' + label + (items.length ? ' · ' + totalContainers + ' containers' : '') + '</div>';
-  if (items.length === 0) return html + '<div style="font-size:11px;color:var(--text3);padding:4px 0">None</div>';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
-  html += '<thead><tr style="border-bottom:1px solid var(--border);">';
-  html += '<th style="text-align:left;padding:5px 4px 5px 0;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">Ingredient</th>';
-  html += '<th style="text-align:right;padding:5px 0;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">oz</th>';
-  html += '<th style="text-align:right;padding:5px 0 5px 8px;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">Containers</th>';
-  html += '</tr></thead><tbody>';
-  items.forEach(function(item, idx) {
-    var bg = idx%2===0 ? '' : 'background:rgba(255,255,255,0.02);';
-    html += '<tr style="' + bg + 'border-bottom:1px solid var(--border);">';
-    html += '<td style="padding:6px 4px 6px 0;font-weight:500;color:var(--text);">' + item.name + '</td>';
-    html += '<td style="text-align:right;padding:6px 0;color:var(--text2);">' + item.totalOz + '</td>';
-    html += '<td style="text-align:right;padding:6px 0 6px 8px;"><span style="background:var(--gold);color:#0e0e0c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;">' + item.bottles + '</span></td>';
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  return html;
-}
-
-function renderCompareGarnishTable(garnishList) {
-  var html = '<div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Weekly Garnish Totals</div>';
-  if (!garnishList || garnishList.length === 0) return html + '<div style="font-size:11px;color:var(--text3);padding:4px 0">None</div>';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
-  html += '<thead><tr style="border-bottom:1px solid var(--border);">';
-  html += '<th style="text-align:left;padding:5px 4px 5px 0;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">Garnish</th>';
-  html += '<th style="text-align:right;padding:5px 0 5px 8px;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">Total Pieces</th>';
-  html += '</tr></thead><tbody>';
-  garnishList.forEach(function(g, idx) {
-    var bg = idx%2===0 ? '' : 'background:rgba(255,255,255,0.02);';
-    html += '<tr style="' + bg + 'border-bottom:1px solid var(--border);">';
-    html += '<td style="padding:6px 4px 6px 0;font-weight:500;color:var(--text);">' + g.name + '</td>';
-    html += '<td style="text-align:right;padding:6px 0 6px 8px;"><span style="background:var(--gold);color:#0e0e0c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;">' + g.total + ' pcs</span></td>';
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  return html;
-}
-
+// ── VIEW / REMOVE EVENTS ──────────────────────────────────────
 function viewSavedEvent(id) {
-  const ev = currentEvents.find(e => e.id === id);
+  var ev = currentEvents.find(function(e){return e.id===id;});
   if (!ev) return;
   lastBEO = ev.beo_data;
   renderOutput(ev.beo_data);
@@ -1266,14 +1301,46 @@ async function removeSavedEvent(id) {
   showLoading(true);
   try {
     await deleteEvent(id);
-    currentEvents = currentEvents.filter(e => e.id !== id);
-    renderCollection();
-    // Also refresh the compare dropdown so it reflects current state
+    currentEvents = currentEvents.filter(function(e){return e.id!==id;});
+    renderCollectionPage();
     await populateCompareDropdown();
     showToast('Event removed', 'success');
   } catch(e) { showToast('Could not remove event', 'error'); }
   showLoading(false);
 }
+
+// ── DELETE COLLECTION ─────────────────────────────────────────
+async function deleteCollection() {
+  // Allow deletion even if no events — week record may still exist
+  if (!currentWeek) { showToast('No active collection to delete', 'error'); return; }
+  var wkLabel = currentWeek.week_start + ' – ' + currentWeek.week_end;
+  var evCount  = currentEvents ? currentEvents.length : 0;
+  if (!confirm('Deleting this collection will permanently remove ' + evCount + ' event(s) and all totals for week ' + wkLabel + '. This cannot be undone. Are you sure?')) return;
+  showLoading(true);
+  try {
+    // First delete all events for this week explicitly
+    await sbFetch('events?week_id=eq.' + currentWeek.id, { method: 'DELETE' });
+    // Then delete the week record itself
+    await sbFetch('weeks?id=eq.' + currentWeek.id, { method: 'DELETE' });
+    currentEvents = [];
+    currentWeek   = null;
+    try { sessionStorage.removeItem('beoFormState'); } catch(e2) {}
+    showLoading(false);
+    showToast('Collection deleted', 'success');
+    // Go back to landing and reload history fresh from DB
+    clearDateDropdowns();
+    clearComparison();
+    showScreen('screenLanding');
+    await loadWeekHistory();
+  } catch(e) {
+    showLoading(false);
+    showToast('Could not delete: ' + e.message, 'error');
+  }
+}
+
+// ── RENDER COLLECTION (called from other places) ──────────────
+function renderCollection() { renderCollectionPage(); }
+
 
 // ══ PDF — SINGLE BEO ═════════════════════════════════════════
 function downloadCurrentBEO() {
