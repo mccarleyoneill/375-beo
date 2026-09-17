@@ -401,15 +401,33 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
         </div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:16px;">
           <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);white-space:nowrap;">Compare with week:</div>
-          <select id="compareWeekSelect" onchange="loadCompareWeek()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;flex:1;max-width:320px;">
+          <select id="compareWeekSelect" onchange="loadCompareWeek()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;flex:1;">
             <option value="">— Select a previous week —</option>
           </select>
           <button class="btn-sm btn-outline" onclick="clearComparison()" id="clearCompareBtn" style="display:none">✕ Clear Comparison</button>
         </div>
+        <!-- Comparison view — appears below selector when active -->
+        <div id="comparisonContainer" style="display:none;margin-top:16px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--border);border-radius:6px;overflow:hidden;">
+            <!-- Left header: Prior week -->
+            <div style="background:var(--surface2);padding:14px 18px;border-bottom:1px solid var(--border);">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;">◀ Prior Week</div>
+              <div id="priorWeekLabel" style="font-size:13px;font-weight:600;color:var(--text);"></div>
+              <div id="priorWeekMeta" style="font-size:11px;color:var(--text3);margin-top:2px;"></div>
+            </div>
+            <!-- Right header: Current week -->
+            <div style="background:var(--surface2);padding:14px 18px;border-bottom:1px solid var(--border);">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Current Week ▶</div>
+              <div id="currentWeekLabel" style="font-size:13px;font-weight:600;color:var(--gold);"></div>
+              <div id="currentWeekMeta" style="font-size:11px;color:var(--text3);margin-top:2px;"></div>
+            </div>
+          </div>
+          <!-- Side by side content -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;" id="comparisonBody"></div>
+        </div>
       </div>
-      <div id="collectionWrapper" style="display:grid;grid-template-columns:1fr;gap:20px;">
+      <div id="collectionWrapper">
         <div id="collectionList"><div class="empty-out"><div class="icon">📋</div><p>No events yet.<br>Generate a BEO to add it to this collection.</p></div></div>
-        <div id="collectionCompare" style="display:none"></div>
       </div>
     </div>
     </div>
@@ -1090,12 +1108,10 @@ async function loadCompareWeek() {
     const evs = await getEvents(id);
     compareEvents  = evs || [];
     compareWeekObj = { id };
-    // Get week label from option text
-    const opt = sel.querySelector('option[value="' + id + '"]');
-    const label = opt ? opt.textContent : 'Previous Week';
+    const opt   = sel.querySelector('option[value="' + id + '"]');
+    const label = opt ? opt.textContent.trim() : 'Prior Week';
     renderComparison(label);
     document.getElementById('clearCompareBtn').style.display = 'inline-block';
-    document.getElementById('collectionWrapper').style.gridTemplateColumns = '1fr 1fr';
   } catch(e) { showToast('Could not load comparison week', 'error'); }
   showLoading(false);
 }
@@ -1103,85 +1119,138 @@ async function loadCompareWeek() {
 function clearComparison() {
   compareEvents  = [];
   compareWeekObj = null;
-  const cmp = document.getElementById('collectionCompare');
-  if (cmp) { cmp.style.display = 'none'; cmp.innerHTML = ''; }
-  const btn = document.getElementById('clearCompareBtn');
+  var ctr = document.getElementById('comparisonContainer');
+  if (ctr) ctr.style.display = 'none';
+  var btn = document.getElementById('clearCompareBtn');
   if (btn) btn.style.display = 'none';
-  const sel = document.getElementById('compareWeekSelect');
+  var sel = document.getElementById('compareWeekSelect');
   if (sel) sel.value = '';
-  document.getElementById('collectionWrapper').style.gridTemplateColumns = '1fr';
 }
 
-function renderComparison(weekLabel) {
-  const el = document.getElementById('collectionCompare');
-  if (!el) return;
-  el.style.display = 'block';
+function buildTotalsForEvents(evList) {
+  var savedEvents = currentEvents;
+  currentEvents   = evList;
+  var cats    = buildIngredientTotals();
+  var garnish = buildGarnishTotals();
+  currentEvents   = savedEvents;
+  return { cats: cats, garnish: garnish };
+}
 
-  // Build totals for compare week
-  const savedEvents  = currentEvents;
-  currentEvents      = compareEvents;
-  const catTotals    = buildIngredientTotals();
-  const garnishTot   = buildGarnishTotals();
-  currentEvents      = savedEvents;
+function renderComparison(priorLabel) {
+  var ctr = document.getElementById('comparisonContainer');
+  if (!ctr) return;
+  ctr.style.display = 'block';
 
-  const CAT_ORDER  = ['LIQUOR','JUICE','PREP ITEM','NA BEV','OTHER'];
-  const CAT_LABELS = { LIQUOR: 'Liquor Totals', JUICE: 'Juice Totals', 'PREP ITEM': 'Prep Item Totals', 'NA BEV': 'NA Beverage Totals', OTHER: 'Other Totals' };
+  // Build totals for both weeks
+  var priorTotals   = buildTotalsForEvents(compareEvents);
+  var currentTotals = buildTotalsForEvents(currentEvents);
 
-  let html = '';
+  var currentLabel = currentWeek
+    ? currentWeek.venue + '  ·  ' + currentWeek.week_start + ' – ' + currentWeek.week_end
+    : 'Current Week';
 
-  // Header
-  html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 18px;margin-bottom:16px;">';
-  html += '<div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Comparison Week</div>';
-  html += '<div style="font-size:13px;color:var(--text);font-weight:500;">' + weekLabel + '</div>';
-  html += '<div style="font-size:11px;color:var(--text3);margin-top:4px;">' + compareEvents.length + ' events · ' + compareEvents.reduce((s,ev)=>s+ev.beo_data.guests,0) + ' total guests</div>';
-  html += '</div>';
+  // Set header labels
+  document.getElementById('priorWeekLabel').textContent   = priorLabel;
+  document.getElementById('currentWeekLabel').textContent = currentLabel;
+  document.getElementById('priorWeekMeta').textContent    =
+    compareEvents.length + ' event' + (compareEvents.length!==1?'s':'') + '  ·  ' +
+    compareEvents.reduce(function(s,ev){return s+ev.beo_data.guests;},0) + ' total guests';
+  document.getElementById('currentWeekMeta').textContent  =
+    currentEvents.length + ' event' + (currentEvents.length!==1?'s':'') + '  ·  ' +
+    currentEvents.reduce(function(s,ev){return s+ev.beo_data.guests;},0) + ' total guests';
 
-  // Events
-  compareEvents.forEach((ev, idx) => {
-    const d = ev.beo_data;
-    html += `<div class="collection-event-card" style="margin-bottom:8px;opacity:0.85">
-      <div class="collection-event-header">
-        <div><span class="ev-num">BEO ${idx+1}</span><span class="ev-name">${d.name}</span><span class="ev-meta">${d.date} · ${d.guests} guests</span></div>
-      </div>
-      <div style="padding:4px 18px 10px;display:flex;flex-wrap:wrap;gap:6px;">`;
-    d.selected.forEach(c => { html += `<span class="ev-cocktail-tag">${c.name}</span>`; });
+  var CAT_ORDER  = ['LIQUOR','JUICE','PREP ITEM','NA BEV','OTHER'];
+  var CAT_LABELS = { LIQUOR:'Weekly Liquor Totals', JUICE:'Weekly Juice Totals', 'PREP ITEM':'Weekly Prep Totals', 'NA BEV':'Weekly NA Bev Totals', OTHER:'Other Totals' };
+
+  var body = document.getElementById('comparisonBody');
+  body.innerHTML = '';
+
+  // Events sections side by side
+  body.innerHTML += compareSectionRow(
+    renderCompareEvents(compareEvents),
+    renderCompareEvents(currentEvents)
+  );
+
+  // Category sections
+  CAT_ORDER.forEach(function(cat) {
+    var priorItems   = priorTotals.cats[cat]   || [];
+    var currentItems = currentTotals.cats[cat] || [];
+    if (priorItems.length === 0 && currentItems.length === 0) return;
+    var label = CAT_LABELS[cat] || cat;
+    body.innerHTML += compareSectionRow(
+      renderCompareIngTable(priorItems, label),
+      renderCompareIngTable(currentItems, label)
+    );
+  });
+
+  // Garnish sections
+  if (priorTotals.garnish.length > 0 || currentTotals.garnish.length > 0) {
+    body.innerHTML += compareSectionRow(
+      renderCompareGarnishTable(priorTotals.garnish),
+      renderCompareGarnishTable(currentTotals.garnish)
+    );
+  }
+}
+
+function compareSectionRow(leftHtml, rightHtml) {
+  return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px 16px;">' + leftHtml + '</div>' +
+         '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:14px 16px;">' + rightHtml + '</div>';
+}
+
+function renderCompareEvents(evList) {
+  if (evList.length === 0) return '<div style="font-size:11px;color:var(--text3);padding:8px 0">No events</div>';
+  var html = '<div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Events</div>';
+  evList.forEach(function(ev, idx) {
+    var d = ev.beo_data;
+    html += '<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);">';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">BEO ' + (idx+1) + ' · ' + d.name + '</div>';
+    html += '<div style="font-size:10px;color:var(--text3);margin-bottom:6px;">' + d.date + '  ·  ' + d.guests + ' guests  ·  ' + d.totalDrinks + ' drinks</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
+    d.selected.forEach(function(c) { html += '<span style="background:var(--surface3);border:1px solid var(--border);border-radius:3px;padding:2px 7px;font-size:10px;color:var(--text2);">' + c.name + '</span>'; });
     html += '</div></div>';
   });
+  return html;
+}
 
-  html += '<div style="height:16px"></div>';
-
-  // Category totals
-  CAT_ORDER.forEach(cat => {
-    if (!catTotals[cat] || catTotals[cat].length === 0) return;
-    const items = catTotals[cat];
-    const totalBottles = items.reduce((s,i) => s + i.bottles, 0);
-    html += collectionSectionHdr(CAT_LABELS[cat] || cat, items.length + ' items · ' + totalBottles + ' containers');
-    html += '<div class="cocktail-card" style="margin-bottom:14px"><table class="ing-tbl"><thead><tr>';
-    html += '<th>Ingredient</th><th class="r">Total oz</th><th class="r">Containers</th>';
-    html += '</tr></thead><tbody>';
-    items.forEach(item => {
-      html += `<tr>
-        <td class="ing-name">${item.name}</td>
-        <td class="r">${item.totalOz} oz</td>
-        <td class="r"><span class="bottles-badge">${item.bottles}</span></td>
-      </tr>`;
-    });
-    html += '</tbody></table></div>';
+function renderCompareIngTable(items, label) {
+  var totalContainers = items.reduce(function(s,i){return s+i.bottles;},0);
+  var html = '<div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">' + label + (items.length ? ' · ' + totalContainers + ' containers' : '') + '</div>';
+  if (items.length === 0) return html + '<div style="font-size:11px;color:var(--text3);padding:4px 0">None</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
+  html += '<thead><tr style="border-bottom:1px solid var(--border);">';
+  html += '<th style="text-align:left;padding:5px 4px 5px 0;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">Ingredient</th>';
+  html += '<th style="text-align:right;padding:5px 0;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">oz</th>';
+  html += '<th style="text-align:right;padding:5px 0 5px 8px;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">Containers</th>';
+  html += '</tr></thead><tbody>';
+  items.forEach(function(item, idx) {
+    var bg = idx%2===0 ? '' : 'background:rgba(255,255,255,0.02);';
+    html += '<tr style="' + bg + 'border-bottom:1px solid var(--border);">';
+    html += '<td style="padding:6px 4px 6px 0;font-weight:500;color:var(--text);">' + item.name + '</td>';
+    html += '<td style="text-align:right;padding:6px 0;color:var(--text2);">' + item.totalOz + '</td>';
+    html += '<td style="text-align:right;padding:6px 0 6px 8px;"><span style="background:var(--gold);color:#0e0e0c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;">' + item.bottles + '</span></td>';
+    html += '</tr>';
   });
+  html += '</tbody></table>';
+  return html;
+}
 
-  // Garnishes
-  if (garnishTot.length > 0) {
-    html += collectionSectionHdr('Garnish Totals', garnishTot.length + ' types');
-    html += '<div class="cocktail-card" style="margin-bottom:14px"><table class="ing-tbl"><thead><tr>';
-    html += '<th>Garnish</th><th class="r">Total Pieces</th>';
-    html += '</tr></thead><tbody>';
-    garnishTot.forEach(g => {
-      html += `<tr><td class="ing-name">${g.name}</td><td class="r"><span class="bottles-badge">${g.total} pcs</span></td></tr>`;
-    });
-    html += '</tbody></table></div>';
-  }
-
-  el.innerHTML = html;
+function renderCompareGarnishTable(garnishList) {
+  var html = '<div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Weekly Garnish Totals</div>';
+  if (!garnishList || garnishList.length === 0) return html + '<div style="font-size:11px;color:var(--text3);padding:4px 0">None</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
+  html += '<thead><tr style="border-bottom:1px solid var(--border);">';
+  html += '<th style="text-align:left;padding:5px 4px 5px 0;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">Garnish</th>';
+  html += '<th style="text-align:right;padding:5px 0 5px 8px;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">Total Pieces</th>';
+  html += '</tr></thead><tbody>';
+  garnishList.forEach(function(g, idx) {
+    var bg = idx%2===0 ? '' : 'background:rgba(255,255,255,0.02);';
+    html += '<tr style="' + bg + 'border-bottom:1px solid var(--border);">';
+    html += '<td style="padding:6px 4px 6px 0;font-weight:500;color:var(--text);">' + g.name + '</td>';
+    html += '<td style="text-align:right;padding:6px 0 6px 8px;"><span style="background:var(--gold);color:#0e0e0c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;">' + g.total + ' pcs</span></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  return html;
 }
 
 function viewSavedEvent(id) {
