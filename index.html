@@ -630,23 +630,45 @@ async function resumeWeek(week) {
 }
 
 async function loadWeek(week) {
-  currentWeek = week;
+  currentWeek   = week;
   currentEvents = await getEvents(week.id) || [];
   document.getElementById('navWeekLabel').textContent =
     week.venue + '  ·  ' + week.week_start + ' – ' + week.week_end;
   document.getElementById('collection-label').textContent =
-    week.venue + ' · ' + week.week_start + ' – ' + week.week_end;
+    week.venue + '  ·  ' + week.week_start + ' – ' + week.week_end;
   await loadMasterSheet();
   showScreen('screenApp');
   switchPane('input');
   renderCollection();
+  await populateCompareDropdown();
 }
 
 function startNewWeek() {
-  currentWeek = null;
+  currentWeek   = null;
   currentEvents = [];
+  lastBEO       = null;
+  // Clear BEO form state so old data does not carry over
+  try { sessionStorage.removeItem('beoFormState'); } catch(e) {}
+  // Clear form fields directly
+  ['i_name','i_date','i_time','i_location'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var guests = document.getElementById('i_guests'); if (guests) guests.value = '';
+  var type   = document.getElementById('i_type');   if (type)   type.value   = '';
+  var teq    = document.getElementById('i_tequila'); if (teq)   teq.value   = 'No';
+  // Clear cocktail/bar rows
+  for (var i = 0; i < 8; i++) {
+    var c = document.getElementById('c'+i); if (c) c.value = '';
+    var s = document.getElementById('s'+i); if (s) s.value = 'PASSED';
+  }
+  for (var j = 0; j < 6; j++) {
+    var b  = document.getElementById('b'+j);  if (b)  b.value  = '';
+    var bq = document.getElementById('bq'+j); if (bq) bq.value = '';
+  }
+  // Clear comparison state
+  clearComparison();
   document.getElementById('l_week_start').value = '';
-  document.getElementById('l_week_end').value = '';
+  document.getElementById('l_week_end').value   = '';
   showScreen('screenLanding');
   loadWeekHistory();
 }
@@ -1036,15 +1058,27 @@ async function populateCompareDropdown() {
     const weeks = await getWeeks();
     const sel   = document.getElementById('compareWeekSelect');
     if (!sel) return;
-    sel.innerHTML = '<option value="">— Select a previous week —</option>';
-    weeks.forEach(w => {
-      if (currentWeek && w.id === currentWeek.id) return; // skip current
-      const opt = document.createElement('option');
+    sel.innerHTML = '<option value="">— Select a previous week to compare —</option>';
+    if (!weeks || weeks.length === 0) {
+      sel.innerHTML += '<option disabled>No previous weeks found</option>';
+      return;
+    }
+    var added = 0;
+    weeks.forEach(function(w) {
+      if (currentWeek && w.id === currentWeek.id) return; // skip current week
+      var opt = document.createElement('option');
       opt.value = w.id;
-      opt.textContent = w.venue + ' · ' + w.week_start + ' – ' + w.week_end;
+      opt.textContent = w.venue + '  ·  ' + w.week_start + ' – ' + w.week_end;
       sel.appendChild(opt);
+      added++;
     });
-  } catch(e) { console.error('populateCompareDropdown:', e); }
+    if (added === 0) {
+      sel.innerHTML += '<option disabled>No other weeks to compare</option>';
+    }
+  } catch(e) {
+    console.error('populateCompareDropdown:', e);
+    showToast('Could not load previous weeks', 'error');
+  }
 }
 
 async function loadCompareWeek() {
@@ -1165,6 +1199,8 @@ async function removeSavedEvent(id) {
     await deleteEvent(id);
     currentEvents = currentEvents.filter(e => e.id !== id);
     renderCollection();
+    // Also refresh the compare dropdown so it reflects current state
+    await populateCompareDropdown();
     showToast('Event removed', 'success');
   } catch(e) { showToast('Could not remove event', 'error'); }
   showLoading(false);
