@@ -472,7 +472,7 @@ async function sbFetch(path, opts) {
 }
 
 async function getWeeks() {
-  return await sbFetch('weeks?order=created_at.desc');
+  return await sbFetch('weeks?deleted=eq.false&order=created_at.desc');
 }
 
 async function createWeek(venue, weekStart, weekEnd) {
@@ -706,13 +706,37 @@ async function loadWeekHistory() {
     var wrap = document.getElementById('weekHistory');
     if (!weeks || weeks.length === 0) { wrap.style.display = 'none'; el.innerHTML = ''; return; }
     wrap.style.display = 'block';
-    // Build chips using DOM to avoid quote escaping issues
     el.innerHTML = '';
     weeks.slice(0, 8).forEach(function(w) {
       var chip = document.createElement('div');
       chip.className = 'week-chip';
-      chip.innerHTML = '<div><div class="wc-label">' + w.venue + ' · ' + w.week_start + ' – ' + w.week_end + '</div></div><div class="wc-meta">Resume →</div>';
-      chip.addEventListener('click', function() { resumeWeek(w); });
+      chip.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;';
+
+      var left = document.createElement('div');
+      left.style.cssText = 'flex:1;cursor:pointer;';
+      left.innerHTML = '<div class="wc-label">' + w.venue + ' · ' + w.week_start + ' – ' + w.week_end + '</div>';
+      left.addEventListener('click', function() { resumeWeek(w); });
+
+      var right = document.createElement('div');
+      right.style.cssText = 'display:flex;align-items:center;gap:10px;flex-shrink:0;';
+
+      var resumeLabel = document.createElement('div');
+      resumeLabel.className = 'wc-meta';
+      resumeLabel.textContent = 'Resume →';
+      resumeLabel.style.cursor = 'pointer';
+      resumeLabel.addEventListener('click', function() { resumeWeek(w); });
+
+      var delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.style.cssText = 'background:none;border:1px solid var(--red);color:var(--red);padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:inherit;';
+      delBtn.addEventListener('mouseenter', function() { delBtn.style.background = 'var(--red)'; delBtn.style.color = '#fff'; });
+      delBtn.addEventListener('mouseleave', function() { delBtn.style.background = 'none'; delBtn.style.color = 'var(--red)'; });
+      delBtn.addEventListener('click', function(e) { e.stopPropagation(); showDeleteWeekModal(w); });
+
+      right.appendChild(resumeLabel);
+      right.appendChild(delBtn);
+      chip.appendChild(left);
+      chip.appendChild(right);
       el.appendChild(chip);
     });
   } catch(e) { console.error('loadWeekHistory:', e); }
@@ -1406,9 +1430,11 @@ async function deleteCollection() {
   showLoading(true);
   try {
     // First delete all events for this week explicitly
-    await sbFetch('events?week_id=eq.' + currentWeek.id, { method: 'DELETE' });
-    // Then delete the week record itself
-    await sbFetch('weeks?id=eq.' + currentWeek.id, { method: 'DELETE' });
+    // Soft delete — mark as deleted so it can be recovered if needed
+    await sbFetch('weeks?id=eq.' + currentWeek.id, {
+      method: 'PATCH',
+      body: JSON.stringify({ deleted: true, deleted_at: new Date().toISOString() })
+    });
     currentEvents = [];
     currentWeek   = null;
     try { sessionStorage.removeItem('beoFormState'); } catch(e2) {}
@@ -1696,6 +1722,42 @@ function clearForm() {
   buildRows();
 }
 
+// ══ DELETE WEEK MODAL ════════════════════════════════════════
+var _weekToDelete = null;
+
+function showDeleteWeekModal(week) {
+  _weekToDelete = week;
+  var title = document.getElementById('deleteModalTitle');
+  if (title) title.textContent = week.venue + '  ·  ' + week.week_start + ' – ' + week.week_end;
+  var modal = document.getElementById('deleteWeekModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function hideDeleteWeekModal() {
+  _weekToDelete = null;
+  var modal = document.getElementById('deleteWeekModal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function confirmDeleteWeek() {
+  if (!_weekToDelete) return;
+  var week = _weekToDelete;
+  hideDeleteWeekModal();
+  showLoading(true);
+  try {
+    // Soft delete — mark as deleted with timestamp so it can be recovered
+    await sbFetch('weeks?id=eq.' + week.id, {
+      method: 'PATCH',
+      body: JSON.stringify({ deleted: true, deleted_at: new Date().toISOString() })
+    });
+    showToast('Collection deleted', 'success');
+    await loadWeekHistory();
+  } catch(e) {
+    showToast('Could not delete: ' + e.message, 'error');
+  }
+  showLoading(false);
+}
+
 // ══ UTILITIES ════════════════════════════════════════════════
 function showToast(msg, type) {
   const el = document.getElementById('toast');
@@ -1708,5 +1770,23 @@ function showLoading(on) {
   document.getElementById('loadingOverlay').classList.toggle('show', on);
 }
 </script>
+<!-- ══ DELETE WEEK MODAL ══ -->
+<div id="deleteWeekModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:32px;max-width:440px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+    <div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--red);margin-bottom:10px;">⚠ Delete Collection</div>
+    <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;" id="deleteModalTitle"></div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:8px;">
+      DELETING WILL REMOVE ALL INFORMATION RELATED TO EVENT BEO'S FOR THIS WEEK.
+    </div>
+    <div style="font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:24px;padding:10px 14px;background:var(--surface2);border-radius:4px;border-left:3px solid var(--red);">
+      This collection can be recovered by your administrator if needed. To confirm deletion, click <strong style="color:var(--text)">Confirm Delete</strong> below.
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="hideDeleteWeekModal()" style="background:none;border:1px solid var(--border2);color:var(--text2);padding:10px 20px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:0.06em;text-transform:uppercase;">Cancel</button>
+      <button onclick="confirmDeleteWeek()" style="background:var(--red);border:none;color:#fff;padding:10px 20px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:0.06em;text-transform:uppercase;">Confirm Delete</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
