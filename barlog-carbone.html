@@ -110,8 +110,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
     <a href="mia.html" class="back-link">← MIA</a>
     <div class="nav-brand">Daily Bar Recap</div>
     <div class="nav-venue">Carbone Miami</div>
+    <span class="offline-badge" id="offlineBadge">Offline</span>
   </div>
   <div class="nav-right">
+    <button class="btn btn-reports" onclick="window.location.href='logreports-carbone.html'">📋 Log Reports</button>
     <button class="btn btn-outline" onclick="clearLog()">Clear</button>
     <button class="btn btn-primary" id="saveBtn" onclick="saveLog()">Save Log</button>
   </div>
@@ -440,18 +442,19 @@ document.getElementById('logDate').addEventListener('change', updateDay);
 // ── CARRY OVER ────────────────────────────────────────────────
 var _priorLog = null;
 
-function loadPriorDay() {
-  var date = document.getElementById('logDate').value;
-  if (!date) return;
-  var d = new Date(date + 'T12:00:00');
-  d.setDate(d.getDate() - 1);
+async function loadPriorDay() {
+  var date = document.getElementById('logDate').value; if (!date) return;
+  var d = new Date(date + 'T12:00:00'); d.setDate(d.getDate() - 1);
   var priorDate = d.toISOString().split('T')[0];
   try {
-    var raw = localStorage.getItem('barlog_Carbone_Miami_' + priorDate);
-    _priorLog = raw ? JSON.parse(raw) : null;
-    showCarryBanner('products86', 'carry86Btn', 'carry86Preview', _priorLog && _priorLog.notes && _priorLog.notes.products86, priorDate);
-    showCarryBanner('productLows', 'carryLowsBtn', 'carryLowsPreview', _priorLog && _priorLog.notes && _priorLog.notes.productLows, priorDate);
-  } catch(e) { _priorLog = null; }
+    var rows = await sbFetch('bar_logs?venue=eq.Carbone+Miami&date=eq.'+priorDate+'&deleted=eq.false&select=notes');
+    _priorLog = rows && rows[0] ? rows[0] : null;
+  } catch(e) {
+    try { var raw = localStorage.getItem('barlog_Carbone_Miami_' + priorDate); _priorLog = raw ? JSON.parse(raw) : null; }
+    catch(e2) { _priorLog = null; }
+  }
+  showCarryBanner('products86', 'carry86Btn', 'carry86Preview', _priorLog && _priorLog.notes && _priorLog.notes.products86, priorDate);
+  showCarryBanner('productLows', 'carryLowsBtn', 'carryLowsPreview', _priorLog && _priorLog.notes && _priorLog.notes.productLows, priorDate);
 }
 
 function showCarryBanner(fieldId, btnId, previewId, value, priorDate) {
