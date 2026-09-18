@@ -714,7 +714,7 @@ function restoreFormState() {
 
 // ══ WEEK HISTORY ═════════════════════════════════════════════
 // ── WEEK HISTORY ─────────────────────────────────────────────
-var _weeksList = [];
+var _weekToDelete = null;
 
 async function loadWeekHistory() {
   try {
@@ -724,40 +724,53 @@ async function loadWeekHistory() {
     if (!weeks || weeks.length === 0) {
       wrap.style.display = 'none';
       el.innerHTML = '';
-      _weeksList = [];
       return;
     }
-    _weeksList = weeks.slice(0, 8);
     wrap.style.display = 'block';
+    el.innerHTML = '';
 
-    var html = '';
-    for (var i = 0; i < _weeksList.length; i++) {
-      var w = _weeksList[i];
-      html += '<div style="display:flex;border:1px solid #2e2e29;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#161614;">';
-      // RESUME button
-      html += '<button type="button" onclick="doResume(' + i + ')" style="flex:1;background:none;border:none;border-right:1px solid #3a3a34;padding:13px 16px;cursor:pointer;font-family:inherit;color:#f0ece4;text-align:left;">';
-      html += '<div style="font-size:13px;font-weight:500;">' + w.venue + ' &middot; ' + w.week_start + ' &ndash; ' + w.week_end + '</div>';
-      html += '<div style="font-size:10px;color:#5a5648;margin-top:3px;letter-spacing:0.06em;">CLICK TO RESUME</div>';
-      html += '</button>';
-      // DELETE button
-      html += '<button type="button" onclick="doDelete(' + i + ')" style="background:none;border:none;color:#cc4444;padding:13px 18px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;white-space:nowrap;">';
-      html += 'Delete';
-      html += '</button>';
-      html += '</div>';
-    }
-    el.innerHTML = html;
+    weeks.slice(0, 8).forEach(function(w) {
+      // Container row
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;border:1px solid #2e2e29;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#161614;';
+
+      // ── RESUME button ──
+      var rb = document.createElement('button');
+      rb.type = 'button';
+      rb.style.cssText = 'flex:1;background:none;border:none;border-right:1px solid #3a3a34;padding:13px 16px;cursor:pointer;font-family:inherit;color:#f0ece4;text-align:left;';
+      rb.innerHTML = '<div style="font-size:13px;font-weight:500;">' + w.venue + ' &middot; ' + w.week_start + ' &ndash; ' + w.week_end + '</div><div style="font-size:10px;color:#5a5648;margin-top:3px;letter-spacing:0.06em;">CLICK TO RESUME &rarr;</div>';
+
+      // Capture w in its own scope for resume
+      (function(week) {
+        rb.addEventListener('click', function() {
+          resumeWeek(week);
+        });
+      })(w);
+
+      // ── DELETE button ──
+      var db = document.createElement('button');
+      db.type = 'button';
+      db.style.cssText = 'background:none;border:none;color:#cc4444;padding:13px 20px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;white-space:nowrap;';
+      db.textContent = 'DELETE';
+
+      // Capture w in its own scope for delete
+      (function(week) {
+        db.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          _weekToDelete = week;
+          var title = document.getElementById('deleteModalTitle');
+          if (title) title.textContent = week.venue + ' · ' + week.week_start + ' – ' + week.week_end;
+          var modal = document.getElementById('deleteWeekModal');
+          if (modal) modal.classList.add('visible');
+        });
+      })(w);
+
+      row.appendChild(rb);
+      row.appendChild(db);
+      el.appendChild(row);
+    });
   } catch(e) { console.error('loadWeekHistory:', e); }
-}
-
-function doResume(i) {
-  var w = _weeksList[i];
-  if (w) resumeWeek(w);
-}
-
-function doDelete(i) {
-  var w = _weeksList[i];
-  if (!w) return;
-  showDeleteWeekModal(w);
 }
 
 
@@ -1742,20 +1755,6 @@ function clearForm() {
 }
 
 // ══ DELETE WEEK MODAL ════════════════════════════════════════
-var _weekToDelete = null;
-
-function showDeleteWeekModal(week) {
-  _weekToDelete = week;
-  var title = document.getElementById('deleteModalTitle');
-  if (title) {
-    title.textContent = week.venue + ' · ' + week.week_start + ' – ' + week.week_end;
-  }
-  var modal = document.getElementById('deleteWeekModal');
-  if (modal) {
-    modal.classList.add('visible');
-  }
-}
-
 function hideDeleteWeekModal() {
   _weekToDelete = null;
   var modal = document.getElementById('deleteWeekModal');
