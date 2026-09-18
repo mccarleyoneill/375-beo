@@ -733,7 +733,7 @@ async function loadWeekHistory() {
 
       // Wrapper — no click handler, purely layout
       var wrap = document.createElement('div');
-      wrap.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:10px;align-items:stretch;';
+      wrap.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px;align-items:stretch;';
 
       // ── RESUME — standalone button, full left column ──
       var rb = document.createElement('button');
@@ -794,8 +794,8 @@ async function loadWeekHistory() {
         };
       })(w);
 
-      wrap.appendChild(rb);
       wrap.appendChild(db);
+      wrap.appendChild(rb);
       el.appendChild(wrap);
     });
   } catch(e) { console.error('loadWeekHistory:', e); }
