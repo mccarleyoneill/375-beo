@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIA Bar Logs · NMO Beverage Ops</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap');
+
+:root {
+  --bg:      #0e0e0c;
+  --surface: #161614;
+  --surface2:#1e1e1b;
+  --border:  #2e2e29;
+  --border2: #3a3a34;
+  --gold:    #c8a96e;
+  --gold-dim:#8b6f3f;
+  --gold-bg: #1c1810;
+  --text:    #f0ece4;
+  --text2:   #a09880;
+  --text3:   #5a5648;
+  --radius:  6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 480px;
+  padding: 24px;
+  text-align: center;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  text-decoration: none;
+  margin-bottom: 40px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--gold); }
+
+.platform-logo { font-size: 11px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.platform-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 400; color: var(--text); letter-spacing: 0.02em; line-height: 1.2; margin-bottom: 6px; }
+.platform-sub { font-size: 12px; color: var(--text3); letter-spacing: 0.04em; margin-bottom: 48px; }
+.divider { width: 40px; height: 1px; background: var(--border2); margin: 0 auto 36px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+.card-header { padding: 12px 20px; border-bottom: 1px solid var(--border); font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); background: var(--gold-bg); text-align: left; }
+.card-body { padding: 20px; }
+
+.sel {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  padding: 14px 40px 14px 16px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c8a96e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+.sel:focus { border-color: var(--gold); }
+.sel option { background: var(--surface2); color: var(--text); }
+
+.venue-desc {
+  display: none;
+  font-size: 11px;
+  color: var(--text3);
+  line-height: 1.7;
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-radius: 4px;
+  border-left: 2px solid var(--gold-dim);
+  margin-bottom: 16px;
+}
+.venue-desc.visible { display: block; }
+
+.enter-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gold);
+  color: #0e0e0c;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.enter-btn.ready { opacity: 1; pointer-events: all; }
+.enter-btn.ready:hover { background: #d4b87a; }
+
+.footer { margin-top: 36px; font-size: 10px; color: var(--text3); letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <a href="index.html" class="back-link">← Back to Platform</a>
+
+  <div class="platform-logo">NMO · Miami</div>
+  <h1 class="platform-title">MIA Bar Logs</h1>
+  <p class="platform-sub">Select a venue to open its bar log</p>
+
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-header">Select Venue</div>
+    <div class="card-body">
+
+      <select class="sel" id="venueSelect" onchange="onVenueChange()">
+        <option value="" disabled selected>— Select a venue —</option>
+        <option value="carbone">Carbone</option>
+        <option value="carbone-vino">Carbone Vino</option>
+        <option value="ha-salon">Hà Salon</option>
+        <option value="sadelles">Sadelle's Coconut Grove</option>
+        <option value="contessa">Contessa</option>
+        <option value="zzs">ZZ's Club</option>
+        <option value="chateau">Chateau</option>
+      </select>
+
+      <div class="venue-desc" id="venueDesc"></div>
+
+      <button class="enter-btn" id="enterBtn" onclick="enterVenue()">Enter Bar Log →</button>
+
+    </div>
+  </div>
+
+  <div class="footer">NMO Beverage Ops · Miami Operations</div>
+
+</div>
+
+<script>
+const VENUES = {
+  'carbone':      { label: 'Carbone',                url: 'barlog-carbone.html' },
+  'carbone-vino': { label: 'Carbone Vino',           url: 'barlog-carbone-vino.html' },
+  'ha-salon':     { label: 'H\u00e0 Salon',          url: 'barlog-ha-salon.html' },
+  'sadelles':     { label: "Sadelle's Coconut Grove", url: 'barlog-sadelles.html' },
+  'contessa':     { label: 'Contessa',               url: 'barlog-contessa.html' },
+  'zzs':          { label: "ZZ's Club",              url: 'barlog-zzs.html' },
+  'chateau':      { label: 'Chateau',                url: 'barlog-chateau.html' }
+};
+
+function onVenueChange() {
+  var val   = document.getElementById('venueSelect').value;
+  var venue = VENUES[val];
+  var desc  = document.getElementById('venueDesc');
+  var btn   = document.getElementById('enterBtn');
+
+  if (!venue) {
+    desc.classList.remove('visible');
+    btn.classList.remove('ready');
+    return;
+  }
+
+  desc.textContent = 'Opening ' + venue.label + ' Bar Log — daily logs, inventory and operations for this venue.';
+  desc.classList.add('visible');
+  btn.textContent = 'Enter ' + venue.label + ' Bar Log →';
+  btn.classList.add('ready');
+}
+
+function enterVenue() {
+  var val   = document.getElementById('venueSelect').value;
+  var venue = VENUES[val];
+  if (venue) window.location.href = venue.url;
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') enterVenue();
+});
+</script>
+</body>
+</html>
