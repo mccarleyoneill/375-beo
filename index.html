@@ -90,17 +90,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .btn-primary:hover { background: #d4b87a; }
 .btn-ghost { width: 100%; padding: 11px; background: none; color: var(--text2); border: 1px solid var(--border2); border-radius: var(--radius); font-size: 11px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
 .btn-ghost:hover { border-color: var(--text2); color: var(--text); }
-.week-history { margin-top: 24px; }
-.week-history-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; text-align: center; }
-.week-history-list { display: flex; flex-direction: column; gap: 6px; }
-.week-chip {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
-  cursor: pointer; transition: border-color 0.15s;
-}
-.week-chip:hover { border-color: var(--gold); }
-.week-chip .wc-label { font-size: 12px; color: var(--text); }
-.week-chip .wc-meta { font-size: 10px; color: var(--text3); }
+
 
 /* ══ APP SHELL ══ */
 #screenApp { flex-direction: column; }
@@ -307,10 +297,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     <div class="landing-actions">
       <button class="btn-primary" onclick="startWeek()">Start Week →</button>
     </div>
-    <div class="week-history" id="weekHistory" style="display:none">
-      <div class="week-history-label">Previous Weeks — click to resume</div>
-      <div class="week-history-list" id="weekHistoryList"></div>
-    </div>
+
   </div>
 </div>
 
@@ -326,6 +313,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
       <button class="nav-tab active" onclick="switchPane('input')" id="tab-input">BEO Input</button>
       <button class="nav-tab" onclick="switchPane('output')" id="tab-output">Batch Output</button>
       <button class="nav-tab" onclick="goToCollection()" id="tab-collection">Event Collection</button>
+      <button class="nav-tab" onclick="goToHistory()" id="tab-history">Historical BEOs</button>
     </div>
     <div class="nav-actions">
       <button class="btn-sm btn-outline" onclick="startNewWeek()">New Week</button>
@@ -413,6 +401,37 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
         </div>
       </div>
       <div id="outputDoc"><div class="empty-out"><div class="icon">🍸</div><p>Fill in the BEO Input form<br>and click <strong style="color:var(--text2)">Generate Batch Output</strong></p></div></div>
+    </div>
+    </div>
+
+    <!-- HISTORICAL BEOs -->
+    <div class="pane" id="pane-history">
+    <div style="max-width:960px;margin:0 auto;padding:32px 24px 80px;">
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Historical BEOs</div>
+          <div style="font-size:20px;font-family:'Playfair Display',serif;font-weight:400;color:var(--text);">All Generated Events</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;" id="historyActions" style="display:none;">
+          <span id="selectedCount" style="font-size:11px;color:var(--text3);"></span>
+          <button class="btn-sm btn-outline" onclick="downloadSelectedBEOs()" id="btnDownloadSelected">↓ Download Selected PDFs</button>
+          <button class="btn-sm btn-gold" onclick="createCustomCollection()" id="btnCustomCollection">Create Custom Collection</button>
+          <button class="btn-sm" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;" onclick="deleteSelectedBEOs()" id="btnDeleteSelected">Delete Selected</button>
+        </div>
+      </div>
+
+      <!-- Select all bar -->
+      <div id="historySelectBar" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;">
+        <input type="checkbox" id="selectAllBEOs" onchange="toggleSelectAll(this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--gold);">
+        <label for="selectAllBEOs" style="font-size:11px;color:var(--text2);cursor:pointer;font-weight:500;">Select All</label>
+        <span id="historySelectionInfo" style="font-size:11px;color:var(--text3);margin-left:8px;"></span>
+      </div>
+
+      <div id="historyList">
+        <div class="empty-out"><div class="icon">📂</div><p>No historical BEOs found.</p></div>
+      </div>
+
     </div>
     </div>
 
@@ -713,92 +732,9 @@ function restoreFormState() {
 }
 
 // ══ WEEK HISTORY ═════════════════════════════════════════════
-// ── WEEK HISTORY ─────────────────────────────────────────────
-var _weekToDelete = null;
-
+// ── WEEK HISTORY (landing page — no chips, just start new week) ──
 async function loadWeekHistory() {
-  try {
-    var weeks = await getWeeks();
-    var el   = document.getElementById('weekHistoryList');
-    var wrap = document.getElementById('weekHistory');
-    if (!weeks || weeks.length === 0) {
-      wrap.style.display = 'none';
-      el.innerHTML = '';
-      return;
-    }
-    wrap.style.display = 'block';
-    el.innerHTML = '';
-
-    weeks.slice(0, 8).forEach(function(w) {
-
-      // Wrapper — no click handler, purely layout
-      var wrap = document.createElement('div');
-      wrap.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px;align-items:stretch;';
-
-      // ── RESUME — standalone button, full left column ──
-      var rb = document.createElement('button');
-      rb.type = 'button';
-      rb.style.cssText = [
-        'display:block',
-        'width:100%',
-        'background:#1e1e1b',
-        'border:1px solid #3a3a34',
-        'border-radius:6px',
-        'padding:13px 16px',
-        'cursor:pointer',
-        'font-family:inherit',
-        'color:#f0ece4',
-        'text-align:left',
-        'transition:background 0.15s'
-      ].join(';');
-      rb.innerHTML = '<div style="font-size:13px;font-weight:500;">' + w.venue + ' &middot; ' + w.week_start + ' &ndash; ' + w.week_end + '</div>' +
-                     '<div style="font-size:10px;color:#c8a96e;margin-top:4px;letter-spacing:0.08em;text-transform:uppercase;">Resume Week &rarr;</div>';
-      rb.onmouseover = function(){ rb.style.background = '#252521'; };
-      rb.onmouseout  = function(){ rb.style.background = '#1e1e1b'; };
-
-      (function(week){ rb.onclick = function(){ resumeWeek(week); }; })(w);
-
-      // ── DELETE — standalone button, right column ──
-      var db = document.createElement('button');
-      db.type = 'button';
-      db.style.cssText = [
-        'display:block',
-        'background:#1e1e1b',
-        'border:1px solid #cc4444',
-        'border-radius:6px',
-        'padding:13px 20px',
-        'font-size:10px',
-        'font-weight:700',
-        'letter-spacing:0.1em',
-        'text-transform:uppercase',
-        'cursor:pointer',
-        'font-family:inherit',
-        'color:#cc4444',
-        'white-space:nowrap',
-        'transition:background 0.15s'
-      ].join(';');
-      db.textContent = 'Delete';
-      db.onmouseover = function(){ db.style.background = 'rgba(204,68,68,0.15)'; };
-      db.onmouseout  = function(){ db.style.background = '#1e1e1b'; };
-
-      (function(week){
-        db.onclick = function(e){
-          e.preventDefault();
-          e.stopPropagation();
-          _weekToDelete = week;
-          var title = document.getElementById('deleteModalTitle');
-          if (title) title.textContent = week.venue + ' · ' + week.week_start + ' – ' + week.week_end;
-          var modal = document.getElementById('deleteWeekModal');
-          if (modal) modal.classList.add('visible');
-          return false;
-        };
-      })(w);
-
-      wrap.appendChild(db);
-      wrap.appendChild(rb);
-      el.appendChild(wrap);
-    });
-  } catch(e) { console.error('loadWeekHistory:', e); }
+  // Landing page no longer shows history chips — handled in Historical BEOs tab
 }
 
 
@@ -1143,6 +1079,346 @@ function renderOutput(d) {
   html += `<div class="out-footer"><span>Generated ${now}</span><span>375 Bar Group · Confidential</span></div>`;
   html += '</div></div>';
   document.getElementById('outputDoc').innerHTML = html;
+}
+
+// ══ HISTORICAL BEOs ══════════════════════════════════════════
+var _allHistoricalEvents = [];
+var _selectedBEOIds      = new Set();
+var _editingEventId      = null;
+
+async function goToHistory() {
+  switchPane('history');
+  await loadAllHistoricalBEOs();
+}
+
+async function loadAllHistoricalBEOs() {
+  var el = document.getElementById('historyList');
+  el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:20px 0;">Loading...</div>';
+  try {
+    // Fetch all events across all non-deleted weeks
+    var weeks = await sbFetch('weeks?deleted=eq.false&order=created_at.desc');
+    if (!weeks || weeks.length === 0) {
+      el.innerHTML = '<div class="empty-out"><div class="icon">📂</div><p>No historical BEOs found.</p></div>';
+      return;
+    }
+    // Fetch events for each week
+    var allEvents = [];
+    for (var i = 0; i < weeks.length; i++) {
+      var evs = await getEvents(weeks[i].id);
+      if (evs && evs.length > 0) {
+        evs.forEach(function(ev) { ev._weekLabel = weeks[i].week_start + ' – ' + weeks[i].week_end; ev._venue = weeks[i].venue; });
+        allEvents = allEvents.concat(evs);
+      }
+    }
+    // Sort by event date desc
+    allEvents.sort(function(a,b) { return new Date(b.created_at) - new Date(a.created_at); });
+    _allHistoricalEvents = allEvents;
+    _selectedBEOIds.clear();
+    renderHistoryList();
+  } catch(e) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--red);padding:20px 0;">Could not load historical BEOs: ' + e.message + '</div>';
+  }
+}
+
+function renderHistoryList() {
+  var el  = document.getElementById('historyList');
+  var bar = document.getElementById('historySelectBar');
+  var acts = document.getElementById('historyActions');
+
+  if (_allHistoricalEvents.length === 0) {
+    el.innerHTML = '<div class="empty-out"><div class="icon">📂</div><p>No historical BEOs found.</p></div>';
+    if (bar)  bar.style.display  = 'none';
+    if (acts) acts.style.display = 'none';
+    return;
+  }
+
+  if (bar)  bar.style.display  = 'flex';
+  updateHistoryActions();
+
+  var html = '';
+  _allHistoricalEvents.forEach(function(ev, idx) {
+    var d         = ev.beo_data;
+    var isSelected = _selectedBEOIds.has(ev.id);
+    var rowBg     = isSelected ? 'background:var(--gold-bg);border-color:var(--gold-dim);' : '';
+
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden;' + rowBg + '">';
+
+    // Row header
+    html += '<div style="display:flex;align-items:center;padding:14px 18px;gap:14px;">';
+
+    // Checkbox
+    html += '<input type="checkbox" data-id="' + ev.id + '" ' + (isSelected?'checked':'') + ' onchange="toggleBEOSelect(this)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--gold);flex-shrink:0;">';
+
+    // Event info — clickable to view
+    html += '<div style="flex:1;cursor:pointer;" onclick="viewHistoricalBEO(\'' + ev.id + '\')">';
+    html += '<div style="font-size:14px;font-weight:600;color:var(--text);">' + d.name + '</div>';
+    html += '<div style="font-size:11px;color:var(--text3);margin-top:3px;">' + d.date + ' &middot; ' + d.guests + ' guests &middot; ' + d.totalDrinks + ' drinks &middot; ' + ev._venue + ' &middot; Week: ' + ev._weekLabel + '</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">';
+    d.selected.forEach(function(c) { html += '<span style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:2px 8px;font-size:10px;color:var(--text2);">' + c.name + '</span>'; });
+    html += '</div></div>';
+
+    // Action buttons
+    html += '<div style="display:flex;gap:8px;flex-shrink:0;">';
+    html += '<button onclick="viewHistoricalBEO(\'' + ev.id + '\')" class="btn-sm btn-outline">View</button>';
+    html += '<button onclick="editHistoricalBEO(\'' + ev.id + '\')" class="btn-sm btn-outline">Edit</button>';
+    html += '</div>';
+
+    html += '</div></div>';
+  });
+
+  el.innerHTML = html;
+}
+
+function toggleBEOSelect(checkbox) {
+  var id = checkbox.getAttribute('data-id');
+  if (checkbox.checked) {
+    _selectedBEOIds.add(id);
+  } else {
+    _selectedBEOIds.delete(id);
+    document.getElementById('selectAllBEOs').checked = false;
+  }
+  updateHistoryActions();
+}
+
+function toggleSelectAll(checked) {
+  _selectedBEOIds.clear();
+  if (checked) {
+    _allHistoricalEvents.forEach(function(ev) { _selectedBEOIds.add(ev.id); });
+  }
+  renderHistoryList();
+  if (checked) document.getElementById('selectAllBEOs').checked = true;
+}
+
+function updateHistoryActions() {
+  var acts = document.getElementById('historyActions');
+  var info = document.getElementById('historySelectionInfo');
+  var n    = _selectedBEOIds.size;
+  if (acts) acts.style.display = n > 0 ? 'flex' : 'none';
+  if (info) info.textContent   = n > 0 ? n + ' BEO' + (n>1?'s':'') + ' selected' : '';
+  var cnt = document.getElementById('selectedCount');
+  if (cnt) cnt.textContent = n + ' selected';
+}
+
+function viewHistoricalBEO(id) {
+  var ev = _allHistoricalEvents.find(function(e){ return e.id === id; });
+  if (!ev) return;
+  lastBEO = ev.beo_data;
+  renderOutput(ev.beo_data);
+  switchPane('output');
+}
+
+function editHistoricalBEO(id) {
+  var ev = _allHistoricalEvents.find(function(e){ return e.id === id; });
+  if (!ev) return;
+  _editingEventId = id;
+  var d = ev.beo_data;
+
+  // Populate form fields
+  var set = function(elId, val){ var el=document.getElementById(elId); if(el) el.value=val||''; };
+  set('i_name', d.name); set('i_time', d.time); set('i_location', d.location);
+  set('i_guests', d.guests); set('i_type', d.type); set('i_tequila', d.tequila);
+
+  // Populate cocktails
+  for (var i = 0; i < 8; i++) {
+    var cEl = document.getElementById('c'+i); var sEl = document.getElementById('s'+i);
+    if (cEl) cEl.value = d.selected[i] ? d.selected[i].name : '';
+    if (sEl) sEl.value = d.selected[i] ? d.selected[i].service : 'PASSED';
+  }
+  // Populate bars
+  for (var j = 0; j < 6; j++) {
+    var bEl = document.getElementById('b'+j); var bqEl = document.getElementById('bq'+j);
+    if (bEl)  bEl.value  = d.bars[j] ? d.bars[j].type : '';
+    if (bqEl) bqEl.value = d.bars[j] ? d.bars[j].qty  : '';
+  }
+
+  // Show editing notice
+  showToast('Editing: ' + d.name + ' — change the Event Name to save as new version', 'success');
+  switchPane('input');
+
+  // Update generate button to show editing mode
+  var genBtn = document.querySelector('button[onclick="generateAndSave()"]');
+  if (genBtn) {
+    genBtn.textContent = 'Save as New BEO Version';
+    genBtn.style.background = '#8b6f3f';
+  }
+}
+
+// Download selected BEOs as individual PDFs
+function downloadSelectedBEOs() {
+  if (_selectedBEOIds.size === 0) { showToast('No BEOs selected', 'error'); return; }
+  var selected = _allHistoricalEvents.filter(function(ev){ return _selectedBEOIds.has(ev.id); });
+  selected.forEach(function(ev, idx) {
+    setTimeout(function(){ generateBEOPDF(ev.beo_data); }, idx * 900);
+  });
+  showToast('Downloading ' + selected.length + ' PDF' + (selected.length>1?'s':'') + '...', 'success');
+}
+
+// Create custom collection from selected BEOs
+function createCustomCollection() {
+  if (_selectedBEOIds.size === 0) { showToast('No BEOs selected', 'error'); return; }
+  var selected = _allHistoricalEvents.filter(function(ev){ return _selectedBEOIds.has(ev.id); });
+
+  // Build totals exactly like Event Collection
+  var spirits  = {};
+  var garnishes = {};
+
+  selected.forEach(function(ev) {
+    var d = ev.beo_data;
+    d.selected.forEach(function(c) {
+      if (!c.recipe) return;
+      c.recipe.ingredients.forEach(function(ing) {
+        var bottles = Math.round((ing.oz * c.servings) / ing.cs);
+        var cat     = (ing.category || 'OTHER').toUpperCase().trim();
+        var key     = (ing.name||'').toUpperCase().trim() + '||' + cat;
+        if (!spirits[key]) spirits[key] = { name:ing.name, cat:cat, subCat:ing.subCat||'', ct:ing.ct, cs:ing.cs, totalOz:0, events:[] };
+        spirits[key].totalOz += ing.oz * c.servings;
+        spirits[key].events.push({ name:d.name, oz: Math.round(ing.oz*c.servings*10)/10 });
+      });
+      [c.recipe.garnish1, c.recipe.garnish2].filter(function(g){return g&&g!=='/'&&g!=='';}).forEach(function(g) {
+        var key = g.toUpperCase().trim();
+        if (!garnishes[key]) garnishes[key] = { name:g, total:0, events:[] };
+        garnishes[key].total += c.servings;
+        garnishes[key].events.push({ name:d.name, qty:c.servings });
+      });
+    });
+  });
+
+  // Group by category and compute bottles
+  var CAT_ORDER  = ['LIQUOR','JUICE','PREP ITEM','NA BEV','OTHER'];
+  var catGroups  = {};
+  Object.values(spirits).forEach(function(sp) {
+    var cat = sp.cat;
+    if (!catGroups[cat]) catGroups[cat] = [];
+    catGroups[cat].push({ name:sp.name, subCat:sp.subCat, ct:sp.ct, totalOz:Math.round(sp.totalOz*10)/10, bottles:Math.round(sp.totalOz/sp.cs), events:sp.events });
+  });
+  CAT_ORDER.forEach(function(cat){ if (catGroups[cat]) catGroups[cat].sort(function(a,b){return b.totalOz-a.totalOz;}); });
+
+  var garnishList = Object.values(garnishes).sort(function(a,b){return b.total-a.total;});
+
+  // Generate PDF
+  generateCustomCollectionPDF(selected, catGroups, garnishList, CAT_ORDER);
+}
+
+function generateCustomCollectionPDF(selected, catGroups, garnishList, CAT_ORDER) {
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'letter' });
+  var PW=215.9, PH=279.4, ML=16, MR=16, CW=PW-ML-MR;
+  var y=0;
+  var DARK=[20,20,20], TEXT2=[80,80,80], TEXT3=[120,120,120], SURF2=[245,245,243], SURF3=[235,233,228], WHITE=[255,255,255];
+
+  function addPage(){ doc.addPage(); y=16; }
+  function checkY(n){ if(y+n>PH-16) addPage(); }
+  function rect(x,ry,w,h,c){ doc.setFillColor(...c); doc.rect(x,ry,w,h,'F'); }
+  function txt(str,x,ty,size,color,align,style){
+    doc.setFontSize(size||10); doc.setTextColor(...(color||DARK));
+    doc.setFont('helvetica',style||'normal');
+    doc.text(String(str),x,ty,{align:align||'left',baseline:'middle'});
+  }
+
+  var CAT_LABELS = { LIQUOR:'Liquor Order', JUICE:'Juice Order', 'PREP ITEM':'Prep Items', 'NA BEV':'NA Beverages', OTHER:'Other' };
+  var totalBottles = Object.values(catGroups).reduce(function(s,items){return s+items.reduce(function(s2,i){return s2+i.bottles;},0);},0);
+  var now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+
+  // Header
+  rect(0,0,PW,28,SURF3);
+  txt('375 BAR GROUP · CUSTOM EVENT COLLECTION',ML,9,7.5,[120,120,120],'left','bold');
+  txt(selected.length+' events selected',ML,14,7.5,[160,160,160],'left','normal');
+  txt(selected.map(function(ev){return ev.beo_data.name;}).join(' · '),ML,22,9,DARK,'left','bold');
+  y=30;
+
+  // Event summary
+  rect(ML,y,CW,7,SURF3);
+  txt('EVENTS INCLUDED',ML+3,y+3.5,7,TEXT3,'left','bold');
+  txt(selected.length+' events · '+totalBottles+' total bottles',PW-MR-3,y+3.5,6,TEXT3,'right','normal');
+  y+=8;
+  selected.forEach(function(ev,i){
+    var d=ev.beo_data;
+    checkY(8);
+    rect(ML,y,CW,8,i%2===0?WHITE:SURF2);
+    txt(d.name,ML+3,y+4,9,DARK,'left','bold');
+    txt(d.date+' · '+d.guests+' guests',PW-MR-3,y+4,8,TEXT2,'right','normal');
+    y+=8;
+  });
+  y+=6;
+
+  // Category sections
+  CAT_ORDER.forEach(function(cat){
+    var items = catGroups[cat];
+    if (!items || items.length===0) return;
+    var catTotal = items.reduce(function(s,i){return s+i.bottles;},0);
+    checkY(20);
+    rect(ML,y,CW,7,SURF3);
+    txt(CAT_LABELS[cat]||cat,ML+3,y+3.5,7,TEXT3,'left','bold');
+    txt(items.length+' items · '+catTotal+' containers',PW-MR-3,y+3.5,6,TEXT3,'right','normal');
+    y+=8;
+    rect(ML,y,CW,6,SURF2);
+    txt('INGREDIENT',ML+3,y+3,6,TEXT3,'left','bold');
+    txt('SUB CATEGORY',ML+80,y+3,6,TEXT3,'right','bold');
+    txt('TOTAL OZ',ML+125,y+3,6,TEXT3,'right','bold');
+    txt('CONTAINERS',ML+CW-1,y+3,6,TEXT3,'right','bold');
+    y+=6;
+    items.forEach(function(item,idx){
+      checkY(8);
+      rect(ML,y,CW,8,idx%2===0?WHITE:SURF2);
+      txt(item.name,ML+3,y+4,8,DARK,'left','normal');
+      txt(item.subCat||'—',ML+80,y+4,7,TEXT3,'right','normal');
+      txt(item.totalOz+' oz',ML+125,y+4,8,TEXT2,'right','normal');
+      rect(ML+CW-14,y+1.5,13,5,DARK);
+      txt(String(item.bottles),ML+CW-7.5,y+4,7,WHITE,'center','bold');
+      y+=8;
+    });
+    y+=6;
+  });
+
+  // Garnishes
+  if (garnishList.length>0) {
+    checkY(20);
+    rect(ML,y,CW,7,SURF3);
+    txt('GARNISH TOTALS',ML+3,y+3.5,7,TEXT3,'left','bold');
+    y+=8;
+    rect(ML,y,CW,6,SURF2);
+    txt('GARNISH',ML+3,y+3,6,TEXT3,'left','bold');
+    txt('TOTAL PIECES',ML+CW-1,y+3,6,TEXT3,'right','bold');
+    y+=6;
+    garnishList.forEach(function(g,idx){
+      checkY(8);
+      rect(ML,y,CW,8,idx%2===0?WHITE:SURF2);
+      txt(g.name,ML+3,y+4,8,DARK,'left','normal');
+      rect(ML+CW-20,y+1.5,19,5,DARK);
+      txt(g.total+' pcs',ML+CW-10,y+4,7,WHITE,'center','bold');
+      y+=8;
+    });
+  }
+
+  // Footer
+  checkY(10);
+  doc.setDrawColor(...TEXT3); doc.setLineWidth(0.3); doc.line(ML,y,PW-MR,y); y+=5;
+  txt('Generated '+now,ML,y,7,TEXT3,'left','normal');
+  txt('375 Bar Group · Custom Collection',PW-MR,y,7,TEXT3,'right','normal');
+
+  doc.save('375Bar_CustomCollection_' + now.replace(/[^a-zA-Z0-9]/g,'_') + '.pdf');
+  showToast('Custom Collection PDF downloaded', 'success');
+}
+
+// Delete selected BEOs (soft delete)
+async function deleteSelectedBEOs() {
+  if (_selectedBEOIds.size === 0) { showToast('No BEOs selected', 'error'); return; }
+  var n = _selectedBEOIds.size;
+  if (!confirm('Delete ' + n + ' selected BEO' + (n>1?'s':'') + '? This can be recovered by your administrator if needed.')) return;
+  showLoading(true);
+  try {
+    var ids = Array.from(_selectedBEOIds);
+    for (var i = 0; i < ids.length; i++) {
+      await sbFetch('events?id=eq.' + ids[i], {
+        method: 'PATCH',
+        body: JSON.stringify({ deleted: true })
+      });
+    }
+    _selectedBEOIds.clear();
+    await loadAllHistoricalBEOs();
+    showToast(n + ' BEO' + (n>1?'s':'') + ' deleted', 'success');
+  } catch(e) { showToast('Could not delete: ' + e.message, 'error'); }
+  showLoading(false);
 }
 
 // ══ COLLECTION ════════════════════════════════════════════════
