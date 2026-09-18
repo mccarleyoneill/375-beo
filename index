@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NMO Beverage Ops Platform</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap');
+
+:root {
+  --bg:      #0e0e0c;
+  --surface: #161614;
+  --surface2:#1e1e1b;
+  --border:  #2e2e29;
+  --border2: #3a3a34;
+  --gold:    #c8a96e;
+  --gold-dim:#8b6f3f;
+  --gold-bg: #1c1810;
+  --text:    #f0ece4;
+  --text2:   #a09880;
+  --text3:   #5a5648;
+  --radius:  6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+.platform-wrap {
+  width: 100%;
+  max-width: 480px;
+  padding: 24px;
+  text-align: center;
+}
+
+/* ── Logo / Title ── */
+.platform-logo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.platform-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.platform-sub {
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  margin-bottom: 52px;
+}
+
+/* ── Divider ── */
+.divider {
+  width: 40px;
+  height: 1px;
+  background: var(--border2);
+  margin: 0 auto 40px;
+}
+
+/* ── Card ── */
+.platform-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.platform-card-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-bg);
+  text-align: left;
+}
+.platform-card-body {
+  padding: 20px;
+}
+
+/* ── Select ── */
+.platform-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  padding: 14px 16px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c8a96e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+.platform-select:focus { border-color: var(--gold); }
+.platform-select option { background: var(--surface2); color: var(--text); }
+.platform-select option:disabled { color: var(--text3); }
+
+/* ── Module description ── */
+.module-desc {
+  font-size: 11px;
+  color: var(--text3);
+  line-height: 1.6;
+  min-height: 36px;
+  margin-bottom: 20px;
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-radius: 4px;
+  border-left: 2px solid var(--gold-dim);
+  display: none;
+}
+.module-desc.visible { display: block; }
+
+/* ── Enter button ── */
+.platform-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gold);
+  color: #0e0e0c;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.platform-btn.ready { opacity: 1; pointer-events: all; }
+.platform-btn.ready:hover { background: #d4b87a; }
+
+/* ── Coming soon tag ── */
+.coming-soon {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  padding: 2px 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ── Footer ── */
+.platform-footer {
+  margin-top: 40px;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+}
+</style>
+</head>
+<body>
+
+<div class="platform-wrap">
+
+  <!-- Logo -->
+  <div class="platform-logo">NMO</div>
+  <h1 class="platform-title">Beverage Ops Platform</h1>
+  <p class="platform-sub">Select a module to continue</p>
+
+  <div class="divider"></div>
+
+  <!-- Module selector -->
+  <div class="platform-card">
+    <div class="platform-card-header">Select Module</div>
+    <div class="platform-card-body">
+
+      <select class="platform-select" id="moduleSelect" onchange="onModuleChange()">
+        <option value="" disabled selected>— Choose a module —</option>
+        <option value="beo">375 BEO Calculator</option>
+        <option value="mia">MIA Bar Logs</option>
+        <option value="nyc">NYC Bar Logs</option>
+        <option value="batch">Batch Calculator</option>
+        <option value="cog">Cocktail &amp; COG% Calculator</option>
+      </select>
+
+      <div class="module-desc" id="moduleDesc"></div>
+
+      <button class="platform-btn" id="enterBtn" onclick="enterModule()">Enter Module →</button>
+
+    </div>
+  </div>
+
+  <div class="platform-footer">NMO Beverage Ops · Internal Platform</div>
+
+</div>
+
+<script>
+const MODULES = {
+  beo: {
+    label: '375 BEO Calculator',
+    desc:  'Build and manage Banquet Event Orders for 375 Events. Calculate batch recipes, bottle counts, garnish totals and generate weekly collection reports.',
+    url:   'beo.html',
+    live:  true
+  },
+  mia: {
+    label: 'MIA Bar Logs',
+    desc:  'Daily bar logs, par level tracking and inventory management for Miami operations.',
+    url:   '#',
+    live:  false
+  },
+  nyc: {
+    label: 'NYC Bar Logs',
+    desc:  'Daily bar logs, par level tracking and inventory management for New York operations.',
+    url:   '#',
+    live:  false
+  },
+  batch: {
+    label: 'Batch Calculator',
+    desc:  'Scale any cocktail recipe to a custom batch size. Calculate exact ingredient quantities and bottle requirements.',
+    url:   '#',
+    live:  false
+  },
+  cog: {
+    label: 'Cocktail & COG% Calculator',
+    desc:  'Calculate cost of goods for individual cocktails and menus. Track margins and optimise pricing.',
+    url:   '#',
+    live:  false
+  }
+};
+
+function onModuleChange() {
+  var val  = document.getElementById('moduleSelect').value;
+  var mod  = MODULES[val];
+  var desc = document.getElementById('moduleDesc');
+  var btn  = document.getElementById('enterBtn');
+
+  if (!mod) {
+    desc.classList.remove('visible');
+    btn.classList.remove('ready');
+    btn.textContent = 'Enter Module →';
+    return;
+  }
+
+  desc.textContent = mod.desc + (mod.live ? '' : ' — Coming soon.');
+  desc.classList.add('visible');
+
+  if (mod.live) {
+    btn.textContent = 'Enter ' + mod.label + ' →';
+    btn.classList.add('ready');
+  } else {
+    btn.textContent = 'Coming Soon';
+    btn.classList.remove('ready');
+  }
+}
+
+function enterModule() {
+  var val = document.getElementById('moduleSelect').value;
+  var mod = MODULES[val];
+  if (mod && mod.live) {
+    window.location.href = mod.url;
+  }
+}
+
+// Also allow Enter key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') enterModule();
+});
+</script>
+</body>
+</html>
