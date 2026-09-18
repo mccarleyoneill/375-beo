@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bar Log · NMO Beverage Ops</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap');
+
+:root {
+  --bg:#0e0e0c; --surface:#161614; --surface2:#1e1e1b; --surface3:#252521;
+  --border:#2e2e29; --border2:#3a3a34;
+  --gold:#c8a96e; --gold-dim:#8b6f3f; --gold-bg:#1c1810;
+  --text:#f0ece4; --text2:#a09880; --text3:#5a5648;
+  --red:#cc4444; --green:#4a9e6a; --radius:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;min-height:100vh;}
+::-webkit-scrollbar{width:6px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* ── Top Nav ── */
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50;}
+.nav-left{display:flex;align-items:center;gap:16px;}
+.nav-brand{font-family:'Playfair Display',serif;font-size:15px;letter-spacing:0.06em;color:var(--text);}
+.nav-venue{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-dim);padding:3px 10px;border-radius:3px;}
+.nav-right{display:flex;gap:8px;align-items:center;}
+.btn-sm{padding:6px 12px;border-radius:var(--radius);font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:all 0.15s;border:none;}
+.btn-outline{background:none;border:1px solid var(--border2);color:var(--text2);}
+.btn-outline:hover{border-color:var(--text2);color:var(--text);}
+.btn-gold{background:var(--gold);color:#0e0e0c;font-weight:700;}
+.btn-gold:hover{background:#d4b87a;}
+.btn-green{background:var(--green);color:#fff;font-weight:700;}
+
+/* ── Main layout ── */
+.main{max-width:900px;margin:0 auto;padding:28px 24px 80px;}
+
+/* ── Page header ── */
+.page-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;}
+.page-header h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--text);}
+.page-header .meta{font-size:11px;color:var(--text3);}
+
+/* ── Section blocks ── */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+.section-header{padding:10px 18px;background:var(--gold-bg);border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);}
+.section-body{padding:16px 18px;}
+
+/* ── Field types ── */
+.field-row{display:grid;gap:12px;margin-bottom:12px;}
+.field-row.cols-2{grid-template-columns:1fr 1fr;}
+.field-row.cols-3{grid-template-columns:1fr 1fr 1fr;}
+.field-row.cols-1{grid-template-columns:1fr;}
+.field-row:last-child{margin-bottom:0;}
+
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;font-family:inherit;padding:8px 10px;outline:none;transition:border-color 0.15s;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);}
+.field input::placeholder,.field textarea::placeholder{color:var(--text3);}
+.field textarea{resize:vertical;min-height:70px;}
+.field select option{background:var(--surface2);}
+
+/* ── Inventory table ── */
+.inv-table{width:100%;border-collapse:collapse;}
+.inv-table th{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);padding:7px 12px;text-align:left;background:var(--surface2);border-bottom:1px solid var(--border);}
+.inv-table th.r{text-align:right;}
+.inv-table td{padding:0;border-bottom:1px solid var(--border);}
+.inv-table tr:last-child td{border-bottom:none;}
+.inv-table .item-name{padding:8px 12px;font-size:12px;color:var(--text);font-weight:500;}
+.inv-table .item-unit{padding:8px 12px;font-size:11px;color:var(--text3);}
+.inv-table .item-par{padding:8px 12px;font-size:12px;color:var(--gold);text-align:center;}
+.inv-table input[type=number]{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;font-family:inherit;padding:6px 8px;outline:none;width:80px;text-align:center;transition:border-color 0.15s;}
+.inv-table input[type=number]:focus{border-color:var(--gold);}
+.inv-table td.num-cell{padding:5px 12px;text-align:center;}
+.inv-table tr:hover td{background:rgba(255,255,255,0.02);}
+
+/* ── Low stock indicator ── */
+.low{border-color:var(--red) !important;}
+.low-label{font-size:9px;color:var(--red);margin-left:4px;}
+
+/* ── Save status ── */
+.save-banner{display:none;background:var(--gold-bg);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--gold);font-weight:500;text-align:center;}
+.save-banner.visible{display:block;}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 18px;font-size:12px;color:var(--text);z-index:999;display:none;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
+.toast.show{display:block;}
+.toast.success{border-color:var(--green);color:var(--green);}
+.toast.error{border-color:var(--red);color:var(--red);}
+
+/* ── Loading ── */
+.loading-overlay{position:fixed;inset:0;background:rgba(14,14,12,0.8);display:none;align-items:center;justify-content:center;z-index:998;flex-direction:column;gap:14px;}
+.loading-overlay.show{display:flex;}
+.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div style="font-size:11px;color:var(--text3);">Saving...</div>
+</div>
+
+<!-- ── Nav ── -->
+<nav class="topnav">
+  <div class="nav-left">
+    <a href="mia.html" style="font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:0.08em;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text3)'">← MIA</a>
+    <div class="nav-brand">Daily Bar Recap</div>
+    <div class="nav-venue" id="navVenue">—</div>
+  </div>
+  <div class="nav-right">
+    <button class="btn-sm btn-outline" onclick="clearLog()">Clear</button>
+    <button class="btn-sm btn-gold" onclick="saveLog()">Save Log</button>
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- Save banner -->
+  <div class="save-banner" id="saveBanner"></div>
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">NMO · Miami Operations</div>
+      <h1 id="pageTitle">Daily Bar Recap</h1>
+    </div>
+    <div class="meta" id="pageMeta"></div>
+  </div>
+
+  <!-- ── 1. LOG INFO ── -->
+  <div class="section">
+    <div class="section-header">Log Information</div>
+    <div class="section-body">
+      <div class="field-row cols-3">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="logDate">
+        </div>
+        <div class="field">
+          <label>Day</label>
+          <input type="text" id="logDay" readonly style="color:var(--text2);">
+        </div>
+        <div class="field">
+          <label>Submitted By</label>
+          <input type="text" id="logUser" placeholder="Your name">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. SERVICE NOTES ── -->
+  <div class="section">
+    <div class="section-header">Service Notes</div>
+    <div class="section-body">
+      <div class="field-row cols-1">
+        <div class="field">
+          <label>Products 86'd Today</label>
+          <textarea id="products86" placeholder="List any items that ran out during service..."></textarea>
+        </div>
+      </div>
+      <div class="field-row cols-1">
+        <div class="field">
+          <label>Product Lows</label>
+          <textarea id="productLows" placeholder="Items running low — needs ordering or prep..."></textarea>
+        </div>
+      </div>
+      <div class="field-row cols-2">
+        <div class="field">
+          <label>Service Notes — Main Bar (Closing Bartender)</label>
+          <textarea id="notesMain" placeholder="Main bar closing notes..."></textarea>
+        </div>
+        <div class="field">
+          <label>Service Notes — Back Lounge (Closing Bartender)</label>
+          <textarea id="notesLounge" placeholder="Back lounge closing notes..."></textarea>
+        </div>
+      </div>
+      <div class="field-row cols-2">
+        <div class="field">
+          <label>Bar Requests</label>
+          <textarea id="barRequests" placeholder="Any requests or items needed..."></textarea>
+        </div>
+        <div class="field">
+          <label>Facility & Maintenance</label>
+          <textarea id="facility" placeholder="Any maintenance issues to flag..."></textarea>
+        </div>
+      </div>
+      <div class="field-row cols-2">
+        <div class="field">
+          <label>Guest Issues</label>
+          <textarea id="guestIssues" placeholder="Any guest complaints or incidents..."></textarea>
+        </div>
+        <div class="field">
+          <label>Broken Glassware</label>
+          <textarea id="brokenGlass" placeholder="List broken items..."></textarea>
+        </div>
+      </div>
+      <div class="field-row cols-1">
+        <div class="field">
+          <label>WICT (What I Could Tell)</label>
+          <textarea id="wict" placeholder="Anything else to note for the next shift..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. INVENTORY ── -->
+  <!-- WICT -->
+  <div class="section">
+    <div class="section-header">WICT — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table">
+        <thead><tr><th>Item</th><th>Unit</th><th class="r">On Hand</th></tr></thead>
+        <tbody id="wictTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- JUICE -->
+  <div class="section">
+    <div class="section-header">Juice — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table">
+        <thead><tr><th>Item</th><th>Unit</th><th class="r">On Hand</th></tr></thead>
+        <tbody id="juiceTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MIXERS -->
+  <div class="section">
+    <div class="section-header">Mixers — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table">
+        <thead><tr><th>Item</th><th>Unit</th><th class="r">On Hand</th></tr></thead>
+        <tbody id="mixersTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PREP -->
+  <div class="section">
+    <div class="section-header">Prep — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table">
+        <thead><tr><th>Item</th><th>Unit</th><th style="text-align:center;">PAR</th><th class="r">On Hand</th></tr></thead>
+        <tbody id="prepTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BEER -->
+  <div class="section">
+    <div class="section-header">Beer — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table">
+        <thead><tr><th>Item</th><th>Unit</th><th class="r">On Hand</th></tr></thead>
+        <tbody id="beerTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 4. WASTE ── -->
+  <div class="section">
+    <div class="section-header">Waste Log</div>
+    <div class="section-body" style="padding:0 0 0 0;">
+      <table class="inv-table">
+        <thead><tr><th>Item</th><th>Unit</th><th class="r">Volume Wasted</th></tr></thead>
+        <tbody id="wasteTable"></tbody>
+      </table>
+      <div style="padding:14px 18px;">
+        <div class="field">
+          <label>Other Waste (describe product and volume)</label>
+          <textarea id="otherWaste" placeholder="e.g. 1qt lavender honey — dropped and broken..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. BATCH LOG ── -->
+  <div class="section">
+    <div class="section-header">Batch Log — Current Inventory (Walk-in Jerry Cans Only)</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table">
+        <thead><tr><th>Batch</th><th class="r">Jerry Cans on Hand</th></tr></thead>
+        <tbody id="batchTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Get venue from URL param ──────────────────────────────────
+var params  = new URLSearchParams(window.location.search);
+var venue   = params.get('venue') || 'Venue';
+document.getElementById('navVenue').textContent  = venue;
+document.getElementById('pageTitle').textContent = venue + ' · Daily Bar Recap';
+
+// ── Set today's date and day ──────────────────────────────────
+var today = new Date();
+var dateStr = today.toISOString().split('T')[0];
+document.getElementById('logDate').value = dateStr;
+document.getElementById('logDate').addEventListener('change', updateDay);
+updateDay();
+
+function updateDay() {
+  var d = new Date(document.getElementById('logDate').value + 'T12:00:00');
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('logDay').value = days[d.getDay()];
+  document.getElementById('pageMeta').textContent = days[d.getDay()] + ' · ' + document.getElementById('logDate').value;
+}
+
+// ── Inventory data ────────────────────────────────────────────
+var WICT = [
+  { name:'Pellegrino',    unit:'cs' },
+  { name:'Panna',         unit:'cs' },
+  { name:'Mixology Ice',  unit:'bags' },
+  { name:'Espresso Pods', unit:'cs' },
+  { name:'Decaf Pods',    unit:'cs' }
+];
+
+var JUICE = [
+  { name:'M.E.P Lime Juice',      unit:'ea' },
+  { name:'M.E.P Lemon Juice',     unit:'ea' },
+  { name:'M.E.P Grapefruit',      unit:'ea' },
+  { name:'M.E.P Orange Juice',    unit:'ea' },
+  { name:'M.E.P Pineapple Juice', unit:'ea' },
+  { name:'Dole Pineapple',        unit:'ea' },
+  { name:'Cranberry',             unit:'ea' }
+];
+
+var MIXERS = [
+  { name:'Club Soda',      unit:'cs' },
+  { name:'Tonic',          unit:'cs' },
+  { name:'Ginger Beer',    unit:'cs' },
+  { name:'Coca Cola',      unit:'cs' },
+  { name:'Diet Coke',      unit:'cs' },
+  { name:'Coke Zero',      unit:'cs' },
+  { name:'Sprite',         unit:'cs' },
+  { name:'Ginger Ale',     unit:'cs' },
+  { name:'Grapefruit Soda',unit:'cs' }
+];
+
+var PREP = [
+  { name:'Agave',             unit:'Quarts', par:2  },
+  { name:'Cane',              unit:'Quarts', par:6  },
+  { name:'Decaf',             unit:'Quarts', par:2  },
+  { name:'Olive Mix',         unit:'Quarts', par:4  },
+  { name:'Iced Tea',          unit:'Quarts', par:4  },
+  { name:'English Breakfast Tea', unit:'Quarts', par:12 }
+];
+
+var BEER = [
+  { name:"Civil Society 'Fresh'",        unit:'cs' },
+  { name:'Peroni',                       unit:'cs' },
+  { name:'Best Day Kolsch',             unit:'cs' },
+  { name:"Athletic Brewing 'Free Wave' IPA", unit:'cs' },
+  { name:"Tripping Animals 'Ever Haze'", unit:'cs' }
+];
+
+var WASTE = [
+  { name:'Lime Juice',       unit:'QT' },
+  { name:'Lemon Juice',      unit:'QT' },
+  { name:'Grapefruit Juice', unit:'QT' }
+];
+
+var BATCHES = [
+  'Manhattan','Negroni','Calabrian Margarita','Daiquiri','Whiskey Sour',
+  'Espresso Martini','Mai Tai','Old Fashioned','Vino Spritz',
+  'Elderflower Spritz','Pompelmo Spritz','Strawberry Sbagliatto',
+  'Dry Martini','Vesper','Negroni Base'
+];
+
+// ── Build tables ──────────────────────────────────────────────
+function buildSimpleTable(tbodyId, items) {
+  var tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = items.map(function(item, i) {
+    return '<tr>' +
+      '<td class="item-name">' + item.name + '</td>' +
+      '<td class="item-unit">' + item.unit + '</td>' +
+      '<td class="num-cell"><input type="number" id="' + tbodyId + '_' + i + '" min="0" placeholder="—" step="0.5"></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function buildPrepTable() {
+  var tbody = document.getElementById('prepTable');
+  tbody.innerHTML = PREP.map(function(item, i) {
+    return '<tr>' +
+      '<td class="item-name">' + item.name + '</td>' +
+      '<td class="item-unit">' + item.unit + '</td>' +
+      '<td class="item-par">' + item.par + '</td>' +
+      '<td class="num-cell"><input type="number" id="prepTable_' + i + '" min="0" placeholder="—" step="0.5" onchange="checkPar(this,' + item.par + ')"></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function checkPar(input, par) {
+  if (parseFloat(input.value) < par) {
+    input.classList.add('low');
+  } else {
+    input.classList.remove('low');
+  }
+}
+
+function buildBatchTable() {
+  var tbody = document.getElementById('batchTable');
+  tbody.innerHTML = BATCHES.map(function(name, i) {
+    return '<tr>' +
+      '<td class="item-name">' + name + '</td>' +
+      '<td class="num-cell"><input type="number" id="batchTable_' + i + '" min="0" placeholder="—" step="0.5"></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function buildWasteTable() {
+  var tbody = document.getElementById('wasteTable');
+  tbody.innerHTML = WASTE.map(function(item, i) {
+    return '<tr>' +
+      '<td class="item-name">' + item.name + '</td>' +
+      '<td class="item-unit">' + item.unit + '</td>' +
+      '<td class="num-cell"><input type="number" id="wasteTable_' + i + '" min="0" placeholder="—" step="0.25"></td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ── Collect all values ────────────────────────────────────────
+function collectValues(tbodyId, items) {
+  var result = {};
+  items.forEach(function(item, i) {
+    var el = document.getElementById(tbodyId + '_' + i);
+    result[item.name] = el ? el.value : '';
+  });
+  return result;
+}
+
+// ── Save log ──────────────────────────────────────────────────
+function saveLog() {
+  var user = document.getElementById('logUser').value.trim();
+  var date = document.getElementById('logDate').value;
+  if (!user) { showToast('Please enter your name before saving', 'error'); return; }
+  if (!date) { showToast('Please set the date', 'error'); return; }
+
+  var logData = {
+    venue    : venue,
+    date     : date,
+    day      : document.getElementById('logDay').value,
+    user     : user,
+    notes: {
+      products86   : document.getElementById('products86').value,
+      productLows  : document.getElementById('productLows').value,
+      notesMain    : document.getElementById('notesMain').value,
+      notesLounge  : document.getElementById('notesLounge').value,
+      barRequests  : document.getElementById('barRequests').value,
+      facility     : document.getElementById('facility').value,
+      guestIssues  : document.getElementById('guestIssues').value,
+      brokenGlass  : document.getElementById('brokenGlass').value,
+      wict         : document.getElementById('wict').value,
+      otherWaste   : document.getElementById('otherWaste').value
+    },
+    inventory: {
+      wict   : collectValues('wictTable',   WICT),
+      juice  : collectValues('juiceTable',  JUICE),
+      mixers : collectValues('mixersTable', MIXERS),
+      prep   : collectValues('prepTable',   PREP),
+      beer   : collectValues('beerTable',   BEER),
+      waste  : collectValues('wasteTable',  WASTE),
+      batch  : collectValues('batchTable',  BATCHES.map(function(n){return {name:n};}))
+    },
+    savedAt: new Date().toISOString()
+  };
+
+  // Save to localStorage keyed by venue + date
+  try {
+    var key = 'barlog_' + venue.replace(/\s+/g,'_') + '_' + date;
+    localStorage.setItem(key, JSON.stringify(logData));
+    var banner = document.getElementById('saveBanner');
+    banner.textContent = '✓ Log saved — ' + venue + ' · ' + date + ' · Submitted by ' + user;
+    banner.classList.add('visible');
+    showToast('Bar log saved', 'success');
+  } catch(e) {
+    showToast('Could not save: ' + e.message, 'error');
+  }
+}
+
+function clearLog() {
+  if (!confirm('Clear all entries? This cannot be undone.')) return;
+  document.getElementById('products86').value  = '';
+  document.getElementById('productLows').value = '';
+  document.getElementById('notesMain').value   = '';
+  document.getElementById('notesLounge').value = '';
+  document.getElementById('barRequests').value = '';
+  document.getElementById('facility').value    = '';
+  document.getElementById('guestIssues').value = '';
+  document.getElementById('brokenGlass').value = '';
+  document.getElementById('wict').value        = '';
+  document.getElementById('otherWaste').value  = '';
+  ['wictTable','juiceTable','mixersTable','prepTable','beerTable','wasteTable','batchTable'].forEach(function(id) {
+    document.getElementById(id).querySelectorAll('input').forEach(function(el){ el.value=''; el.classList.remove('low'); });
+  });
+  document.getElementById('saveBanner').classList.remove('visible');
+  showToast('Log cleared', 'success');
+}
+
+function showToast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type?' '+type:'');
+  setTimeout(function(){ el.className='toast'; }, 3000);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+buildSimpleTable('wictTable',   WICT);
+buildSimpleTable('juiceTable',  JUICE);
+buildSimpleTable('mixersTable', MIXERS);
+buildPrepTable();
+buildSimpleTable('beerTable',   BEER);
+buildWasteTable();
+buildBatchTable();
+</script>
+</body>
+</html>
