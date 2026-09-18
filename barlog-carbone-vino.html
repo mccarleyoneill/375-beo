@@ -3,248 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carbone Vino &middot; Daily Bar Recap</title>
+<title>Carbone Vino · Historical Bar Logs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #fff; color: #1a1a1a; font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.5; min-height: 100vh; }
+body { background: #f5f5f5; color: #1a1a1a; font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.5; min-height: 100vh; }
 
 /* ── NAV ── */
 .topnav { background: #fff; border-bottom: 2px solid #e0e0e0; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 50; }
 .nav-left { display: flex; align-items: center; gap: 14px; }
 .nav-brand { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: #1a1a1a; }
 .nav-venue { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #7a5c2e; background: #fdf6ec; border: 1px solid #e8c98a; padding: 3px 10px; border-radius: 3px; font-weight: 700; }
-.nav-right { display: flex; gap: 8px; }
+.back-link { font-size: 10px; color: #888; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+.back-link:hover { color: #b8924a; }
 .btn { padding: 7px 14px; border-radius: 5px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: inherit; border: none; transition: all 0.15s; }
 .btn-outline { background: #fff; border: 1px solid #ccc; color: #555; }
 .btn-outline:hover { border-color: #999; color: #1a1a1a; }
-.btn-primary { background: #1a1a1a; color: #fff; }
-.btn-primary:hover { background: #333; }
-.btn-saved { background: #2d7d4f; color: #fff; }
-.btn-reports { background: #fff; border: 1px solid #b8924a; color: #b8924a; font-weight: 700; }
-.btn-reports:hover { background: #fdf6ec; }
-.offline-badge { display: none; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 3px 8px; border-radius: 3px; }
-.offline-badge.visible { display: inline-block; }
-.back-link { font-size: 10px; color: #888; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
-.back-link:hover { color: #b8924a; }
+.btn-gold { background: #fff; border: 1px solid #b8924a; color: #b8924a; font-weight: 700; }
+.btn-gold:hover { background: #fdf6ec; }
+.btn-danger { background: #fff; border: 1px solid #cc3333; color: #cc3333; }
+.btn-danger:hover { background: #cc3333; color: #fff; }
+.btn-sm { padding: 5px 12px; font-size: 9px; }
 
 /* ── MAIN ── */
-.main { max-width: 860px; margin: 0 auto; padding: 28px 24px 100px; }
-.page-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: flex-end; }
+.main { max-width: 960px; margin: 0 auto; padding: 28px 24px 60px; }
+.page-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
 .page-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #1a1a1a; }
 .page-sub { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #b8924a; font-weight: 700; margin-bottom: 4px; }
-.page-meta { font-size: 11px; color: #888; }
 
-/* ── SAVE BANNER ── */
-.save-banner { display: none; background: #f0f7f0; border: 1px solid #a8d5a8; border-radius: 6px; padding: 10px 16px; margin-bottom: 16px; font-size: 12px; color: #2d7d4f; font-weight: 600; text-align: center; }
-.save-banner.visible { display: block; }
+/* ── FILTER BAR ── */
+.filter-bar { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 16px 20px; margin-bottom: 16px; display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.fg { display: flex; flex-direction: column; gap: 4px; }
+.fg label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
+.fg select { background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; color: #1a1a1a; font-size: 12px; font-family: inherit; padding: 7px 10px; outline: none; min-width: 130px; }
+.fg select:focus { border-color: #b8924a; }
+.filter-meta { font-size: 11px; color: #888; margin-left: auto; align-self: flex-end; }
+.sync-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ccc; margin-right: 5px; vertical-align: middle; }
+.sync-dot.green { background: #2d7d4f; }
+.sync-dot.amber { background: #f59e0b; }
 
-/* ── CARRY OVER BANNER ── */
-.carry-banner { display: none; background: #fdf6ec; border: 1px solid #e8c98a; border-radius: 6px; padding: 8px 14px; margin-top: 6px; font-size: 11px; color: #7a5c2e; }
-.carry-link { font-size: 10px; color: #b8924a; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; margin-left: 10px; text-decoration: underline; }
+/* ── ACTION BAR (appears on selection) ── */
+.action-bar { background: #fdf6ec; border: 1px solid #e8c98a; border-radius: 6px; padding: 12px 18px; margin-bottom: 14px; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
+.action-bar.visible { display: flex; }
+.action-count { font-size: 12px; font-weight: 600; color: #7a5c2e; margin-right: 4px; }
 
-/* ── SECTIONS ── */
-.section { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.section-header { padding: 10px 18px; background: #f0f0f0; border-bottom: 1px solid #e0e0e0; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1a1a1a; }
-.section-body { padding: 16px 18px; }
+/* ── SELECT ALL BAR ── */
+.select-bar { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+.select-bar input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; accent-color: #b8924a; }
+.select-bar label { font-size: 11px; color: #555; cursor: pointer; font-weight: 500; }
+.select-info { font-size: 11px; color: #888; margin-left: 8px; }
 
-/* ── FIELD ROWS ── */
-.field-row { display: grid; gap: 12px; margin-bottom: 12px; }
-.field-row:last-child { margin-bottom: 0; }
-.field-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
-.field-row.cols-2 { grid-template-columns: 1fr 1fr; }
-.field-row.cols-1 { grid-template-columns: 1fr; }
-.field { display: flex; flex-direction: column; gap: 4px; }
-.field label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
-.field input, .field select, .field textarea {
-  background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;
-  color: #1a1a1a; font-size: 13px; font-family: inherit;
-  padding: 8px 10px; outline: none; transition: border-color 0.15s; width: 100%;
-}
-.field input:focus, .field select:focus, .field textarea:focus { border-color: #b8924a; }
-.field textarea { resize: vertical; min-height: 72px; }
-.field input[readonly] { background: #f0f0f0; color: #888; cursor: default; }
+/* ── LOG CARDS ── */
+.log-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: border-color 0.15s; }
+.log-card.selected { border-color: #b8924a; background: #fdf6ec; }
+.log-card-row { display: flex; align-items: center; padding: 14px 18px; gap: 14px; }
+.log-card input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; accent-color: #b8924a; flex-shrink: 0; }
+.log-info { flex: 1; cursor: pointer; min-width: 0; }
+.log-date { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.log-day { font-size: 11px; color: #b8924a; font-weight: 600; margin-left: 8px; }
+.log-meta { font-size: 11px; color: #888; margin-top: 3px; }
+.log-note { font-size: 12px; color: #555; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 580px; }
+.log-actions { display: flex; gap: 7px; flex-shrink: 0; }
+.empty-state { text-align: center; padding: 56px 24px; color: #aaa; }
+.empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+.empty-state p { font-size: 13px; }
+.loading-state { text-align: center; padding: 48px 24px; color: #888; font-size: 13px; }
 
-/* ── INVENTORY TABLES ── */
-.inv-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.inv-table col.col-name { width: auto; }
-.inv-table col.col-unit { width: 72px; }
-.inv-table col.col-par  { width: 65px; }
-.inv-table col.col-hand { width: 105px; }
-.inv-table th {
-  font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  color: #555; padding: 8px 14px; text-align: left;
-  background: #f5f5f5; border-bottom: 1px solid #e0e0e0; white-space: nowrap;
-}
-.inv-table th.center { text-align: center; }
-.inv-table th.right  { text-align: right; }
-.inv-table td { padding: 8px 14px; border-bottom: 1px solid #ebebeb; vertical-align: middle; font-size: 12px; }
-.inv-table tr:last-child td { border-bottom: none; }
-.inv-table tr:nth-child(even) td { background: #fafafa; }
-.inv-table tr:hover td { background: #f5f5f5; }
-.item-name { font-weight: 500; color: #1a1a1a; }
-.item-unit { color: #888; text-align: center; }
-.item-par  { color: #b8924a; text-align: center; font-weight: 700; }
-.num-cell  { text-align: right; padding-right: 16px; }
-.inv-table input {
-  background: #fff; border: 1px solid #ddd; border-radius: 4px;
-  color: #1a1a1a; font-size: 12px; font-family: inherit;
-  padding: 5px 8px; outline: none; width: 80px; text-align: center;
-  transition: border-color 0.15s; display: block; margin-left: auto;
-}
-.inv-table input:focus { border-color: #b8924a; }
-.inv-table input.low { border-color: #cc3333 !important; background: #fff8f8; }
-input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+/* ── MONTH DIVIDER ── */
+.month-divider { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #b8924a; padding: 10px 0 6px; border-bottom: 1px solid #e8c98a; margin-bottom: 8px; margin-top: 6px; }
+.month-divider:first-child { margin-top: 0; }
+
+/* ── MODAL ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: flex-start; justify-content: center; padding: 36px 20px; overflow-y: auto; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 8px; width: 100%; max-width: 700px; box-shadow: 0 8px 40px rgba(0,0,0,0.18); overflow: hidden; }
+.modal-header { padding: 16px 20px; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: space-between; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #1a1a1a; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; line-height: 1; padding: 0 4px; }
+.modal-close:hover { color: #1a1a1a; }
+.modal-body { padding: 20px; max-height: 72vh; overflow-y: auto; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid #e0e0e0; display: flex; justify-content: flex-end; gap: 8px; }
+
+/* ── MODAL FIELDS ── */
+.mf { margin-bottom: 14px; }
+.mf label { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 4px; }
+.mf input, .mf textarea { width: 100%; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; color: #1a1a1a; font-size: 13px; font-family: inherit; padding: 8px 10px; outline: none; }
+.mf input:focus, .mf textarea:focus { border-color: #b8924a; }
+.mf textarea { resize: vertical; min-height: 58px; }
+.mf input[readonly] { background: #f0f0f0; color: #888; cursor: default; }
+.mrow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.msec { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #b8924a; margin: 18px 0 8px; padding-bottom: 6px; border-bottom: 1px solid #ebebeb; }
+.inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.inv-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: #f9f9f9; border: 1px solid #ebebeb; border-radius: 4px; }
+.inv-name { font-size: 11px; font-weight: 500; flex: 1; color: #1a1a1a; }
+.inv-val { font-size: 12px; font-weight: 600; color: #1a1a1a; min-width: 36px; text-align: right; }
+.inv-item input { width: 64px; background: #fff; border: 1px solid #ddd; border-radius: 3px; font-size: 12px; padding: 3px 5px; text-align: center; font-family: inherit; outline: none; }
+.inv-item input:focus { border-color: #b8924a; }
+.inv-item input.low { border-color: #cc3333; background: #fff8f8; }
 
 /* ── TOAST ── */
 .toast { position: fixed; bottom: 24px; right: 24px; background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 12px 18px; font-size: 12px; color: #1a1a1a; z-index: 999; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
 .toast.show { display: block; }
 .toast.success { border-color: #2d7d4f; color: #2d7d4f; }
-.toast.error   { border-color: #cc3333; color: #cc3333; }
+.toast.error { border-color: #cc3333; color: #cc3333; }
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
+
+<!-- VIEW / EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="bgClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Log Details</div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="delOverlay">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header"><div class="modal-title">Confirm Delete</div></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:#555;padding:4px 0;" id="delMsg">Delete this log entry? This cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('delOverlay').classList.remove('open')">Cancel</button>
+      <button class="btn btn-danger" id="confirmDelBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
 <nav class="topnav">
   <div class="nav-left">
-    <a href="mia.html" class="back-link">← MIA</a>
-    <div class="nav-brand">Daily Bar Recap</div>
+    <a href="barlog-carbone-vino.html" class="back-link">← Daily Log</a>
+    <div class="nav-brand">Historical Bar Logs</div>
     <div class="nav-venue">Carbone Vino</div>
-    <span class="offline-badge" id="offlineBadge">Offline</span>
-  </div>
-  <div class="nav-right">
-    <button class="btn btn-reports" onclick="window.location.href='logreports-carbone-vino.html'">📋 Log Reports</button>
-    <button class="btn btn-outline" onclick="clearLog()">Clear</button>
-    <button class="btn btn-primary" id="saveBtn" onclick="saveLog()">Save Log</button>
   </div>
 </nav>
 
 <div class="main">
-  <div class="save-banner" id="saveBanner"></div>
   <div class="page-header">
     <div>
       <div class="page-sub">NMO · Miami Operations</div>
-      <div class="page-title">Carbone Vino · Daily Bar Recap</div>
+      <div class="page-title">Carbone Vino · Historical Bar Logs</div>
     </div>
-    <div class="page-meta" id="pageMeta"></div>
-  </div>
-
-  <div class="section">
-    <div class="section-header">Log Information</div>
-    <div class="section-body">
-      <div class="field-row cols-3">
-        <div class="field"><label>Submitted By</label><input type="text" id="logUser" placeholder="Your name"></div>
-        <div class="field"><label>Date</label><input type="date" id="logDate"></div>
-        <div class="field"><label>Day</label><input type="text" id="logDay" readonly></div>
-      </div>
+    <div style="font-size:11px;color:#888;" id="headerMeta">
+      <span class="sync-dot" id="syncDot"></span>
+      <span id="syncLabel">Loading…</span>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-header">Service Notes</div>
-    <div class="section-body">
-      <div class="field-row cols-1">
-        <div class="field">
-          <label>Products 86'd Today <span class="carry-link" id="carry86Btn" style="display:none" onclick="applyCarry('products86','carry86Btn','carry86Preview')">↑ Carry over from yesterday</span></label>
-          <textarea id="products86" placeholder="List any items that ran out during service..."></textarea>
-          <div class="carry-banner" id="carry86Preview"></div>
-        </div>
-      </div>
-      <div class="field-row cols-1">
-        <div class="field">
-          <label>Product Lows <span class="carry-link" id="carryLowsBtn" style="display:none" onclick="applyCarry('productLows','carryLowsBtn','carryLowsPreview')">↑ Carry over from yesterday</span></label>
-          <textarea id="productLows" placeholder="Items running low..."></textarea>
-          <div class="carry-banner" id="carryLowsPreview"></div>
-        </div>
-      </div>
-      <div class="field-row cols-1">
-        <div class="field"><label>Service Notes</label><textarea id="notesMain" placeholder="Closing notes for tonight's shift..." style="min-height:90px;"></textarea></div>
-      </div>
-      <div class="field-row cols-2">
-        <div class="field"><label>Bar Requests</label><textarea id="barRequests" placeholder="Items needed, equipment requests..."></textarea></div>
-        <div class="field"><label>Facility & Maintenance</label><textarea id="facility" placeholder="Any maintenance issues to flag..."></textarea></div>
-      </div>
-      <div class="field-row cols-1">
-        <div class="field"><label>Broken Glassware</label><textarea id="brokenGlass" placeholder="List any broken items..." style="min-height:52px;"></textarea></div>
-      </div>
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="fg">
+      <label>Month</label>
+      <select id="fMonth" onchange="applyFilter()">
+        <option value="">All Months</option>
+        <option value="01">January</option><option value="02">February</option>
+        <option value="03">March</option><option value="04">April</option>
+        <option value="05">May</option><option value="06">June</option>
+        <option value="07">July</option><option value="08">August</option>
+        <option value="09">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
     </div>
+    <div class="fg">
+      <label>Year</label>
+      <select id="fYear" onchange="applyFilter()">
+        <option value="">All Years</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Submitted By</label>
+      <select id="fUser" onchange="applyFilter()">
+        <option value="">All Staff</option>
+      </select>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="clearFilters()" style="align-self:flex-end;">Clear</button>
+    <div class="filter-meta" id="filterMeta"></div>
   </div>
 
-  <div class="section">
-    <div class="section-header">WICT — On Hand Counts</div>
-    <div class="section-body" style="padding:0;">
-      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
-        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">On Hand</th></tr></thead>
-        <tbody id="wictBody"></tbody></table>
-    </div>
+  <!-- SELECTION ACTION BAR -->
+  <div class="action-bar" id="actionBar">
+    <span class="action-count" id="actionCount">0 selected</span>
+    <button class="btn btn-outline btn-sm" onclick="deleteSelected()">🗑 Delete Selected</button>
+    <button class="btn btn-outline btn-sm" onclick="clearSelection()">Clear Selection</button>
   </div>
 
-  <div class="section">
-    <div class="section-header">Juice — On Hand Counts</div>
-    <div class="section-body" style="padding:0;">
-      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
-        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">On Hand</th></tr></thead>
-        <tbody id="juiceBody"></tbody></table>
-    </div>
+  <!-- SELECT ALL BAR -->
+  <div class="select-bar" id="selectBar" style="display:none;">
+    <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
+    <label for="selectAll">Select All</label>
+    <span class="select-info" id="selectInfo"></span>
   </div>
 
-  <div class="section">
-    <div class="section-header">Mixers — On Hand Counts</div>
-    <div class="section-body" style="padding:0;">
-      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
-        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">On Hand</th></tr></thead>
-        <tbody id="mixersBody"></tbody></table>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-header">Prep — On Hand Counts</div>
-    <div class="section-body" style="padding:0;">
-      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-par"><col class="col-hand"></colgroup>
-        <thead><tr><th>Item</th><th class="center">Unit</th><th class="center">PAR</th><th class="right">On Hand</th></tr></thead>
-        <tbody id="prepBody"></tbody></table>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-header">Beer — On Hand Counts</div>
-    <div class="section-body" style="padding:0;">
-      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
-        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">On Hand</th></tr></thead>
-        <tbody id="beerBody"></tbody></table>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-header">Waste Log</div>
-    <div class="section-body" style="padding:0 0 0 0;">
-      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
-        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">Volume Wasted</th></tr></thead>
-        <tbody id="wasteBody"></tbody></table>
-      <div style="padding:14px 18px;">
-        <div class="field"><label>Other Waste — describe product and volume</label>
-          <textarea id="otherWaste" placeholder="e.g. 1 bottle red wine — corked and returned..." style="min-height:52px;"></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-header">Batch Log — Walk-in Jerry Cans Only</div>
-    <div class="section-body" style="padding:0;">
-      <table class="inv-table"><colgroup><col class="col-name"><col class="col-hand"></colgroup>
-        <thead><tr><th>Batch</th><th class="right">Jerry Cans on Hand</th></tr></thead>
-        <tbody id="batchBody"></tbody></table>
-    </div>
-  </div>
-
-  <div style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #e0e0e0;padding:16px 24px;display:flex;justify-content:flex-end;align-items:center;gap:16px;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,0.08);">
-    <span id="bottomSaveHint" style="font-size:11px;color:#888;"></span>
-    <button onclick="saveLog()" id="bottomSaveBtn" style="background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:14px 36px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:background 0.15s;">Save Log</button>
+  <!-- LOG LIST -->
+  <div id="logList">
+    <div class="loading-state">Loading logs from Supabase…</div>
   </div>
 </div>
 
@@ -252,10 +214,11 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 // ── SUPABASE ──────────────────────────────────────────────────
 var SB_URL = 'https://hqicvgyqtqvwzocfqikm.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxaWN2Z3lxdHF2d3pvY2ZxaWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NjUxMjYsImV4cCI6MjEwNTI0MTEyNn0.xWe4vrhsqV2HtU-dSyqFRGYyKn4_Nf-PwYv2OFPqO7I';
+var VENUE = 'Carbone Vino';
 
-async function sbFetch(path, opts) {
+async function sb(path, opts) {
   opts = opts || {};
-  var res = await fetch(SB_URL + '/rest/v1/' + path, {
+  var r = await fetch(SB_URL + '/rest/v1/' + path, {
     method: opts.method || 'GET',
     headers: {
       'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY,
@@ -264,148 +227,384 @@ async function sbFetch(path, opts) {
     },
     body: opts.body ? JSON.stringify(opts.body) : undefined
   });
-  if (!res.ok) throw new Error(await res.text());
-  var t = await res.text();
-  return t ? JSON.parse(t) : null;
+  if (!r.ok) throw new Error(await r.text());
+  var t = await r.text(); return t ? JSON.parse(t) : null;
 }
 
-// ── VENUE / SCHEMA ────────────────────────────────────────────
-var VENUE = 'Carbone Vino';
-var LS_PREFIX = 'barlog_Carbone_Vino_';
+// ── SCHEMA ───────────────────────────────────────────────────
+var WICT   = [{n:'Pellegrino',u:'cs'},{n:'Panna',u:'cs'},{n:'Mixology Ice',u:'bags'},{n:'Espresso Pods',u:'cs'},{n:'Decaf Pods',u:'cs'}];
+var JUICE  = [{n:'M.E.P Lime Juice',u:'ea'},{n:'M.E.P Lemon Juice',u:'ea'},{n:'M.E.P Grapefruit',u:'ea'},{n:'M.E.P Orange Juice',u:'ea'},{n:'M.E.P Pineapple Juice',u:'ea'},{n:'Dole Pineapple',u:'ea'},{n:'Cranberry',u:'ea'}];
+var MIXERS = [{n:'Club Soda',u:'cs'},{n:'Tonic',u:'cs'},{n:'Ginger Beer',u:'cs'},{n:'Coca Cola',u:'cs'},{n:'Diet Coke',u:'cs'},{n:'Coke Zero',u:'cs'},{n:'Sprite',u:'cs'},{n:'Ginger Ale',u:'cs'},{n:'Grapefruit Soda',u:'cs'}];
+var PREP   = [{n:'Agave',u:'Quarts',par:2},{n:'Cane',u:'Quarts',par:6},{n:'Decaf',u:'Quarts',par:2},{n:'Olive Mix',u:'Quarts',par:4},{n:'Iced Tea',u:'Quarts',par:4},{n:'English Breakfast Tea',u:'Quarts',par:12}];
+var BEER   = [{n:"Civil Society 'Fresh'",u:'cs'},{n:'Peroni',u:'cs'},{n:'Best Day Kolsch',u:'cs'},{n:"Athletic Brewing 'Free Wave' IPA",u:'cs'},{n:"Tripping Animals 'Ever Haze'",u:'cs'}];
+var WASTE  = [{n:'Lime Juice',u:'QT'},{n:'Lemon Juice',u:'QT'},{n:'Grapefruit Juice',u:'QT'}];
+var BATCHES = ['Manhattan','Negroni','Calabrian Margarita','Daiquiri','Whiskey Sour','Espresso Martini','Mai Tai','Old Fashioned','Vino Spritz','Elderflower Spritz','Pompelmo Spritz','Strawberry Sbagliatto','Dry Martini','Vesper','Negroni Base'];
 
-var WICT=[{name:'Pellegrino',unit:'cs'},{name:'Panna',unit:'cs'},{name:'Mixology Ice',unit:'bags'},{name:'Espresso Pods',unit:'cs'},{name:'Decaf Pods',unit:'cs'}];
-var JUICE=[{name:'M.E.P Lime Juice',unit:'ea'},{name:'M.E.P Lemon Juice',unit:'ea'},{name:'M.E.P Grapefruit',unit:'ea'},{name:'M.E.P Orange Juice',unit:'ea'},{name:'M.E.P Pineapple Juice',unit:'ea'},{name:'Dole Pineapple',unit:'ea'},{name:'Cranberry',unit:'ea'}];
-var MIXERS=[{name:'Club Soda',unit:'cs'},{name:'Tonic',unit:'cs'},{name:'Ginger Beer',unit:'cs'},{name:'Coca Cola',unit:'cs'},{name:'Diet Coke',unit:'cs'},{name:'Coke Zero',unit:'cs'},{name:'Sprite',unit:'cs'},{name:'Ginger Ale',unit:'cs'},{name:'Grapefruit Soda',unit:'cs'}];
-var PREP=[{name:'Agave',unit:'Quarts',par:2},{name:'Cane',unit:'Quarts',par:6},{name:'Decaf',unit:'Quarts',par:2},{name:'Olive Mix',unit:'Quarts',par:4},{name:'Iced Tea',unit:'Quarts',par:4},{name:'English Breakfast Tea',unit:'Quarts',par:12}];
-var BEER=[{name:"Civil Society 'Fresh'",unit:'cs'},{name:'Peroni',unit:'cs'},{name:'Best Day Kolsch',unit:'cs'},{name:"Athletic Brewing 'Free Wave' IPA",unit:'cs'},{name:"Tripping Animals 'Ever Haze'",unit:'cs'}];
-var WASTE=[{name:'Lime Juice',unit:'QT'},{name:'Lemon Juice',unit:'QT'},{name:'Grapefruit Juice',unit:'QT'}];
-var BATCHES=['Manhattan','Negroni','Calabrian Margarita','Daiquiri','Whiskey Sour','Espresso Martini','Mai Tai','Old Fashioned','Vino Spritz','Elderflower Spritz','Pompelmo Spritz','Strawberry Sbagliatto','Dry Martini','Vesper','Negroni Base'];
+var MONTH_NAMES = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// ── BUILD TABLES ──────────────────────────────────────────────
-function buildSimple(id,items){document.getElementById(id).innerHTML=items.map(function(item,i){return'<tr><td class="item-name">'+item.name+'</td><td class="item-unit">'+item.unit+'</td><td class="num-cell"><input type="text" inputmode="decimal" id="'+id+'_'+i+'" placeholder="—"></td></tr>';}).join('');}
-function buildPrep(){document.getElementById('prepBody').innerHTML=PREP.map(function(item,i){return'<tr><td class="item-name">'+item.name+'</td><td class="item-unit">'+item.unit+'</td><td class="item-par">'+item.par+'</td><td class="num-cell"><input type="text" inputmode="decimal" id="prepBody_'+i+'" placeholder="—" onchange="checkPar(this,'+item.par+')"></td></tr>';}).join('');}
-function buildBatch(){document.getElementById('batchBody').innerHTML=BATCHES.map(function(n,i){return'<tr><td class="item-name">'+n+'</td><td class="num-cell"><input type="text" inputmode="decimal" id="batchBody_'+i+'" placeholder="—"></td></tr>';}).join('');}
-function buildWaste(){document.getElementById('wasteBody').innerHTML=WASTE.map(function(item,i){return'<tr><td class="item-name">'+item.name+'</td><td class="item-unit">'+item.unit+'</td><td class="num-cell"><input type="text" inputmode="decimal" id="wasteBody_'+i+'" placeholder="—"></td></tr>';}).join('');}
-function checkPar(input,par){var v=parseFloat(input.value);input.classList.toggle('low',!isNaN(v)&&v<par);}
+// ── STATE ────────────────────────────────────────────────────
+var ALL_LOGS = [];
+var FILTERED = [];
+var SELECTED = new Set();
+var EDITING_DATE = null;
+var PENDING_DELETE = null;
 
-// ── DATE ─────────────────────────────────────────────────────
-var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-function setToday(){document.getElementById('logDate').value=new Date().toISOString().split('T')[0];updateDay();}
-function updateDay(){
-  var d=new Date(document.getElementById('logDate').value+'T12:00:00');
-  document.getElementById('logDay').value=DAYS[d.getDay()];
-  document.getElementById('pageMeta').textContent=DAYS[d.getDay()]+' · '+document.getElementById('logDate').value;
-  loadPriorDay();
-}
-document.getElementById('logDate').addEventListener('change',updateDay);
+// ── LOAD ─────────────────────────────────────────────────────
+async function loadLogs() {
+  try {
+    var rows = await sb('bar_logs?venue=eq.' + encodeURIComponent(VENUE) + '&deleted=eq.false&order=date.desc&limit=2000');
+    ALL_LOGS = rows || [];
+    document.getElementById('syncDot').className = 'sync-dot green';
+    document.getElementById('syncLabel').textContent = ALL_LOGS.length + ' logs · synced';
 
-// ── CARRY OVER — checks Supabase then localStorage ────────────
-var _prior=null;
-async function loadPriorDay(){
-  var date=document.getElementById('logDate').value;if(!date)return;
-  var d=new Date(date+'T12:00:00');d.setDate(d.getDate()-1);
-  var prior=d.toISOString().split('T')[0];
-  try{
-    var rows=await sbFetch('bar_logs?venue=eq.'+encodeURIComponent(VENUE)+'&date=eq.'+prior+'&deleted=eq.false&select=notes');
-    _prior=rows&&rows[0]?rows[0]:null;
-  }catch(e){
-    try{var raw=localStorage.getItem(LS_PREFIX+prior);_prior=raw?JSON.parse(raw):null;}catch(e2){_prior=null;}
+    // Populate year filter
+    var years = [...new Set(ALL_LOGS.map(function(l){ return l.date.substring(0,4); }))].sort().reverse();
+    var ysel = document.getElementById('fYear');
+    years.forEach(function(y){ var o=document.createElement('option'); o.value=y; o.textContent=y; ysel.appendChild(o); });
+
+    // Populate user filter
+    var users = [...new Set(ALL_LOGS.map(function(l){ return l.user_name||''; }).filter(Boolean))].sort();
+    var usel = document.getElementById('fUser');
+    users.forEach(function(u){ var o=document.createElement('option'); o.value=u; o.textContent=u; usel.appendChild(o); });
+
+    // Default to current month/year
+    var now = new Date();
+    document.getElementById('fMonth').value = String(now.getMonth()+1).padStart(2,'0');
+    document.getElementById('fYear').value  = String(now.getFullYear());
+
+    applyFilter();
+  } catch(e) {
+    document.getElementById('syncDot').className = 'sync-dot amber';
+    document.getElementById('syncLabel').textContent = 'Offline';
+    document.getElementById('logList').innerHTML = '<div class="loading-state">Could not connect to Supabase. Check your connection.</div>';
   }
-  showCarry('products86','carry86Btn','carry86Preview',_prior&&_prior.notes&&_prior.notes.products86,prior);
-  showCarry('productLows','carryLowsBtn','carryLowsPreview',_prior&&_prior.notes&&_prior.notes.productLows,prior);
-}
-function showCarry(f,btn,prev,val,date){
-  var b=document.getElementById(btn),p=document.getElementById(prev);
-  if(val&&val.trim()){b.style.display='inline';b.textContent='\u2191 Carry over from '+date;p.style.display='block';p.textContent='Yesterday: '+val.substring(0,100)+(val.length>100?'...':'');}
-  else{b.style.display='none';p.style.display='none';}
-}
-function applyCarry(f,btn,prev){
-  if(!_prior||!_prior.notes){showToast('No prior day log found','error');return;}
-  var v=_prior.notes[f];if(v){document.getElementById(f).value=v;showToast('Carried over','success');}
-  else showToast('No data for this field yesterday','error');
 }
 
-// ── COLLECT VALUES ────────────────────────────────────────────
-function collectTable(id,items){var r={};items.forEach(function(item,i){var el=document.getElementById(id+'_'+i);r[item.name||item]=el?el.value:'';});return r;}
+// ── FILTER ────────────────────────────────────────────────────
+function applyFilter() {
+  var month = document.getElementById('fMonth').value;
+  var year  = document.getElementById('fYear').value;
+  var user  = document.getElementById('fUser').value;
 
-// ── SAVE ─────────────────────────────────────────────────────
-async function saveLog(){
-  var user=document.getElementById('logUser').value.trim();
-  var date=document.getElementById('logDate').value;
-  if(!user){showToast('Please enter your name','error');return;}
-  if(!date){showToast('Please set the date','error');return;}
+  FILTERED = ALL_LOGS.filter(function(log) {
+    if (month && log.date.substring(5,7) !== month) return false;
+    if (year  && log.date.substring(0,4) !== year)  return false;
+    if (user  && (log.user_name||'') !== user)       return false;
+    return true;
+  });
 
-  var btn=document.getElementById('saveBtn');
-  var bb=document.getElementById('bottomSaveBtn');
-  btn.textContent='Saving...';btn.disabled=true;
-  if(bb){bb.textContent='Saving...';bb.disabled=true;}
+  var monthLabel = month ? MONTH_NAMES[parseInt(month)] : '';
+  var yearLabel  = year || '';
+  var label = [monthLabel, yearLabel].filter(Boolean).join(' ');
+  document.getElementById('filterMeta').textContent = FILTERED.length + ' log' + (FILTERED.length!==1?'s':'') + (label?' — '+label:'');
 
-  var payload={
-    venue:VENUE, date:date, day:document.getElementById('logDay').value, user_name:user,
-    notes:{
-      products86:document.getElementById('products86').value,
-      productLows:document.getElementById('productLows').value,
-      notesMain:document.getElementById('notesMain').value,
-      barRequests:document.getElementById('barRequests').value,
-      facility:document.getElementById('facility').value,
-      brokenGlass:document.getElementById('brokenGlass').value,
-      otherWaste:document.getElementById('otherWaste').value
+  SELECTED.clear();
+  renderList();
+}
+
+function clearFilters() {
+  document.getElementById('fMonth').value = '';
+  document.getElementById('fYear').value  = '';
+  document.getElementById('fUser').value  = '';
+  applyFilter();
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function renderList() {
+  var list = document.getElementById('logList');
+  var selectBar = document.getElementById('selectBar');
+
+  if (FILTERED.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No logs found for this period.</p></div>';
+    selectBar.style.display = 'none';
+    updateActionBar();
+    return;
+  }
+
+  selectBar.style.display = 'flex';
+  document.getElementById('selectInfo').textContent = FILTERED.length + ' log' + (FILTERED.length!==1?'s':'');
+  document.getElementById('selectAll').checked = SELECTED.size === FILTERED.length && FILTERED.length > 0;
+
+  // Group by month
+  var groups = {};
+  var groupOrder = [];
+  FILTERED.forEach(function(log) {
+    var key = log.date.substring(0,7); // YYYY-MM
+    if (!groups[key]) { groups[key] = []; groupOrder.push(key); }
+    groups[key].push(log);
+  });
+
+  var html = '';
+  groupOrder.forEach(function(key) {
+    var parts = key.split('-');
+    var label = MONTH_NAMES[parseInt(parts[1])] + ' ' + parts[0];
+    html += '<div class="month-divider">' + label + ' &mdash; ' + groups[key].length + ' log' + (groups[key].length!==1?'s':'') + '</div>';
+
+    groups[key].forEach(function(log) {
+      var sel = SELECTED.has(log.date);
+      var n   = log.notes || {};
+      var note = (n.notesMain || n.products86 || '').trim();
+      if (note.length > 90) note = note.substring(0,90) + '…';
+
+      html += '<div class="log-card' + (sel?' selected':'') + '" id="card_'+log.date+'">';
+      html += '<div class="log-card-row">';
+      html += '<input type="checkbox" ' + (sel?'checked':'') + ' onchange="toggleSel(event,\''+log.date+'\')" onclick="event.stopPropagation()">';
+      html += '<div class="log-info" onclick="viewLog(\''+log.date+'\')">';
+      html += '<div><span class="log-date">' + log.date + '</span><span class="log-day">' + (log.day||'') + '</span></div>';
+      html += '<div class="log-meta">Submitted by <strong>' + e(log.user_name||'—') + '</strong></div>';
+      if (note) html += '<div class="log-note">' + e(note) + '</div>';
+      html += '</div>';
+      html += '<div class="log-actions">';
+      html += '<button class="btn btn-outline btn-sm" onclick="viewLog(\''+log.date+'\');event.stopPropagation()">View</button>';
+      html += '<button class="btn btn-gold btn-sm" onclick="editLog(\''+log.date+'\');event.stopPropagation()">Edit</button>';
+      html += '<button class="btn btn-danger btn-sm" onclick="promptDelete(\''+log.date+'\',1);event.stopPropagation()">Delete</button>';
+      html += '</div></div></div>';
+    });
+  });
+
+  list.innerHTML = html;
+  updateActionBar();
+}
+
+function e(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── SELECTION ────────────────────────────────────────────────
+function toggleSel(event, date) {
+  if (SELECTED.has(date)) SELECTED.delete(date);
+  else SELECTED.add(date);
+  var card = document.getElementById('card_'+date);
+  if (card) card.className = 'log-card' + (SELECTED.has(date) ? ' selected' : '');
+  document.getElementById('selectAll').checked = SELECTED.size === FILTERED.length && FILTERED.length > 0;
+  updateActionBar();
+}
+
+function toggleSelectAll(checked) {
+  SELECTED.clear();
+  if (checked) FILTERED.forEach(function(log){ SELECTED.add(log.date); });
+  renderList();
+}
+
+function clearSelection() {
+  SELECTED.clear();
+  renderList();
+}
+
+function updateActionBar() {
+  var bar  = document.getElementById('actionBar');
+  var cnt  = document.getElementById('actionCount');
+  var n    = SELECTED.size;
+  bar.className = 'action-bar' + (n > 0 ? ' visible' : '');
+  cnt.textContent = n + ' log' + (n!==1?'s':'') + ' selected';
+}
+
+// ── FIND LOG ────────────────────────────────────────────────
+function findLog(date) {
+  return ALL_LOGS.find(function(l){ return l.date === date; }) || null;
+}
+
+// ── VIEW ─────────────────────────────────────────────────────
+function viewLog(date) {
+  var log = findLog(date); if (!log) return;
+  var n   = log.notes || {};
+  var inv = log.inventory || {};
+
+  document.getElementById('modalTitle').textContent = VENUE + ' · ' + date + (log.day ? ' (' + log.day + ')' : '');
+
+  function nr(label, val) {
+    if (!val || !val.trim()) return '';
+    return '<div class="mf"><label>' + label + '</label><div style="padding:8px 10px;background:#f9f9f9;border:1px solid #ebebeb;border-radius:4px;font-size:12px;white-space:pre-wrap;">' + e(val) + '</div></div>';
+  }
+
+  var html = '<div class="mrow"><div class="mf"><label>Date</label><input readonly value="' + date + '"></div>';
+  html += '<div class="mf"><label>Submitted By</label><input readonly value="' + e(log.user_name||'—') + '"></div></div>';
+  html += nr("Products 86'd", n.products86) + nr('Product Lows', n.productLows) +
+          nr('Service Notes', n.notesMain) + nr('Bar Requests', n.barRequests) +
+          nr('Facility & Maintenance', n.facility) + nr('Broken Glassware', n.brokenGlass) +
+          nr('Other Waste', n.otherWaste);
+
+  function invSec(title, items, obj) {
+    if (!obj) return '';
+    var rows = items.map(function(it) {
+      var v = obj[it.n] || ''; if (!v) return '';
+      return '<div class="inv-item"><span class="inv-name">' + it.n + '</span><span class="inv-val">' + v + '</span></div>';
+    }).filter(Boolean);
+    if (!rows.length) return '';
+    return '<div class="msec">' + title + '</div><div class="inv-grid">' + rows.join('') + '</div>';
+  }
+
+  html += invSec('WICT', WICT, inv.wict) + invSec('Juice', JUICE, inv.juice) +
+          invSec('Mixers', MIXERS, inv.mixers) + invSec('Prep', PREP, inv.prep) +
+          invSec('Beer', BEER, inv.beer) + invSec('Waste', WASTE, inv.waste);
+
+  var bInv = inv.batch || {};
+  var bRows = BATCHES.map(function(bn) {
+    var v = bInv[bn] || ''; if (!v) return '';
+    return '<div class="inv-item"><span class="inv-name">' + bn + '</span><span class="inv-val">' + v + '</span></div>';
+  }).filter(Boolean);
+  if (bRows.length) html += '<div class="msec">Batch Log</div><div class="inv-grid">' + bRows.join('') + '</div>';
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalFooter').innerHTML =
+    '<button class="btn btn-outline" onclick="closeModal()">Close</button>' +
+    '<button class="btn btn-gold" onclick="editLog(\'' + date + '\')">Edit Log</button>';
+  openModal();
+}
+
+// ── EDIT ─────────────────────────────────────────────────────
+function editLog(date) {
+  var log = findLog(date); if (!log) return;
+  EDITING_DATE = date;
+  var n   = log.notes || {};
+  var inv = log.inventory || {};
+
+  document.getElementById('modalTitle').textContent = 'Edit Log — ' + date;
+
+  function ta(id, val, ph) {
+    return '<textarea id="e_' + id + '" style="min-height:52px;" placeholder="' + (ph||'') + '">' + e(val||'') + '</textarea>';
+  }
+  function ii(sec, name, val, par) {
+    var low = par && parseFloat(val) < par;
+    return '<div class="inv-item"><span class="inv-name">' + name + '</span>' +
+      '<input id="e_' + sec + '_' + name.replace(/[^a-zA-Z0-9]/g,'_') + '" value="' + e(val||'') + '" placeholder="—"' +
+      (low?' class="low"':'') + ' onchange="chkPar(this,' + par + ')"></div>';
+  }
+
+  var html = '<div class="mrow"><div class="mf"><label>Date</label><input readonly value="' + date + '"></div>';
+  html += '<div class="mf"><label>Submitted By</label><input id="e_user" value="' + e(log.user_name||'') + '"></div></div>';
+  html += '<div class="mf"><label>Products 86\'d</label>' + ta('products86', n.products86) + '</div>';
+  html += '<div class="mf"><label>Product Lows</label>' + ta('productLows', n.productLows) + '</div>';
+  html += '<div class="mf"><label>Service Notes</label>' + ta('notesMain', n.notesMain) + '</div>';
+  html += '<div class="mrow"><div class="mf"><label>Bar Requests</label>' + ta('barRequests', n.barRequests) + '</div>' +
+          '<div class="mf"><label>Facility & Maintenance</label>' + ta('facility', n.facility) + '</div></div>';
+  html += '<div class="mrow"><div class="mf"><label>Broken Glassware</label>' + ta('brokenGlass', n.brokenGlass) + '</div>' +
+          '<div class="mf"><label>Other Waste</label>' + ta('otherWaste', n.otherWaste) + '</div></div>';
+
+  function iSec(title, items, sec, obj, pars) {
+    return '<div class="msec">' + title + '</div><div class="inv-grid">' +
+      items.map(function(it){ return ii(sec, it.n, (obj||{})[it.n], pars&&pars[it.n]); }).join('') + '</div>';
+  }
+  var prepPar = {}; PREP.forEach(function(p){ prepPar[p.n] = p.par; });
+
+  html += iSec('WICT',   WICT,   'wict',   inv.wict) +
+          iSec('Juice',  JUICE,  'juice',  inv.juice) +
+          iSec('Mixers', MIXERS, 'mixers', inv.mixers) +
+          iSec('Prep',   PREP,   'prep',   inv.prep, prepPar) +
+          iSec('Beer',   BEER,   'beer',   inv.beer) +
+          iSec('Waste',  WASTE,  'waste',  inv.waste);
+
+  html += '<div class="msec">Batch Log</div><div class="inv-grid">' +
+    BATCHES.map(function(bn){ return ii('batch', bn, (inv.batch||{})[bn]); }).join('') + '</div>';
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalFooter').innerHTML =
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-gold" onclick="saveEdit()">Save Changes</button>';
+  openModal();
+}
+
+function chkPar(el, par) { var v = parseFloat(el.value); el.classList.toggle('low', !isNaN(v) && v < par); }
+
+async function saveEdit() {
+  if (!EDITING_DATE) return;
+  var ex  = findLog(EDITING_DATE) || {};
+
+  function ri(sec, items) {
+    var o = {};
+    items.forEach(function(it) {
+      var el = document.getElementById('e_' + sec + '_' + it.n.replace(/[^a-zA-Z0-9]/g,'_'));
+      o[it.n] = el ? el.value : '';
+    });
+    return o;
+  }
+
+  var payload = {
+    venue: VENUE, date: EDITING_DATE,
+    day: ex.day || '',
+    user_name: document.getElementById('e_user').value.trim() || ex.user_name || '—',
+    notes: {
+      products86:  document.getElementById('e_products86').value,
+      productLows: document.getElementById('e_productLows').value,
+      notesMain:   document.getElementById('e_notesMain').value,
+      barRequests: document.getElementById('e_barRequests').value,
+      facility:    document.getElementById('e_facility').value,
+      brokenGlass: document.getElementById('e_brokenGlass').value,
+      otherWaste:  document.getElementById('e_otherWaste').value
     },
-    inventory:{
-      wict:collectTable('wictBody',WICT),juice:collectTable('juiceBody',JUICE),
-      mixers:collectTable('mixersBody',MIXERS),prep:collectTable('prepBody',PREP),
-      beer:collectTable('beerBody',BEER),waste:collectTable('wasteBody',WASTE),
-      batch:collectTable('batchBody',BATCHES.map(function(n){return{name:n};}))
+    inventory: {
+      wict:   ri('wict',   WICT),
+      juice:  ri('juice',  JUICE),
+      mixers: ri('mixers', MIXERS),
+      prep:   ri('prep',   PREP),
+      beer:   ri('beer',   BEER),
+      waste:  ri('waste',  WASTE),
+      batch:  ri('batch',  BATCHES.map(function(n){ return {n:n}; }))
     },
-    saved_at:new Date().toISOString(),
-    deleted:false
+    saved_at: new Date().toISOString(),
+    deleted: false
   };
 
-  var saved=false;
-  try{
-    // upsert by venue+date
-    await sbFetch('bar_logs?venue=eq.'+encodeURIComponent(VENUE)+'&date=eq.'+date,{
-      method:'DELETE', prefer:'return=minimal'
-    });
-    await sbFetch('bar_logs',{method:'POST',body:payload,prefer:'return=minimal'});
-    saved=true;
-    document.getElementById('offlineBadge').classList.remove('visible');
-  }catch(e){
-    // fallback to localStorage
-    try{localStorage.setItem(LS_PREFIX+date,JSON.stringify(payload));saved=true;document.getElementById('offlineBadge').classList.add('visible');showToast('Saved offline — will sync when online','error');}
-    catch(e2){showToast('Save failed: '+e2.message,'error');}
+  try {
+    await sb('bar_logs?venue=eq.' + encodeURIComponent(VENUE) + '&date=eq.' + EDITING_DATE, { method:'DELETE', prefer:'return=minimal' });
+    await sb('bar_logs', { method:'POST', body:payload, prefer:'return=minimal' });
+    // Update local cache
+    var idx = ALL_LOGS.findIndex(function(l){ return l.date === EDITING_DATE; });
+    var updated = Object.assign({}, payload, { notes: payload.notes, inventory: payload.inventory });
+    if (idx >= 0) ALL_LOGS[idx] = updated; else ALL_LOGS.push(updated);
+    closeModal();
+    toast('Log saved', 'success');
+    applyFilter();
+  } catch(err) {
+    toast('Save failed: ' + err.message, 'error');
   }
-
-  if(saved){
-    var banner=document.getElementById('saveBanner');
-    banner.textContent='\u2713 Log saved \u2014 '+VENUE+' \u00b7 '+date+' \u00b7 '+user;
-    banner.classList.add('visible');
-    btn.textContent='\u2713 Saved';btn.className='btn btn-saved';
-    if(bb){bb.style.background='#2d7d4f';bb.textContent='\u2713 Log Saved';}
-    var hint=document.getElementById('bottomSaveHint');
-    if(hint)hint.textContent='Last saved: '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-    if(!document.getElementById('offlineBadge').classList.contains('visible')) showToast('Log saved to Supabase','success');
-  }
-  btn.disabled=false;if(bb)bb.disabled=false;
 }
 
-// ── CLEAR ─────────────────────────────────────────────────────
-function clearLog(){
-  if(!confirm('Clear all entries?'))return;
-  ['products86','productLows','notesMain','barRequests','facility','brokenGlass','otherWaste'].forEach(function(id){document.getElementById(id).value='';});
-  ['wictBody','juiceBody','mixersBody','prepBody','beerBody','wasteBody','batchBody'].forEach(function(id){document.getElementById(id).querySelectorAll('input').forEach(function(el){el.value='';el.classList.remove('low');});});
-  document.getElementById('saveBanner').classList.remove('visible');
-  var btn=document.getElementById('saveBtn');btn.textContent='Save Log';btn.className='btn btn-primary';
-  var bb=document.getElementById('bottomSaveBtn');if(bb){bb.style.background='#1a1a1a';bb.textContent='Save Log';}
-  showToast('Log cleared','success');
+// ── DELETE ────────────────────────────────────────────────────
+function promptDelete(date, single) {
+  PENDING_DELETE = single ? [date] : Array.from(SELECTED);
+  var n = PENDING_DELETE.length;
+  document.getElementById('delMsg').textContent = 'Delete ' + (n > 1 ? n + ' logs' : 'this log') + '? This cannot be undone.';
+  document.getElementById('delOverlay').classList.add('open');
 }
+
+function deleteSelected() {
+  if (SELECTED.size === 0) { toast('No logs selected', 'error'); return; }
+  promptDelete(null, false);
+}
+
+document.getElementById('confirmDelBtn').addEventListener('click', async function() {
+  if (!PENDING_DELETE || !PENDING_DELETE.length) return;
+  try {
+    for (var i = 0; i < PENDING_DELETE.length; i++) {
+      await sb('bar_logs?venue=eq.' + encodeURIComponent(VENUE) + '&date=eq.' + PENDING_DELETE[i], {
+        method: 'PATCH', body: { deleted: true, deleted_at: new Date().toISOString() }, prefer: 'return=minimal'
+      });
+    }
+    var deleted = new Set(PENDING_DELETE);
+    ALL_LOGS = ALL_LOGS.filter(function(l){ return !deleted.has(l.date); });
+    SELECTED.clear();
+    PENDING_DELETE = null;
+    document.getElementById('delOverlay').classList.remove('open');
+    toast(deleted.size + ' log' + (deleted.size>1?'s':'') + ' deleted', 'success');
+    applyFilter();
+  } catch(err) {
+    toast('Delete failed: ' + err.message, 'error');
+  }
+});
+
+// ── MODAL ─────────────────────────────────────────────────────
+function openModal()  { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); EDITING_DATE = null; }
+function bgClick(ev)  { if (ev.target === document.getElementById('modalOverlay')) closeModal(); }
 
 // ── TOAST ─────────────────────────────────────────────────────
-function showToast(msg,type){var el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(type?' '+type:'');setTimeout(function(){el.className='toast';},3500);}
+function toast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(function(){ el.className = 'toast'; }, 3500);
+}
 
 // ── INIT ─────────────────────────────────────────────────────
-buildSimple('wictBody',WICT);buildSimple('juiceBody',JUICE);buildSimple('mixersBody',MIXERS);
-buildPrep();buildSimple('beerBody',BEER);buildWaste();buildBatch();setToday();
+loadLogs();
 </script>
 </body>
 </html>
