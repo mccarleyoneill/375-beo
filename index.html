@@ -296,6 +296,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     </div>
     <div class="landing-actions">
       <button class="btn-primary" onclick="startWeek()">Start Week →</button>
+      <button class="btn-ghost" onclick="goDirectlyToHistory()">View Historical BEOs</button>
     </div>
 
   </div>
@@ -733,6 +734,12 @@ function restoreFormState() {
 
 // ══ WEEK HISTORY ═════════════════════════════════════════════
 // ── WEEK HISTORY (landing page — no chips, just start new week) ──
+function goDirectlyToHistory() {
+  // Go straight to Historical BEOs without starting a week
+  showScreen('screenApp');
+  goToHistory();
+}
+
 async function loadWeekHistory() {
   // Landing page no longer shows history chips — handled in Historical BEOs tab
 }
