@@ -26,7 +26,7 @@ body { background: #fff; color: #1a1a1a; font-family: 'Inter', sans-serif; font-
 .back-link:hover { color: #b8924a; }
 
 /* ── MAIN ── */
-.main { max-width: 860px; margin: 0 auto; padding: 28px 24px 80px; }
+.main { max-width: 860px; margin: 0 auto; padding: 28px 24px 100px; }
 .page-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: flex-end; }
 .page-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #1a1a1a; }
 .page-sub { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #b8924a; font-weight: 700; margin-bottom: 4px; }
@@ -289,6 +289,14 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
         <tbody id="batchBody"></tbody>
       </table>
     </div>
+  </div>
+
+  <!-- Bottom save bar -->
+  <div style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #e0e0e0;padding:16px 24px;display:flex;justify-content:flex-end;align-items:center;gap:16px;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,0.08);">
+    <span id="bottomSaveHint" style="font-size:11px;color:#888;"></span>
+    <button onclick="saveLog()" id="bottomSaveBtn" style="background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:14px 36px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:background 0.15s;">
+      Save Log
+    </button>
   </div>
 
 </div><!-- /main -->
