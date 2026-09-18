@@ -318,6 +318,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     </div>
     <div class="nav-actions">
       <button class="btn-sm btn-outline" onclick="startNewWeek()">New Week</button>
+      <button class="btn-sm btn-outline" onclick="clearFormForNewBEO()">New BEO Input</button>
       <button class="btn-sm btn-gold" onclick="generateAndSave()">Generate Output</button>
     </div>
   </nav>
@@ -394,12 +395,17 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     <!-- BATCH OUTPUT -->
     <div class="pane" id="pane-output">
     <div class="out-wrap">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div style="font-size:11px;color:var(--text3)" id="out-meta"></div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn-sm btn-outline" onclick="downloadCurrentBEO()">↓ Download BEO PDF</button>
-          <button class="btn-sm btn-gold" onclick="goToCollection()">View Collection →</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-sm btn-outline" onclick="downloadCurrentBEO()">&#8595; Download BEO PDF</button>
+          <button class="btn-sm btn-outline" onclick="goToCollection()">View Collection &#8594;</button>
+          <button class="btn-sm btn-gold" onclick="saveCurrentBEO()" id="saveBEOBtn">&#128190; Save BEO</button>
         </div>
+      </div>
+      <div id="saveBanner" style="display:none;background:var(--gold-bg);border:1px solid var(--gold-dim);border-radius:6px;padding:10px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+        <span id="saveBannerText" style="font-size:12px;color:var(--gold);font-weight:500;"></span>
+        <button onclick="clearFormForNewBEO()" class="btn-sm btn-gold">+ New BEO Input</button>
       </div>
       <div id="outputDoc"><div class="empty-out"><div class="icon">🍸</div><p>Fill in the BEO Input form<br>and click <strong style="color:var(--text2)">Generate Batch Output</strong></p></div></div>
     </div>
@@ -969,8 +975,102 @@ function buildRows() {
   }
 }
 
+// ══ SAVE BEO & NEW BEO ═══════════════════════════════════════
+var _currentBEOSaved = false;
+
+async function saveCurrentBEO() {
+  if (!lastBEO) { showToast('Generate a BEO first', 'error'); return; }
+
+  // Check name is set
+  if (!lastBEO.name || lastBEO.name === 'Untitled Event') {
+    showToast('Please set an Event Name before saving', 'error');
+    switchPane('input');
+    return;
+  }
+
+  showLoading(true);
+  try {
+    // Save to current week if one is active, otherwise save to a default "unassigned" week
+    var weekId = currentWeek ? currentWeek.id : null;
+
+    if (!weekId) {
+      // Create or find an unassigned holding week
+      var holding = await createWeek('375 EVENTS', 'Unassigned', 'Unassigned');
+      weekId = holding.id;
+    }
+
+    var saved = await saveEvent(weekId, lastBEO);
+    _currentBEOSaved = true;
+
+    // Update save button
+    var btn = document.getElementById('saveBEOBtn');
+    if (btn) {
+      btn.textContent = '✓ Saved';
+      btn.style.background = 'var(--green)';
+      btn.disabled = true;
+    }
+
+    // Show banner
+    var banner = document.getElementById('saveBanner');
+    var bannerText = document.getElementById('saveBannerText');
+    if (banner) banner.style.display = 'flex';
+    if (bannerText) bannerText.textContent = '✓ ' + lastBEO.name + ' · ' + lastBEO.date + ' saved to Historical BEOs';
+
+    // Refresh collection if active
+    if (currentWeek && currentEvents) {
+      currentEvents.push(saved);
+      renderCollectionPage();
+    }
+
+    showToast('BEO saved: ' + lastBEO.name, 'success');
+  } catch(e) {
+    showToast('Could not save: ' + e.message, 'error');
+  }
+  showLoading(false);
+}
+
+function clearFormForNewBEO() {
+  // Warn if current BEO hasn't been saved
+  if (lastBEO && !_currentBEOSaved) {
+    if (!confirm('The current BEO has not been saved. Start a new BEO without saving?')) return;
+  }
+
+  // Reset saved state
+  _currentBEOSaved = false;
+  lastBEO = null;
+
+  // Reset save button
+  var btn = document.getElementById('saveBEOBtn');
+  if (btn) {
+    btn.textContent = '&#128190; Save BEO';
+    btn.style.background = 'var(--gold)';
+    btn.disabled = false;
+  }
+
+  // Hide banner
+  var banner = document.getElementById('saveBanner');
+  if (banner) banner.style.display = 'none';
+
+  // Clear output
+  var outDoc = document.getElementById('outputDoc');
+  if (outDoc) outDoc.innerHTML = '<div class="empty-out"><div class="icon">&#127864;</div><p>Fill in the BEO Input form<br>and click <strong style="color:var(--text2)">Generate Batch Output</strong></p></div>';
+
+  // Clear form
+  clearForm();
+
+  // Switch to input
+  switchPane('input');
+  showToast('Form cleared — ready for new BEO', 'success');
+}
+
 // ══ GENERATE + AUTO SAVE ══════════════════════════════════════
 async function generateAndSave() {
+  // Reset save state for new generation
+  _currentBEOSaved = false;
+  var btn = document.getElementById('saveBEOBtn');
+  if (btn) { btn.textContent = '&#128190; Save BEO'; btn.style.background = 'var(--gold)'; btn.disabled = false; }
+  var banner = document.getElementById('saveBanner');
+  if (banner) banner.style.display = 'none';
   const name    = document.getElementById('i_name').value    || 'Untitled Event';
   const date    = document.getElementById('i_date').value    || '—';
   const time    = document.getElementById('i_time').value    || '—';
