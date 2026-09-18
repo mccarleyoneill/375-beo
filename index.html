@@ -730,32 +730,59 @@ async function loadWeekHistory() {
     el.innerHTML = '';
 
     weeks.slice(0, 8).forEach(function(w) {
-      // Container row
-      var row = document.createElement('div');
-      row.style.cssText = 'display:flex;border:1px solid #2e2e29;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#161614;';
 
-      // ── RESUME button ──
+      // Wrapper — no click handler, purely layout
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:10px;align-items:stretch;';
+
+      // ── RESUME — standalone button, full left column ──
       var rb = document.createElement('button');
       rb.type = 'button';
-      rb.style.cssText = 'flex:1;background:none;border:none;border-right:1px solid #3a3a34;padding:13px 16px;cursor:pointer;font-family:inherit;color:#f0ece4;text-align:left;';
-      rb.innerHTML = '<div style="font-size:13px;font-weight:500;">' + w.venue + ' &middot; ' + w.week_start + ' &ndash; ' + w.week_end + '</div><div style="font-size:10px;color:#5a5648;margin-top:3px;letter-spacing:0.06em;">CLICK TO RESUME &rarr;</div>';
+      rb.style.cssText = [
+        'display:block',
+        'width:100%',
+        'background:#1e1e1b',
+        'border:1px solid #3a3a34',
+        'border-radius:6px',
+        'padding:13px 16px',
+        'cursor:pointer',
+        'font-family:inherit',
+        'color:#f0ece4',
+        'text-align:left',
+        'transition:background 0.15s'
+      ].join(';');
+      rb.innerHTML = '<div style="font-size:13px;font-weight:500;">' + w.venue + ' &middot; ' + w.week_start + ' &ndash; ' + w.week_end + '</div>' +
+                     '<div style="font-size:10px;color:#c8a96e;margin-top:4px;letter-spacing:0.08em;text-transform:uppercase;">Resume Week &rarr;</div>';
+      rb.onmouseover = function(){ rb.style.background = '#252521'; };
+      rb.onmouseout  = function(){ rb.style.background = '#1e1e1b'; };
 
-      // Capture w in its own scope for resume
-      (function(week) {
-        rb.addEventListener('click', function() {
-          resumeWeek(week);
-        });
-      })(w);
+      (function(week){ rb.onclick = function(){ resumeWeek(week); }; })(w);
 
-      // ── DELETE button ──
+      // ── DELETE — standalone button, right column ──
       var db = document.createElement('button');
       db.type = 'button';
-      db.style.cssText = 'background:none;border:none;color:#cc4444;padding:13px 20px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;white-space:nowrap;';
-      db.textContent = 'DELETE';
+      db.style.cssText = [
+        'display:block',
+        'background:#1e1e1b',
+        'border:1px solid #cc4444',
+        'border-radius:6px',
+        'padding:13px 20px',
+        'font-size:10px',
+        'font-weight:700',
+        'letter-spacing:0.1em',
+        'text-transform:uppercase',
+        'cursor:pointer',
+        'font-family:inherit',
+        'color:#cc4444',
+        'white-space:nowrap',
+        'transition:background 0.15s'
+      ].join(';');
+      db.textContent = 'Delete';
+      db.onmouseover = function(){ db.style.background = 'rgba(204,68,68,0.15)'; };
+      db.onmouseout  = function(){ db.style.background = '#1e1e1b'; };
 
-      // Capture w in its own scope for delete
-      (function(week) {
-        db.addEventListener('click', function(e) {
+      (function(week){
+        db.onclick = function(e){
           e.preventDefault();
           e.stopPropagation();
           _weekToDelete = week;
@@ -763,12 +790,13 @@ async function loadWeekHistory() {
           if (title) title.textContent = week.venue + ' · ' + week.week_start + ' – ' + week.week_end;
           var modal = document.getElementById('deleteWeekModal');
           if (modal) modal.classList.add('visible');
-        });
+          return false;
+        };
       })(w);
 
-      row.appendChild(rb);
-      row.appendChild(db);
-      el.appendChild(row);
+      wrap.appendChild(rb);
+      wrap.appendChild(db);
+      el.appendChild(wrap);
     });
   } catch(e) { console.error('loadWeekHistory:', e); }
 }
