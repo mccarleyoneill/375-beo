@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carbone Vino · Daily Bar Recap</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:#fff;color:#1a1a1a;font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;min-height:100vh;}
+.topnav{background:#fff;border-bottom:2px solid #e0e0e0;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50;}
+.nav-left{display:flex;align-items:center;gap:14px;}
+.nav-brand{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#1a1a1a;}
+.nav-venue{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#7a5c2e;background:#fdf6ec;border:1px solid #e8c98a;padding:3px 10px;border-radius:3px;font-weight:700;}
+.nav-right{display:flex;gap:8px;}
+.btn{padding:7px 14px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;border:none;transition:all 0.15s;}
+.btn-outline{background:#fff;border:1px solid #ccc;color:#555;}
+.btn-outline:hover{border-color:#999;color:#1a1a1a;}
+.btn-primary{background:#1a1a1a;color:#fff;}
+.btn-primary:hover{background:#333;}
+.btn-saved{background:#2d7d4f;color:#fff;}
+.btn-reports{background:#fff;border:1px solid #b8924a;color:#b8924a;font-weight:700;}
+.btn-reports:hover{background:#fdf6ec;}
+.back-link{font-size:10px;color:#888;text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;}
+.back-link:hover{color:#b8924a;}
+.main{max-width:860px;margin:0 auto;padding:28px 24px 100px;}
+.page-header{margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #e0e0e0;display:flex;justify-content:space-between;align-items:flex-end;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#1a1a1a;}
+.page-sub{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#b8924a;font-weight:700;margin-bottom:4px;}
+.page-meta{font-size:11px;color:#888;}
+.save-banner{display:none;background:#f0f7f0;border:1px solid #a8d5a8;border-radius:6px;padding:10px 16px;margin-bottom:16px;font-size:12px;color:#2d7d4f;font-weight:600;text-align:center;}
+.save-banner.visible{display:block;}
+.carry-link{font-size:10px;color:#b8924a;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;margin-left:10px;text-decoration:underline;}
+.carry-banner{display:none;background:#fdf6ec;border:1px solid #e8c98a;border-radius:4px;padding:8px 12px;margin-top:5px;font-size:11px;color:#7a5c2e;}
+.section{background:#fff;border:1px solid #e0e0e0;border-radius:6px;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+.section-header{padding:10px 18px;background:#f0f0f0;border-bottom:1px solid #e0e0e0;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#1a1a1a;}
+.section-body{padding:16px 18px;}
+.field-row{display:grid;gap:12px;margin-bottom:12px;}
+.field-row:last-child{margin-bottom:0;}
+.field-row.cols-3{grid-template-columns:1fr 1fr 1fr;}
+.field-row.cols-2{grid-template-columns:1fr 1fr;}
+.field-row.cols-1{grid-template-columns:1fr;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;}
+.field input,.field select,.field textarea{background:#f9f9f9;border:1px solid #ddd;border-radius:4px;color:#1a1a1a;font-size:13px;font-family:inherit;padding:8px 10px;outline:none;transition:border-color 0.15s;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#b8924a;}
+.field textarea{resize:vertical;min-height:72px;}
+.field input[readonly]{background:#f0f0f0;color:#888;cursor:default;}
+.inv-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.inv-table col.col-name{width:auto;}.inv-table col.col-unit{width:72px;}.inv-table col.col-par{width:65px;}.inv-table col.col-hand{width:105px;}
+.inv-table th{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#555;padding:8px 14px;text-align:left;background:#f5f5f5;border-bottom:1px solid #e0e0e0;white-space:nowrap;}
+.inv-table th.center{text-align:center;}.inv-table th.right{text-align:right;}
+.inv-table td{padding:8px 14px;border-bottom:1px solid #ebebeb;vertical-align:middle;font-size:12px;}
+.inv-table tr:last-child td{border-bottom:none;}
+.inv-table tr:nth-child(even) td{background:#fafafa;}
+.inv-table tr:hover td{background:#f5f5f5;}
+.item-name{font-weight:500;color:#1a1a1a;}.item-unit{color:#888;text-align:center;}.item-par{color:#b8924a;text-align:center;font-weight:700;}.num-cell{text-align:right;padding-right:16px;}
+.inv-table input{background:#fff;border:1px solid #ddd;border-radius:4px;color:#1a1a1a;font-size:12px;font-family:inherit;padding:5px 8px;outline:none;width:80px;text-align:center;transition:border-color 0.15s;display:block;margin-left:auto;}
+.inv-table input:focus{border-color:#b8924a;}.inv-table input.low{border-color:#cc3333!important;background:#fff8f8;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.toast{position:fixed;bottom:90px;right:24px;background:#fff;border:1px solid #ccc;border-radius:6px;padding:12px 18px;font-size:12px;color:#1a1a1a;z-index:999;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.12);}
+.toast.show{display:block;}.toast.success{border-color:#2d7d4f;color:#2d7d4f;}.toast.error{border-color:#cc3333;color:#cc3333;}
+.offline-badge{display:none;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:3px 8px;border-radius:3px;}
+.offline-badge.visible{display:inline-block;}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<nav class="topnav">
+  <div class="nav-left">
+    <a href="mia.html" class="back-link">← MIA</a>
+    <div class="nav-brand">Daily Bar Recap</div>
+    <div class="nav-venue">Carbone Vino</div>
+    <span class="offline-badge" id="offlineBadge">Offline</span>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-reports" onclick="window.location.href='logreports-carbone-vino.html'">📋 Log Reports</button>
+    <button class="btn btn-outline" onclick="clearLog()">Clear</button>
+    <button class="btn btn-primary" id="saveBtn" onclick="saveLog()">Save Log</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="save-banner" id="saveBanner"></div>
+  <div class="page-header">
+    <div>
+      <div class="page-sub">NMO · Miami Operations</div>
+      <div class="page-title">Carbone Vino · Daily Bar Recap</div>
+    </div>
+    <div class="page-meta" id="pageMeta"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Log Information</div>
+    <div class="section-body">
+      <div class="field-row cols-3">
+        <div class="field"><label>Submitted By</label><input type="text" id="logUser" placeholder="Your name"></div>
+        <div class="field"><label>Date</label><input type="date" id="logDate"></div>
+        <div class="field"><label>Day</label><input type="text" id="logDay" readonly></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Service Notes</div>
+    <div class="section-body">
+      <div class="field-row cols-1">
+        <div class="field">
+          <label>Products 86'd Today <span class="carry-link" id="carry86Btn" style="display:none" onclick="applyCarry('products86','carry86Btn','carry86Preview')">↑ Carry over from yesterday</span></label>
+          <textarea id="products86" placeholder="List any items that ran out during service..."></textarea>
+          <div class="carry-banner" id="carry86Preview"></div>
+        </div>
+      </div>
+      <div class="field-row cols-1">
+        <div class="field">
+          <label>Product Lows <span class="carry-link" id="carryLowsBtn" style="display:none" onclick="applyCarry('productLows','carryLowsBtn','carryLowsPreview')">↑ Carry over from yesterday</span></label>
+          <textarea id="productLows" placeholder="Items running low..."></textarea>
+          <div class="carry-banner" id="carryLowsPreview"></div>
+        </div>
+      </div>
+      <div class="field-row cols-1">
+        <div class="field"><label>Service Notes</label><textarea id="notesMain" placeholder="Closing notes for tonight's shift..." style="min-height:90px;"></textarea></div>
+      </div>
+      <div class="field-row cols-2">
+        <div class="field"><label>Bar Requests</label><textarea id="barRequests" placeholder="Items needed, equipment requests..."></textarea></div>
+        <div class="field"><label>Facility & Maintenance</label><textarea id="facility" placeholder="Any maintenance issues to flag..."></textarea></div>
+      </div>
+      <div class="field-row cols-1">
+        <div class="field"><label>Broken Glassware</label><textarea id="brokenGlass" placeholder="List any broken items..." style="min-height:52px;"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">WICT — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
+        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">On Hand</th></tr></thead>
+        <tbody id="wictBody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Juice — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
+        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">On Hand</th></tr></thead>
+        <tbody id="juiceBody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Mixers — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
+        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">On Hand</th></tr></thead>
+        <tbody id="mixersBody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Prep — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-par"><col class="col-hand"></colgroup>
+        <thead><tr><th>Item</th><th class="center">Unit</th><th class="center">PAR</th><th class="right">On Hand</th></tr></thead>
+        <tbody id="prepBody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Beer — On Hand Counts</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
+        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">On Hand</th></tr></thead>
+        <tbody id="beerBody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Waste Log</div>
+    <div class="section-body" style="padding:0 0 0 0;">
+      <table class="inv-table"><colgroup><col class="col-name"><col class="col-unit"><col class="col-hand"></colgroup>
+        <thead><tr><th>Item</th><th class="center">Unit</th><th class="right">Volume Wasted</th></tr></thead>
+        <tbody id="wasteBody"></tbody></table>
+      <div style="padding:14px 18px;">
+        <div class="field"><label>Other Waste — describe product and volume</label>
+          <textarea id="otherWaste" placeholder="e.g. 1 bottle red wine — corked and returned..." style="min-height:52px;"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Batch Log — Walk-in Jerry Cans Only</div>
+    <div class="section-body" style="padding:0;">
+      <table class="inv-table"><colgroup><col class="col-name"><col class="col-hand"></colgroup>
+        <thead><tr><th>Batch</th><th class="right">Jerry Cans on Hand</th></tr></thead>
+        <tbody id="batchBody"></tbody></table>
+    </div>
+  </div>
+
+  <div style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #e0e0e0;padding:16px 24px;display:flex;justify-content:flex-end;align-items:center;gap:16px;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,0.08);">
+    <span id="bottomSaveHint" style="font-size:11px;color:#888;"></span>
+    <button onclick="saveLog()" id="bottomSaveBtn" style="background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:14px 36px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:background 0.15s;">Save Log</button>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE ──────────────────────────────────────────────────
+var SB_URL = 'https://hqicvgyqtqvwzocfqikm.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxaWN2Z3lxdHF2d3pvY2ZxaWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NjUxMjYsImV4cCI6MjEwNTI0MTEyNn0.xWe4vrhsqV2HtU-dSyqFRGYyKn4_Nf-PwYv2OFPqO7I';
+
+async function sbFetch(path, opts) {
+  opts = opts || {};
+  var res = await fetch(SB_URL + '/rest/v1/' + path, {
+    method: opts.method || 'GET',
+    headers: {
+      'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || 'return=representation'
+    },
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  if (!res.ok) throw new Error(await res.text());
+  var t = await res.text();
+  return t ? JSON.parse(t) : null;
+}
+
+// ── VENUE / SCHEMA ────────────────────────────────────────────
+var VENUE = 'Carbone Vino';
+var LS_PREFIX = 'barlog_Carbone_Vino_';
+
+var WICT=[{name:'Pellegrino',unit:'cs'},{name:'Panna',unit:'cs'},{name:'Mixology Ice',unit:'bags'},{name:'Espresso Pods',unit:'cs'},{name:'Decaf Pods',unit:'cs'}];
+var JUICE=[{name:'M.E.P Lime Juice',unit:'ea'},{name:'M.E.P Lemon Juice',unit:'ea'},{name:'M.E.P Grapefruit',unit:'ea'},{name:'M.E.P Orange Juice',unit:'ea'},{name:'M.E.P Pineapple Juice',unit:'ea'},{name:'Dole Pineapple',unit:'ea'},{name:'Cranberry',unit:'ea'}];
+var MIXERS=[{name:'Club Soda',unit:'cs'},{name:'Tonic',unit:'cs'},{name:'Ginger Beer',unit:'cs'},{name:'Coca Cola',unit:'cs'},{name:'Diet Coke',unit:'cs'},{name:'Coke Zero',unit:'cs'},{name:'Sprite',unit:'cs'},{name:'Ginger Ale',unit:'cs'},{name:'Grapefruit Soda',unit:'cs'}];
+var PREP=[{name:'Agave',unit:'Quarts',par:2},{name:'Cane',unit:'Quarts',par:6},{name:'Decaf',unit:'Quarts',par:2},{name:'Olive Mix',unit:'Quarts',par:4},{name:'Iced Tea',unit:'Quarts',par:4},{name:'English Breakfast Tea',unit:'Quarts',par:12}];
+var BEER=[{name:"Civil Society 'Fresh'",unit:'cs'},{name:'Peroni',unit:'cs'},{name:'Best Day Kolsch',unit:'cs'},{name:"Athletic Brewing 'Free Wave' IPA",unit:'cs'},{name:"Tripping Animals 'Ever Haze'",unit:'cs'}];
+var WASTE=[{name:'Lime Juice',unit:'QT'},{name:'Lemon Juice',unit:'QT'},{name:'Grapefruit Juice',unit:'QT'}];
+var BATCHES=['Manhattan','Negroni','Calabrian Margarita','Daiquiri','Whiskey Sour','Espresso Martini','Mai Tai','Old Fashioned','Vino Spritz','Elderflower Spritz','Pompelmo Spritz','Strawberry Sbagliatto','Dry Martini','Vesper','Negroni Base'];
+
+// ── BUILD TABLES ──────────────────────────────────────────────
+function buildSimple(id,items){document.getElementById(id).innerHTML=items.map(function(item,i){return'<tr><td class="item-name">'+item.name+'</td><td class="item-unit">'+item.unit+'</td><td class="num-cell"><input type="text" inputmode="decimal" id="'+id+'_'+i+'" placeholder="—"></td></tr>';}).join('');}
+function buildPrep(){document.getElementById('prepBody').innerHTML=PREP.map(function(item,i){return'<tr><td class="item-name">'+item.name+'</td><td class="item-unit">'+item.unit+'</td><td class="item-par">'+item.par+'</td><td class="num-cell"><input type="text" inputmode="decimal" id="prepBody_'+i+'" placeholder="—" onchange="checkPar(this,'+item.par+')"></td></tr>';}).join('');}
+function buildBatch(){document.getElementById('batchBody').innerHTML=BATCHES.map(function(n,i){return'<tr><td class="item-name">'+n+'</td><td class="num-cell"><input type="text" inputmode="decimal" id="batchBody_'+i+'" placeholder="—"></td></tr>';}).join('');}
+function buildWaste(){document.getElementById('wasteBody').innerHTML=WASTE.map(function(item,i){return'<tr><td class="item-name">'+item.name+'</td><td class="item-unit">'+item.unit+'</td><td class="num-cell"><input type="text" inputmode="decimal" id="wasteBody_'+i+'" placeholder="—"></td></tr>';}).join('');}
+function checkPar(input,par){var v=parseFloat(input.value);input.classList.toggle('low',!isNaN(v)&&v<par);}
+
+// ── DATE ─────────────────────────────────────────────────────
+var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function setToday(){document.getElementById('logDate').value=new Date().toISOString().split('T')[0];updateDay();}
+function updateDay(){
+  var d=new Date(document.getElementById('logDate').value+'T12:00:00');
+  document.getElementById('logDay').value=DAYS[d.getDay()];
+  document.getElementById('pageMeta').textContent=DAYS[d.getDay()]+' · '+document.getElementById('logDate').value;
+  loadPriorDay();
+}
+document.getElementById('logDate').addEventListener('change',updateDay);
+
+// ── CARRY OVER — checks Supabase then localStorage ────────────
+var _prior=null;
+async function loadPriorDay(){
+  var date=document.getElementById('logDate').value;if(!date)return;
+  var d=new Date(date+'T12:00:00');d.setDate(d.getDate()-1);
+  var prior=d.toISOString().split('T')[0];
+  try{
+    var rows=await sbFetch('bar_logs?venue=eq.'+encodeURIComponent(VENUE)+'&date=eq.'+prior+'&deleted=eq.false&select=notes');
+    _prior=rows&&rows[0]?rows[0]:null;
+  }catch(e){
+    try{var raw=localStorage.getItem(LS_PREFIX+prior);_prior=raw?JSON.parse(raw):null;}catch(e2){_prior=null;}
+  }
+  showCarry('products86','carry86Btn','carry86Preview',_prior&&_prior.notes&&_prior.notes.products86,prior);
+  showCarry('productLows','carryLowsBtn','carryLowsPreview',_prior&&_prior.notes&&_prior.notes.productLows,prior);
+}
+function showCarry(f,btn,prev,val,date){
+  var b=document.getElementById(btn),p=document.getElementById(prev);
+  if(val&&val.trim()){b.style.display='inline';b.textContent='\u2191 Carry over from '+date;p.style.display='block';p.textContent='Yesterday: '+val.substring(0,100)+(val.length>100?'...':'');}
+  else{b.style.display='none';p.style.display='none';}
+}
+function applyCarry(f,btn,prev){
+  if(!_prior||!_prior.notes){showToast('No prior day log found','error');return;}
+  var v=_prior.notes[f];if(v){document.getElementById(f).value=v;showToast('Carried over','success');}
+  else showToast('No data for this field yesterday','error');
+}
+
+// ── COLLECT VALUES ────────────────────────────────────────────
+function collectTable(id,items){var r={};items.forEach(function(item,i){var el=document.getElementById(id+'_'+i);r[item.name||item]=el?el.value:'';});return r;}
+
+// ── SAVE ─────────────────────────────────────────────────────
+async function saveLog(){
+  var user=document.getElementById('logUser').value.trim();
+  var date=document.getElementById('logDate').value;
+  if(!user){showToast('Please enter your name','error');return;}
+  if(!date){showToast('Please set the date','error');return;}
+
+  var btn=document.getElementById('saveBtn');
+  var bb=document.getElementById('bottomSaveBtn');
+  btn.textContent='Saving...';btn.disabled=true;
+  if(bb){bb.textContent='Saving...';bb.disabled=true;}
+
+  var payload={
+    venue:VENUE, date:date, day:document.getElementById('logDay').value, user_name:user,
+    notes:{
+      products86:document.getElementById('products86').value,
+      productLows:document.getElementById('productLows').value,
+      notesMain:document.getElementById('notesMain').value,
+      barRequests:document.getElementById('barRequests').value,
+      facility:document.getElementById('facility').value,
+      brokenGlass:document.getElementById('brokenGlass').value,
+      otherWaste:document.getElementById('otherWaste').value
+    },
+    inventory:{
+      wict:collectTable('wictBody',WICT),juice:collectTable('juiceBody',JUICE),
+      mixers:collectTable('mixersBody',MIXERS),prep:collectTable('prepBody',PREP),
+      beer:collectTable('beerBody',BEER),waste:collectTable('wasteBody',WASTE),
+      batch:collectTable('batchBody',BATCHES.map(function(n){return{name:n};}))
+    },
+    saved_at:new Date().toISOString(),
+    deleted:false
+  };
+
+  var saved=false;
+  try{
+    // upsert by venue+date
+    await sbFetch('bar_logs?venue=eq.'+encodeURIComponent(VENUE)+'&date=eq.'+date,{
+      method:'DELETE', prefer:'return=minimal'
+    });
+    await sbFetch('bar_logs',{method:'POST',body:payload,prefer:'return=minimal'});
+    saved=true;
+    document.getElementById('offlineBadge').classList.remove('visible');
+  }catch(e){
+    // fallback to localStorage
+    try{localStorage.setItem(LS_PREFIX+date,JSON.stringify(payload));saved=true;document.getElementById('offlineBadge').classList.add('visible');showToast('Saved offline — will sync when online','error');}
+    catch(e2){showToast('Save failed: '+e2.message,'error');}
+  }
+
+  if(saved){
+    var banner=document.getElementById('saveBanner');
+    banner.textContent='\u2713 Log saved \u2014 '+VENUE+' \u00b7 '+date+' \u00b7 '+user;
+    banner.classList.add('visible');
+    btn.textContent='\u2713 Saved';btn.className='btn btn-saved';
+    if(bb){bb.style.background='#2d7d4f';bb.textContent='\u2713 Log Saved';}
+    var hint=document.getElementById('bottomSaveHint');
+    if(hint)hint.textContent='Last saved: '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    if(!document.getElementById('offlineBadge').classList.contains('visible')) showToast('Log saved to Supabase','success');
+  }
+  btn.disabled=false;if(bb)bb.disabled=false;
+}
+
+// ── CLEAR ─────────────────────────────────────────────────────
+function clearLog(){
+  if(!confirm('Clear all entries?'))return;
+  ['products86','productLows','notesMain','barRequests','facility','brokenGlass','otherWaste'].forEach(function(id){document.getElementById(id).value='';});
+  ['wictBody','juiceBody','mixersBody','prepBody','beerBody','wasteBody','batchBody'].forEach(function(id){document.getElementById(id).querySelectorAll('input').forEach(function(el){el.value='';el.classList.remove('low');});});
+  document.getElementById('saveBanner').classList.remove('visible');
+  var btn=document.getElementById('saveBtn');btn.textContent='Save Log';btn.className='btn btn-primary';
+  var bb=document.getElementById('bottomSaveBtn');if(bb){bb.style.background='#1a1a1a';bb.textContent='Save Log';}
+  showToast('Log cleared','success');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg,type){var el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(type?' '+type:'');setTimeout(function(){el.className='toast';},3500);}
+
+// ── INIT ─────────────────────────────────────────────────────
+buildSimple('wictBody',WICT);buildSimple('juiceBody',JUICE);buildSimple('mixersBody',MIXERS);
+buildPrep();buildSimple('beerBody',BEER);buildWaste();buildBatch();setToday();
+</script>
+</body>
+</html>
