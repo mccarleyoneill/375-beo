@@ -713,7 +713,7 @@ function restoreFormState() {
 }
 
 // ══ WEEK HISTORY ═════════════════════════════════════════════
-// Store weeks globally so onclick handlers can reference them by index
+// ── WEEK HISTORY ─────────────────────────────────────────────
 var _weeksList = [];
 
 async function loadWeekHistory() {
@@ -729,32 +729,35 @@ async function loadWeekHistory() {
     }
     _weeksList = weeks.slice(0, 8);
     wrap.style.display = 'block';
-    el.innerHTML = '';
-    _weeksList.forEach(function(w, i) {
-      var row = document.createElement('div');
-      row.style.cssText = 'display:flex;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:8px;';
 
-      var resumeBtn = document.createElement('button');
-      resumeBtn.type = 'button';
-      resumeBtn.style.cssText = 'flex:1;background:none;border:none;border-right:1px solid var(--border2);text-align:left;padding:12px 16px;cursor:pointer;font-family:inherit;color:var(--text);display:flex;justify-content:space-between;align-items:center;';
-      resumeBtn.innerHTML = '<span style="font-size:13px;font-weight:500;">' + w.venue + ' \u00b7 ' + w.week_start + ' \u2013 ' + w.week_end + '</span><span style="font-size:11px;color:var(--text3);margin-left:12px;">Resume \u2192</span>';
-      resumeBtn.addEventListener('mouseover', function(){ resumeBtn.style.background = 'var(--surface2)'; });
-      resumeBtn.addEventListener('mouseout',  function(){ resumeBtn.style.background = 'none'; });
-      resumeBtn.addEventListener('click', (function(idx){ return function(e){ e.stopPropagation(); resumeWeek(_weeksList[idx]); }; })(i));
-
-      var delBtn = document.createElement('button');
-      delBtn.type = 'button';
-      delBtn.textContent = 'Delete';
-      delBtn.style.cssText = 'background:none;border:none;color:var(--red);padding:12px 18px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;flex-shrink:0;';
-      delBtn.addEventListener('mouseover', function(){ delBtn.style.background = 'rgba(204,68,68,0.1)'; });
-      delBtn.addEventListener('mouseout',  function(){ delBtn.style.background = 'none'; });
-      delBtn.addEventListener('click', (function(idx){ return function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); showDeleteWeekModal(_weeksList[idx]); }; })(i));
-
-      row.appendChild(resumeBtn);
-      row.appendChild(delBtn);
-      el.appendChild(row);
-    });
+    var html = '';
+    for (var i = 0; i < _weeksList.length; i++) {
+      var w = _weeksList[i];
+      html += '<div style="display:flex;border:1px solid #2e2e29;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#161614;">';
+      // RESUME button
+      html += '<button type="button" onclick="doResume(' + i + ')" style="flex:1;background:none;border:none;border-right:1px solid #3a3a34;padding:13px 16px;cursor:pointer;font-family:inherit;color:#f0ece4;text-align:left;">';
+      html += '<div style="font-size:13px;font-weight:500;">' + w.venue + ' &middot; ' + w.week_start + ' &ndash; ' + w.week_end + '</div>';
+      html += '<div style="font-size:10px;color:#5a5648;margin-top:3px;letter-spacing:0.06em;">CLICK TO RESUME</div>';
+      html += '</button>';
+      // DELETE button
+      html += '<button type="button" onclick="doDelete(' + i + ')" style="background:none;border:none;color:#cc4444;padding:13px 18px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;white-space:nowrap;">';
+      html += 'Delete';
+      html += '</button>';
+      html += '</div>';
+    }
+    el.innerHTML = html;
   } catch(e) { console.error('loadWeekHistory:', e); }
+}
+
+function doResume(i) {
+  var w = _weeksList[i];
+  if (w) resumeWeek(w);
+}
+
+function doDelete(i) {
+  var w = _weeksList[i];
+  if (!w) return;
+  showDeleteWeekModal(w);
 }
 
 
@@ -1744,7 +1747,9 @@ var _weekToDelete = null;
 function showDeleteWeekModal(week) {
   _weekToDelete = week;
   var title = document.getElementById('deleteModalTitle');
-  if (title) title.textContent = week.venue + '  ·  ' + week.week_start + ' – ' + week.week_end;
+  if (title) {
+    title.textContent = week.venue + ' · ' + week.week_start + ' – ' + week.week_end;
+  }
   var modal = document.getElementById('deleteWeekModal');
   if (modal) {
     modal.classList.add('visible');
@@ -1754,7 +1759,9 @@ function showDeleteWeekModal(week) {
 function hideDeleteWeekModal() {
   _weekToDelete = null;
   var modal = document.getElementById('deleteWeekModal');
-  if (modal) { modal.classList.remove('visible'); }
+  if (modal) {
+    modal.classList.remove('visible');
+  }
 }
 
 async function confirmDeleteWeek() {
@@ -1763,7 +1770,6 @@ async function confirmDeleteWeek() {
   hideDeleteWeekModal();
   showLoading(true);
   try {
-    // Soft delete — mark as deleted with timestamp so it can be recovered
     await sbFetch('weeks?id=eq.' + week.id, {
       method: 'PATCH',
       body: JSON.stringify({ deleted: true, deleted_at: new Date().toISOString() })
@@ -1775,6 +1781,7 @@ async function confirmDeleteWeek() {
   }
   showLoading(false);
 }
+
 
 // Close modal on ESC key
 document.addEventListener('keydown', function(e) {
