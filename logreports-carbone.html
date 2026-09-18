@@ -3,15 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carbone Miami · Historical Bar Logs</title>
+<title>Carbone Miami - Historical Bar Logs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #f5f5f5; color: #1a1a1a; font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.5; min-height: 100vh; }
-
-/* ── NAV ── */
 .topnav { background: #fff; border-bottom: 2px solid #e0e0e0; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 50; }
 .nav-left { display: flex; align-items: center; gap: 14px; }
 .nav-brand { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: #1a1a1a; }
@@ -26,37 +24,27 @@ body { background: #f5f5f5; color: #1a1a1a; font-family: 'Inter', sans-serif; fo
 .btn-danger { background: #fff; border: 1px solid #cc3333; color: #cc3333; }
 .btn-danger:hover { background: #cc3333; color: #fff; }
 .btn-sm { padding: 5px 12px; font-size: 9px; }
-
-/* ── MAIN ── */
 .main { max-width: 960px; margin: 0 auto; padding: 28px 24px 60px; }
 .page-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
 .page-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #1a1a1a; }
 .page-sub { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #b8924a; font-weight: 700; margin-bottom: 4px; }
-
-/* ── FILTER BAR ── */
+.sync-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ccc; margin-right: 5px; vertical-align: middle; }
+.sync-dot.green { background: #2d7d4f; }
+.sync-dot.amber { background: #f59e0b; }
 .filter-bar { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 16px 20px; margin-bottom: 16px; display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
 .fg { display: flex; flex-direction: column; gap: 4px; }
 .fg label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
 .fg select { background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; color: #1a1a1a; font-size: 12px; font-family: inherit; padding: 7px 10px; outline: none; min-width: 130px; }
 .fg select:focus { border-color: #b8924a; }
 .filter-meta { font-size: 11px; color: #888; margin-left: auto; align-self: flex-end; }
-.sync-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ccc; margin-right: 5px; vertical-align: middle; }
-.sync-dot.green { background: #2d7d4f; }
-.sync-dot.amber { background: #f59e0b; }
-
-/* ── ACTION BAR (appears on selection) ── */
-.action-bar { background: #fdf6ec; border: 1px solid #e8c98a; border-radius: 6px; padding: 12px 18px; margin-bottom: 14px; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
-.action-bar.visible { display: flex; }
-.action-count { font-size: 12px; font-weight: 600; color: #7a5c2e; margin-right: 4px; }
-
-/* ── SELECT ALL BAR ── */
+.action-bar { background: #fdf6ec; border: 1px solid #e8c98a; border-radius: 6px; padding: 12px 18px; margin-bottom: 14px; display: none; align-items: center; gap: 12px; }
+.action-bar.show { display: flex; }
+.action-count { font-size: 12px; font-weight: 600; color: #7a5c2e; }
 .select-bar { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
 .select-bar input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; accent-color: #b8924a; }
 .select-bar label { font-size: 11px; color: #555; cursor: pointer; font-weight: 500; }
 .select-info { font-size: 11px; color: #888; margin-left: 8px; }
-
-/* ── LOG CARDS ── */
-.log-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: border-color 0.15s; }
+.log-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
 .log-card.selected { border-color: #b8924a; background: #fdf6ec; }
 .log-card-row { display: flex; align-items: center; padding: 14px 18px; gap: 14px; }
 .log-card input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; accent-color: #b8924a; flex-shrink: 0; }
@@ -64,18 +52,13 @@ body { background: #f5f5f5; color: #1a1a1a; font-family: 'Inter', sans-serif; fo
 .log-date { font-size: 14px; font-weight: 700; color: #1a1a1a; }
 .log-day { font-size: 11px; color: #b8924a; font-weight: 600; margin-left: 8px; }
 .log-meta { font-size: 11px; color: #888; margin-top: 3px; }
-.log-note { font-size: 12px; color: #555; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 580px; }
+.log-note { font-size: 12px; color: #555; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 560px; }
 .log-actions { display: flex; gap: 7px; flex-shrink: 0; }
 .empty-state { text-align: center; padding: 56px 24px; color: #aaa; }
 .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
-.empty-state p { font-size: 13px; }
 .loading-state { text-align: center; padding: 48px 24px; color: #888; font-size: 13px; }
-
-/* ── MONTH DIVIDER ── */
 .month-divider { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #b8924a; padding: 10px 0 6px; border-bottom: 1px solid #e8c98a; margin-bottom: 8px; margin-top: 6px; }
 .month-divider:first-child { margin-top: 0; }
-
-/* ── MODAL ── */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: flex-start; justify-content: center; padding: 36px 20px; overflow-y: auto; }
 .modal-overlay.open { display: flex; }
 .modal { background: #fff; border-radius: 8px; width: 100%; max-width: 700px; box-shadow: 0 8px 40px rgba(0,0,0,0.18); overflow: hidden; }
@@ -85,8 +68,6 @@ body { background: #f5f5f5; color: #1a1a1a; font-family: 'Inter', sans-serif; fo
 .modal-close:hover { color: #1a1a1a; }
 .modal-body { padding: 20px; max-height: 72vh; overflow-y: auto; }
 .modal-footer { padding: 14px 20px; border-top: 1px solid #e0e0e0; display: flex; justify-content: flex-end; gap: 8px; }
-
-/* ── MODAL FIELDS ── */
 .mf { margin-bottom: 14px; }
 .mf label { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 4px; }
 .mf input, .mf textarea { width: 100%; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; color: #1a1a1a; font-size: 13px; font-family: inherit; padding: 8px 10px; outline: none; }
@@ -102,18 +83,15 @@ body { background: #f5f5f5; color: #1a1a1a; font-family: 'Inter', sans-serif; fo
 .inv-item input { width: 64px; background: #fff; border: 1px solid #ddd; border-radius: 3px; font-size: 12px; padding: 3px 5px; text-align: center; font-family: inherit; outline: none; }
 .inv-item input:focus { border-color: #b8924a; }
 .inv-item input.low { border-color: #cc3333; background: #fff8f8; }
-
-/* ── TOAST ── */
 .toast { position: fixed; bottom: 24px; right: 24px; background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 12px 18px; font-size: 12px; color: #1a1a1a; z-index: 999; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
 .toast.show { display: block; }
-.toast.success { border-color: #2d7d4f; color: #2d7d4f; }
-.toast.error { border-color: #cc3333; color: #cc3333; }
+.toast.ok  { border-color: #2d7d4f; color: #2d7d4f; }
+.toast.err { border-color: #cc3333; color: #cc3333; }
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
 
-<!-- VIEW / EDIT MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="bgClick(event)">
   <div class="modal">
     <div class="modal-header">
@@ -125,13 +103,10 @@ body { background: #f5f5f5; color: #1a1a1a; font-family: 'Inter', sans-serif; fo
   </div>
 </div>
 
-<!-- DELETE CONFIRM MODAL -->
 <div class="modal-overlay" id="delOverlay">
   <div class="modal" style="max-width:420px;">
     <div class="modal-header"><div class="modal-title">Confirm Delete</div></div>
-    <div class="modal-body">
-      <p style="font-size:13px;color:#555;padding:4px 0;" id="delMsg">Delete this log entry? This cannot be undone.</p>
-    </div>
+    <div class="modal-body"><p style="font-size:13px;color:#555;padding:4px 0;" id="delMsg">Delete this log?</p></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="document.getElementById('delOverlay').classList.remove('open')">Cancel</button>
       <button class="btn btn-danger" id="confirmDelBtn">Delete</button>
@@ -139,10 +114,9 @@ body { background: #f5f5f5; color: #1a1a1a; font-family: 'Inter', sans-serif; fo
   </div>
 </div>
 
-<!-- NAV -->
 <nav class="topnav">
   <div class="nav-left">
-    <a href="barlog-carbone.html" class="back-link">← Daily Log</a>
+    <a href="barlog-carbone.html" class="back-link">&#8592; Daily Log</a>
     <div class="nav-brand">Historical Bar Logs</div>
     <div class="nav-venue">Carbone Miami</div>
   </div>
@@ -151,87 +125,53 @@ body { background: #f5f5f5; color: #1a1a1a; font-family: 'Inter', sans-serif; fo
 <div class="main">
   <div class="page-header">
     <div>
-      <div class="page-sub">NMO · Miami Operations</div>
-      <div class="page-title">Carbone Miami · Historical Bar Logs</div>
+      <div class="page-sub">NMO &middot; Miami Operations</div>
+      <div class="page-title">Carbone Miami &middot; Historical Bar Logs</div>
     </div>
-    <div style="font-size:11px;color:#888;" id="headerMeta">
+    <div style="font-size:11px;color:#888;">
       <span class="sync-dot" id="syncDot"></span>
-      <span id="syncLabel">Loading…</span>
+      <span id="syncLabel">Loading&hellip;</span>
     </div>
   </div>
 
-  <!-- FILTER BAR -->
   <div class="filter-bar">
-    <div class="fg">
-      <label>Month</label>
+    <div class="fg"><label>Month</label>
       <select id="fMonth" onchange="applyFilter()">
         <option value="">All Months</option>
-        <option value="01">January</option><option value="02">February</option>
-        <option value="03">March</option><option value="04">April</option>
-        <option value="05">May</option><option value="06">June</option>
-        <option value="07">July</option><option value="08">August</option>
-        <option value="09">September</option><option value="10">October</option>
-        <option value="11">November</option><option value="12">December</option>
+        <option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option>
+        <option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option>
+        <option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
       </select>
     </div>
-    <div class="fg">
-      <label>Year</label>
-      <select id="fYear" onchange="applyFilter()">
-        <option value="">All Years</option>
-      </select>
+    <div class="fg"><label>Year</label>
+      <select id="fYear" onchange="applyFilter()"><option value="">All Years</option></select>
     </div>
-    <div class="fg">
-      <label>Submitted By</label>
-      <select id="fUser" onchange="applyFilter()">
-        <option value="">All Staff</option>
-      </select>
+    <div class="fg"><label>Submitted By</label>
+      <select id="fUser" onchange="applyFilter()"><option value="">All Staff</option></select>
     </div>
     <button class="btn btn-outline btn-sm" onclick="clearFilters()" style="align-self:flex-end;">Clear</button>
     <div class="filter-meta" id="filterMeta"></div>
   </div>
 
-  <!-- SELECTION ACTION BAR -->
   <div class="action-bar" id="actionBar">
     <span class="action-count" id="actionCount">0 selected</span>
-    <button class="btn btn-outline btn-sm" onclick="deleteSelected()">🗑 Delete Selected</button>
+    <button class="btn btn-danger btn-sm" onclick="deleteSelected()">&#128465; Delete Selected</button>
     <button class="btn btn-outline btn-sm" onclick="clearSelection()">Clear Selection</button>
   </div>
 
-  <!-- SELECT ALL BAR -->
   <div class="select-bar" id="selectBar" style="display:none;">
     <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
     <label for="selectAll">Select All</label>
     <span class="select-info" id="selectInfo"></span>
   </div>
 
-  <!-- LOG LIST -->
-  <div id="logList">
-    <div class="loading-state">Loading logs from Supabase…</div>
-  </div>
+  <div id="logList"><div class="loading-state">Loading logs&hellip;</div></div>
 </div>
 
 <script>
-// ── SUPABASE ──────────────────────────────────────────────────
 var SB_URL = 'https://hqicvgyqtqvwzocfqikm.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxaWN2Z3lxdHF2d3pvY2ZxaWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NjUxMjYsImV4cCI6MjEwNTI0MTEyNn0.xWe4vrhsqV2HtU-dSyqFRGYyKn4_Nf-PwYv2OFPqO7I';
 var VENUE = 'Carbone Miami';
-
-async function sb(path, opts) {
-  opts = opts || {};
-  var r = await fetch(SB_URL + '/rest/v1/' + path, {
-    method: opts.method || 'GET',
-    headers: {
-      'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': opts.prefer || 'return=representation'
-    },
-    body: opts.body ? JSON.stringify(opts.body) : undefined
-  });
-  if (!r.ok) throw new Error(await r.text());
-  var t = await r.text(); return t ? JSON.parse(t) : null;
-}
-
-// ── SCHEMA ───────────────────────────────────────────────────
 var WICT   = [{n:'Panna',u:'cs'},{n:'Pellegrino',u:'cs'},{n:'Mixology Ice',u:'bags'},{n:'Espresso Pods',u:'cs'},{n:'Decaf Pods',u:'cs'}];
 var JUICE  = [{n:'M.E.P Lime Juice',u:'ea'},{n:'M.E.P Lemon Juice',u:'ea'},{n:'M.E.P Grapefruit',u:'ea'},{n:'M.E.P Orange Juice',u:'ea'},{n:'M.E.P Pineapple Juice',u:'ea'},{n:'M.E.P Ginger Juice',u:'ea'},{n:'Dole Pineapple Juice',u:'ea'},{n:'Cranberry Juice',u:'ea'}];
 var MIXERS = [{n:'Club Soda',u:'cs'},{n:'Tonic',u:'cs'},{n:'Ginger Beer',u:'cs'},{n:'Grapefruit Soda',u:'cs'},{n:'Coca Cola',u:'cs'},{n:'Diet Coke',u:'cs'},{n:'Coke Zero',u:'cs'},{n:'Sprite',u:'cs'},{n:'Canada Dry Gingerale',u:'cs'},{n:'Boscoli Olive Brine',u:'btl'},{n:'Luxardo Cherries',u:'can'},{n:'Passionfruit Puree',u:'tub'},{n:'Peach Puree',u:'tub'}];
@@ -239,371 +179,173 @@ var PREP   = [{n:'Agave',u:'Gallons',par:2},{n:'Cane',u:'QTs',par:10},{n:'Decaf 
 var BEER   = [{n:"Civil Society 'Fresh'",u:'cs'},{n:'Menabrea Bionda',u:'cs'},{n:'Crazy Mountain Original',u:'cs'},{n:'Bero Kingston Pilsner',u:'cs'},{n:"Athletic Brewing 'Free Wave' IPA",u:'cs'},{n:"Tripping Animals 'Ever Haze'",u:'cs'}];
 var WASTE  = [{n:'Lime Juice',u:'QT'},{n:'Lemon Juice',u:'QT'},{n:'Grapefruit Juice',u:'QT'}];
 var BATCHES = ['Vesper','Manhattan','Carbone Margarita','Espresso Martini','Negroni','Old Fashioned','Gibson','The Grove','Coastal Spritz','Cafe Reposado','Shakerato','Paloma','Daiquiri','Spritz','Whiskey Sour','Gimlet','Hemingway Daiquiri','Banana Daiquiri','Dry Martini'];
-
 var MONTH_NAMES = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+var ALL = [], FLT = [], SEL = new Set(), EDT = null, PDT = null;
 
-// ── STATE ────────────────────────────────────────────────────
-var ALL_LOGS = [];
-var FILTERED = [];
-var SELECTED = new Set();
-var EDITING_DATE = null;
-var PENDING_DELETE = null;
+async function sb(path, opts) {
+  opts = opts || {};
+  var r = await fetch(SB_URL + '/rest/v1/' + path, {
+    method: opts.method || 'GET',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': opts.prefer || 'return=representation' },
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  if (!r.ok) throw new Error(await r.text());
+  var t = await r.text(); return t ? JSON.parse(t) : null;
+}
 
-// ── LOAD ─────────────────────────────────────────────────────
 async function loadLogs() {
   try {
     var rows = await sb('bar_logs?venue=eq.' + encodeURIComponent(VENUE) + '&deleted=eq.false&order=date.desc&limit=2000');
-    ALL_LOGS = rows || [];
+    ALL = rows || [];
     document.getElementById('syncDot').className = 'sync-dot green';
-    document.getElementById('syncLabel').textContent = ALL_LOGS.length + ' logs · synced';
-
-    // Populate year filter
-    var years = [...new Set(ALL_LOGS.map(function(l){ return l.date.substring(0,4); }))].sort().reverse();
+    document.getElementById('syncLabel').textContent = ALL.length + ' log' + (ALL.length!==1?'s':'') + ' \u00b7 synced';
+    var years = [...new Set(ALL.map(function(l){ return l.date.substring(0,4); }))].sort().reverse();
     var ysel = document.getElementById('fYear');
     years.forEach(function(y){ var o=document.createElement('option'); o.value=y; o.textContent=y; ysel.appendChild(o); });
-
-    // Populate user filter
-    var users = [...new Set(ALL_LOGS.map(function(l){ return l.user_name||''; }).filter(Boolean))].sort();
+    var users = [...new Set(ALL.map(function(l){ return l.user_name||''; }).filter(Boolean))].sort();
     var usel = document.getElementById('fUser');
     users.forEach(function(u){ var o=document.createElement('option'); o.value=u; o.textContent=u; usel.appendChild(o); });
-
-    // Default to current month/year
     var now = new Date();
     document.getElementById('fMonth').value = String(now.getMonth()+1).padStart(2,'0');
     document.getElementById('fYear').value  = String(now.getFullYear());
-
     applyFilter();
   } catch(e) {
     document.getElementById('syncDot').className = 'sync-dot amber';
-    document.getElementById('syncLabel').textContent = 'Offline';
+    document.getElementById('syncLabel').textContent = 'Could not connect';
     document.getElementById('logList').innerHTML = '<div class="loading-state">Could not connect to Supabase. Check your connection.</div>';
   }
 }
 
-// ── FILTER ────────────────────────────────────────────────────
 function applyFilter() {
-  var month = document.getElementById('fMonth').value;
-  var year  = document.getElementById('fYear').value;
-  var user  = document.getElementById('fUser').value;
-
-  FILTERED = ALL_LOGS.filter(function(log) {
-    if (month && log.date.substring(5,7) !== month) return false;
-    if (year  && log.date.substring(0,4) !== year)  return false;
-    if (user  && (log.user_name||'') !== user)       return false;
+  var month = document.getElementById('fMonth').value, year = document.getElementById('fYear').value, user = document.getElementById('fUser').value;
+  FLT = ALL.filter(function(l) {
+    if (month && l.date.substring(5,7) !== month) return false;
+    if (year  && l.date.substring(0,4) !== year)  return false;
+    if (user  && (l.user_name||'') !== user)       return false;
     return true;
   });
-
-  var monthLabel = month ? MONTH_NAMES[parseInt(month)] : '';
-  var yearLabel  = year || '';
-  var label = [monthLabel, yearLabel].filter(Boolean).join(' ');
-  document.getElementById('filterMeta').textContent = FILTERED.length + ' log' + (FILTERED.length!==1?'s':'') + (label?' — '+label:'');
-
-  SELECTED.clear();
-  renderList();
+  var lbl = [month ? MONTH_NAMES[parseInt(month)] : '', year].filter(Boolean).join(' ');
+  document.getElementById('filterMeta').textContent = FLT.length + ' log' + (FLT.length!==1?'s':'') + (lbl?' \u2014 '+lbl:'');
+  SEL.clear(); renderList();
 }
 
 function clearFilters() {
-  document.getElementById('fMonth').value = '';
-  document.getElementById('fYear').value  = '';
-  document.getElementById('fUser').value  = '';
+  document.getElementById('fMonth').value = ''; document.getElementById('fYear').value = ''; document.getElementById('fUser').value = '';
   applyFilter();
 }
 
-// ── RENDER ────────────────────────────────────────────────────
 function renderList() {
-  var list = document.getElementById('logList');
-  var selectBar = document.getElementById('selectBar');
-
-  if (FILTERED.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No logs found for this period.</p></div>';
-    selectBar.style.display = 'none';
-    updateActionBar();
-    return;
+  var list = document.getElementById('logList'), sbar = document.getElementById('selectBar');
+  if (!FLT.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">&#128203;</div><p>No logs found for this period.<br>Logs submitted from the daily recap form will appear here.</p></div>';
+    sbar.style.display = 'none'; updateActionBar(); return;
   }
-
-  selectBar.style.display = 'flex';
-  document.getElementById('selectInfo').textContent = FILTERED.length + ' log' + (FILTERED.length!==1?'s':'');
-  document.getElementById('selectAll').checked = SELECTED.size === FILTERED.length && FILTERED.length > 0;
-
-  // Group by month
-  var groups = {};
-  var groupOrder = [];
-  FILTERED.forEach(function(log) {
-    var key = log.date.substring(0,7); // YYYY-MM
-    if (!groups[key]) { groups[key] = []; groupOrder.push(key); }
-    groups[key].push(log);
-  });
-
+  sbar.style.display = 'flex';
+  document.getElementById('selectInfo').textContent = FLT.length + ' log' + (FLT.length!==1?'s':'');
+  document.getElementById('selectAll').checked = SEL.size === FLT.length;
+  var groups = {}, order = [];
+  FLT.forEach(function(l) { var k=l.date.substring(0,7); if(!groups[k]){groups[k]=[];order.push(k);} groups[k].push(l); });
   var html = '';
-  groupOrder.forEach(function(key) {
-    var parts = key.split('-');
-    var label = MONTH_NAMES[parseInt(parts[1])] + ' ' + parts[0];
-    html += '<div class="month-divider">' + label + ' &mdash; ' + groups[key].length + ' log' + (groups[key].length!==1?'s':'') + '</div>';
-
-    groups[key].forEach(function(log) {
-      var sel = SELECTED.has(log.date);
-      var n   = log.notes || {};
-      var note = (n.notesMain || n.products86 || '').trim();
-      if (note.length > 90) note = note.substring(0,90) + '…';
-
-      html += '<div class="log-card' + (sel?' selected':'') + '" id="card_'+log.date+'">';
+  order.forEach(function(k) {
+    var p=k.split('-');
+    html += '<div class="month-divider">' + MONTH_NAMES[parseInt(p[1])] + ' ' + p[0] + ' &mdash; ' + groups[k].length + ' log' + (groups[k].length!==1?'s':'') + '</div>';
+    groups[k].forEach(function(l) {
+      var sel=SEL.has(l.date), n=l.notes||{};
+      var note=(n.products86||n.barRequests||'').trim();
+      if(note.length>90) note=note.substring(0,90)+'\u2026';
+      html += '<div class="log-card'+(sel?' selected':'')+'" id="card_'+l.date+'">';
       html += '<div class="log-card-row">';
-      html += '<input type="checkbox" ' + (sel?'checked':'') + ' onchange="toggleSel(event,\''+log.date+'\')" onclick="event.stopPropagation()">';
-      html += '<div class="log-info" onclick="viewLog(\''+log.date+'\')">';
-      html += '<div><span class="log-date">' + log.date + '</span><span class="log-day">' + (log.day||'') + '</span></div>';
-      html += '<div class="log-meta">Submitted by <strong>' + e(log.user_name||'—') + '</strong></div>';
-      if (note) html += '<div class="log-note">' + e(note) + '</div>';
-      html += '</div>';
-      html += '<div class="log-actions">';
-      html += '<button class="btn btn-outline btn-sm" onclick="viewLog(\''+log.date+'\');event.stopPropagation()">View</button>';
-      html += '<button class="btn btn-gold btn-sm" onclick="editLog(\''+log.date+'\');event.stopPropagation()">Edit</button>';
-      html += '<button class="btn btn-danger btn-sm" onclick="promptDelete(\''+log.date+'\',1);event.stopPropagation()">Delete</button>';
+      html += '<input type="checkbox"'+(sel?' checked':'')+' onchange="toggleSel(event,\''+l.date+'\')" onclick="event.stopPropagation()">';
+      html += '<div class="log-info" onclick="viewLog(\''+l.date+'\')"><div><span class="log-date">'+l.date+'</span><span class="log-day">'+(l.day||'')+'</span></div>';
+      html += '<div class="log-meta">Submitted by <strong>'+e(l.user_name||'\u2014')+'</strong></div>';
+      if(note) html += '<div class="log-note">'+e(note)+'</div>';
+      html += '</div><div class="log-actions">';
+      html += '<button class="btn btn-outline btn-sm" onclick="viewLog(\''+l.date+'\');event.stopPropagation()">View</button>';
+      html += '<button class="btn btn-gold btn-sm" onclick="editLog(\''+l.date+'\');event.stopPropagation()">Edit</button>';
+      html += '<button class="btn btn-danger btn-sm" onclick="promptDel([\''+l.date+'\']);event.stopPropagation()">Delete</button>';
       html += '</div></div></div>';
     });
   });
-
-  list.innerHTML = html;
-  updateActionBar();
+  list.innerHTML = html; updateActionBar();
 }
 
-function e(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function e(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function find(date){ return ALL.find(function(l){ return l.date===date; })||null; }
+function toggleSel(ev,date){ if(SEL.has(date))SEL.delete(date);else SEL.add(date); var c=document.getElementById('card_'+date); if(c)c.className='log-card'+(SEL.has(date)?' selected':''); document.getElementById('selectAll').checked=SEL.size===FLT.length; updateActionBar(); }
+function toggleSelectAll(checked){ SEL.clear(); if(checked)FLT.forEach(function(l){SEL.add(l.date);}); renderList(); }
+function clearSelection(){ SEL.clear(); renderList(); }
+function updateActionBar(){ var n=SEL.size; document.getElementById('actionBar').className='action-bar'+(n>0?' show':''); document.getElementById('actionCount').textContent=n+' log'+(n!==1?'s':'')+' selected'; }
 
-// ── SELECTION ────────────────────────────────────────────────
-function toggleSel(event, date) {
-  if (SELECTED.has(date)) SELECTED.delete(date);
-  else SELECTED.add(date);
-  var card = document.getElementById('card_'+date);
-  if (card) card.className = 'log-card' + (SELECTED.has(date) ? ' selected' : '');
-  document.getElementById('selectAll').checked = SELECTED.size === FILTERED.length && FILTERED.length > 0;
-  updateActionBar();
-}
-
-function toggleSelectAll(checked) {
-  SELECTED.clear();
-  if (checked) FILTERED.forEach(function(log){ SELECTED.add(log.date); });
-  renderList();
-}
-
-function clearSelection() {
-  SELECTED.clear();
-  renderList();
-}
-
-function updateActionBar() {
-  var bar  = document.getElementById('actionBar');
-  var cnt  = document.getElementById('actionCount');
-  var n    = SELECTED.size;
-  bar.className = 'action-bar' + (n > 0 ? ' visible' : '');
-  cnt.textContent = n + ' log' + (n!==1?'s':'') + ' selected';
-}
-
-// ── FIND LOG ────────────────────────────────────────────────
-function findLog(date) {
-  return ALL_LOGS.find(function(l){ return l.date === date; }) || null;
-}
-
-// ── VIEW ─────────────────────────────────────────────────────
 function viewLog(date) {
-  var log = findLog(date); if (!log) return;
-  var n   = log.notes || {};
-  var inv = log.inventory || {};
-
-  document.getElementById('modalTitle').textContent = VENUE + ' · ' + date + (log.day ? ' (' + log.day + ')' : '');
-
-  function nr(label, val) {
-    if (!val || !val.trim()) return '';
-    return '<div class="mf"><label>' + label + '</label><div style="padding:8px 10px;background:#f9f9f9;border:1px solid #ebebeb;border-radius:4px;font-size:12px;white-space:pre-wrap;">' + e(val) + '</div></div>';
-  }
-
-  var html = '<div class="mrow"><div class="mf"><label>Date</label><input readonly value="' + date + '"></div>';
-  html += '<div class="mf"><label>Submitted By</label><input readonly value="' + e(log.user_name||'—') + '"></div></div>';
-  html += nr("Products 86'd", n.products86) + nr('Product Lows', n.productLows) +
-          nr('Service Notes', n.notesMain) + nr('Bar Requests', n.barRequests) +
-          nr('Facility & Maintenance', n.facility) + nr('Broken Glassware', n.brokenGlass) +
-          nr('Other Waste', n.otherWaste);
-
-  function invSec(title, items, obj) {
-    if (!obj) return '';
-    var rows = items.map(function(it) {
-      var v = obj[it.n] || ''; if (!v) return '';
-      return '<div class="inv-item"><span class="inv-name">' + it.n + '</span><span class="inv-val">' + v + '</span></div>';
-    }).filter(Boolean);
-    if (!rows.length) return '';
-    return '<div class="msec">' + title + '</div><div class="inv-grid">' + rows.join('') + '</div>';
-  }
-
-  html += invSec('WICT', WICT, inv.wict) + invSec('Juice', JUICE, inv.juice) +
-          invSec('Mixers', MIXERS, inv.mixers) + invSec('Prep', PREP, inv.prep) +
-          invSec('Beer', BEER, inv.beer) + invSec('Waste', WASTE, inv.waste);
-
-  var bInv = inv.batch || {};
-  var bRows = BATCHES.map(function(bn) {
-    var v = bInv[bn] || ''; if (!v) return '';
-    return '<div class="inv-item"><span class="inv-name">' + bn + '</span><span class="inv-val">' + v + '</span></div>';
-  }).filter(Boolean);
-  if (bRows.length) html += '<div class="msec">Batch Log</div><div class="inv-grid">' + bRows.join('') + '</div>';
-
-  document.getElementById('modalBody').innerHTML = html;
-  document.getElementById('modalFooter').innerHTML =
-    '<button class="btn btn-outline" onclick="closeModal()">Close</button>' +
-    '<button class="btn btn-gold" onclick="editLog(\'' + date + '\')">Edit Log</button>';
+  var l=find(date); if(!l) return;
+  var n=l.notes||{}, inv=l.inventory||{};
+  document.getElementById('modalTitle').textContent = VENUE+' \u00b7 '+date+(l.day?' ('+l.day+')':'');
+  function nr(lbl,val){ if(!val||!val.trim())return ''; return '<div class="mf"><label>'+lbl+'</label><div style="padding:8px 10px;background:#f9f9f9;border:1px solid #ebebeb;border-radius:4px;font-size:12px;white-space:pre-wrap;">'+e(val)+'</div></div>'; }
+  var html='<div class="mrow"><div class="mf"><label>Date</label><input readonly value="'+date+'"></div><div class="mf"><label>Submitted By</label><input readonly value="'+e(l.user_name||'\u2014')+'"></div></div>';
+  html += nr("Products 86'd",n.products86)+nr('Bar Requests',n.barRequests)+nr('Facility & Maintenance',n.facility)+nr('Other Waste',n.otherWaste);
+  function iSec(title,items,obj){ if(!obj)return ''; var rows=items.map(function(it){var v=(obj[it.n]||'');return v?'<div class="inv-item"><span class="inv-name">'+it.n+'</span><span class="inv-val">'+v+'</span></div>':'';}).filter(Boolean); return rows.length?'<div class="msec">'+title+'</div><div class="inv-grid">'+rows.join('')+'</div>':''; }
+  html += iSec('WICT',WICT,inv.wict)+iSec('Juice',JUICE,inv.juice)+iSec('Mixers',MIXERS,inv.mixers)+iSec('Prep',PREP,inv.prep)+iSec('Beer',BEER,inv.beer)+iSec('Waste',WASTE,inv.waste);
+  var br=BATCHES.map(function(bn){var v=(inv.batch||{})[bn]||'';return v?'<div class="inv-item"><span class="inv-name">'+bn+'</span><span class="inv-val">'+v+'</span></div>':'';}).filter(Boolean);
+  if(br.length) html+='<div class="msec">Batch Log</div><div class="inv-grid">'+br.join('')+'</div>';
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('modalFooter').innerHTML='<button class="btn btn-outline" onclick="closeModal()">Close</button><button class="btn btn-gold" onclick="editLog(\''+date+'\')">Edit Log</button>';
   openModal();
 }
 
-// ── EDIT ─────────────────────────────────────────────────────
 function editLog(date) {
-  var log = findLog(date); if (!log) return;
-  EDITING_DATE = date;
-  var n   = log.notes || {};
-  var inv = log.inventory || {};
-
-  document.getElementById('modalTitle').textContent = 'Edit Log — ' + date;
-
-  function ta(id, val, ph) {
-    return '<textarea id="e_' + id + '" style="min-height:52px;" placeholder="' + (ph||'') + '">' + e(val||'') + '</textarea>';
-  }
-  function ii(sec, name, val, par) {
-    var low = par && parseFloat(val) < par;
-    return '<div class="inv-item"><span class="inv-name">' + name + '</span>' +
-      '<input id="e_' + sec + '_' + name.replace(/[^a-zA-Z0-9]/g,'_') + '" value="' + e(val||'') + '" placeholder="—"' +
-      (low?' class="low"':'') + ' onchange="chkPar(this,' + par + ')"></div>';
-  }
-
-  var html = '<div class="mrow"><div class="mf"><label>Date</label><input readonly value="' + date + '"></div>';
-  html += '<div class="mf"><label>Submitted By</label><input id="e_user" value="' + e(log.user_name||'') + '"></div></div>';
-  html += '<div class="mf"><label>Products 86\'d</label>' + ta('products86', n.products86) + '</div>';
-  html += '<div class="mf"><label>Product Lows</label>' + ta('productLows', n.productLows) + '</div>';
-  html += '<div class="mf"><label>Service Notes</label>' + ta('notesMain', n.notesMain) + '</div>';
-  html += '<div class="mrow"><div class="mf"><label>Bar Requests</label>' + ta('barRequests', n.barRequests) + '</div>' +
-          '<div class="mf"><label>Facility & Maintenance</label>' + ta('facility', n.facility) + '</div></div>';
-  html += '<div class="mrow"><div class="mf"><label>Broken Glassware</label>' + ta('brokenGlass', n.brokenGlass) + '</div>' +
-          '<div class="mf"><label>Other Waste</label>' + ta('otherWaste', n.otherWaste) + '</div></div>';
-
-  function iSec(title, items, sec, obj, pars) {
-    return '<div class="msec">' + title + '</div><div class="inv-grid">' +
-      items.map(function(it){ return ii(sec, it.n, (obj||{})[it.n], pars&&pars[it.n]); }).join('') + '</div>';
-  }
-  var prepPar = {}; PREP.forEach(function(p){ prepPar[p.n] = p.par; });
-
-  html += iSec('WICT',   WICT,   'wict',   inv.wict) +
-          iSec('Juice',  JUICE,  'juice',  inv.juice) +
-          iSec('Mixers', MIXERS, 'mixers', inv.mixers) +
-          iSec('Prep',   PREP,   'prep',   inv.prep, prepPar) +
-          iSec('Beer',   BEER,   'beer',   inv.beer) +
-          iSec('Waste',  WASTE,  'waste',  inv.waste);
-
-  html += '<div class="msec">Batch Log</div><div class="inv-grid">' +
-    BATCHES.map(function(bn){ return ii('batch', bn, (inv.batch||{})[bn]); }).join('') + '</div>';
-
-  document.getElementById('modalBody').innerHTML = html;
-  document.getElementById('modalFooter').innerHTML =
-    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
-    '<button class="btn btn-gold" onclick="saveEdit()">Save Changes</button>';
+  var l=find(date); if(!l) return; EDT=date;
+  var n=l.notes||{}, inv=l.inventory||{};
+  document.getElementById('modalTitle').textContent='Edit Log \u2014 '+date;
+  function ta(id,val,ph){ return '<textarea id="e_'+id+'" style="min-height:52px;" placeholder="'+(ph||'')+'">'+e(val||'')+'</textarea>'; }
+  function ii(sec,name,val,par){ var low=par&&parseFloat(val)<par; return '<div class="inv-item"><span class="inv-name">'+name+'</span><input id="e_'+sec+'_'+name.replace(/[^a-zA-Z0-9]/g,'_')+'" value="'+e(val||'')+'" placeholder="\u2014"'+(low?' class="low"':'')+' onchange="chkP(this,'+par+')"></div>'; }
+  var html='<div class="mrow"><div class="mf"><label>Date</label><input readonly value="'+date+'"></div><div class="mf"><label>Submitted By</label><input id="e_user" value="'+e(l.user_name||'')+'"></div></div>';
+  html+='<div class="mf"><label>Products 86\'d</label>'+ta('products86',n.products86)+'</div>';
+  html+='<div class="mrow"><div class="mf"><label>Bar Requests</label>'+ta('barRequests',n.barRequests)+'</div><div class="mf"><label>Facility & Maintenance</label>'+ta('facility',n.facility)+'</div></div>';
+  html+='<div class="mf"><label>Other Waste</label>'+ta('otherWaste',n.otherWaste)+'</div>';
+  function iSec(title,items,sec,obj,pars){ return '<div class="msec">'+title+'</div><div class="inv-grid">'+items.map(function(it){return ii(sec,it.n,(obj||{})[it.n],pars&&pars[it.n]);}).join('')+'</div>'; }
+  var pp={}; PREP.forEach(function(p){pp[p.n]=p.par;});
+  html+=iSec('WICT',WICT,'wict',inv.wict)+iSec('Juice',JUICE,'juice',inv.juice)+iSec('Mixers',MIXERS,'mixers',inv.mixers)+iSec('Prep',PREP,'prep',inv.prep,pp)+iSec('Beer',BEER,'beer',inv.beer)+iSec('Waste',WASTE,'waste',inv.waste);
+  html+='<div class="msec">Batch Log</div><div class="inv-grid">'+BATCHES.map(function(bn){return ii('batch',bn,(inv.batch||{})[bn]);}).join('')+'</div>';
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('modalFooter').innerHTML='<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold" onclick="saveEdit()">Save Changes</button>';
   openModal();
 }
 
-function chkPar(el, par) { var v = parseFloat(el.value); el.classList.toggle('low', !isNaN(v) && v < par); }
+function chkP(el,par){ var v=parseFloat(el.value); el.classList.toggle('low',!isNaN(v)&&v<par); }
 
 async function saveEdit() {
-  if (!EDITING_DATE) return;
-  var ex  = findLog(EDITING_DATE) || {};
-
-  function ri(sec, items) {
-    var o = {};
-    items.forEach(function(it) {
-      var el = document.getElementById('e_' + sec + '_' + it.n.replace(/[^a-zA-Z0-9]/g,'_'));
-      o[it.n] = el ? el.value : '';
-    });
-    return o;
-  }
-
-  var payload = {
-    venue: VENUE, date: EDITING_DATE,
-    day: ex.day || '',
-    user_name: document.getElementById('e_user').value.trim() || ex.user_name || '—',
-    notes: {
-      products86:  document.getElementById('e_products86').value,
-      productLows: document.getElementById('e_productLows').value,
-      notesMain:   document.getElementById('e_notesMain').value,
-      barRequests: document.getElementById('e_barRequests').value,
-      facility:    document.getElementById('e_facility').value,
-      brokenGlass: document.getElementById('e_brokenGlass').value,
-      otherWaste:  document.getElementById('e_otherWaste').value
-    },
-    inventory: {
-      wict:   ri('wict',   WICT),
-      juice:  ri('juice',  JUICE),
-      mixers: ri('mixers', MIXERS),
-      prep:   ri('prep',   PREP),
-      beer:   ri('beer',   BEER),
-      waste:  ri('waste',  WASTE),
-      batch:  ri('batch',  BATCHES.map(function(n){ return {n:n}; }))
-    },
-    saved_at: new Date().toISOString(),
-    deleted: false
-  };
-
+  if(!EDT) return;
+  var ex=find(EDT)||{};
+  function ri(sec,items){ var o={}; items.forEach(function(it){ var el=document.getElementById('e_'+sec+'_'+it.n.replace(/[^a-zA-Z0-9]/g,'_')); o[it.n]=el?el.value:''; }); return o; }
+  var pay={ venue:VENUE, date:EDT, day:ex.day||'', user_name:document.getElementById('e_user').value.trim()||ex.user_name||'',
+    notes:{ products86:document.getElementById('e_products86').value, barRequests:document.getElementById('e_barRequests').value, facility:document.getElementById('e_facility').value, otherWaste:document.getElementById('e_otherWaste').value },
+    inventory:{ wict:ri('wict',WICT), juice:ri('juice',JUICE), mixers:ri('mixers',MIXERS), prep:ri('prep',PREP), beer:ri('beer',BEER), waste:ri('waste',WASTE), batch:ri('batch',BATCHES.map(function(n){return{n:n};})) },
+    saved_at:new Date().toISOString(), deleted:false };
   try {
-    await sb('bar_logs?venue=eq.' + encodeURIComponent(VENUE) + '&date=eq.' + EDITING_DATE, { method:'DELETE', prefer:'return=minimal' });
-    await sb('bar_logs', { method:'POST', body:payload, prefer:'return=minimal' });
-    // Update local cache
-    var idx = ALL_LOGS.findIndex(function(l){ return l.date === EDITING_DATE; });
-    var updated = Object.assign({}, payload, { notes: payload.notes, inventory: payload.inventory });
-    if (idx >= 0) ALL_LOGS[idx] = updated; else ALL_LOGS.push(updated);
-    closeModal();
-    toast('Log saved', 'success');
-    applyFilter();
-  } catch(err) {
-    toast('Save failed: ' + err.message, 'error');
-  }
+    await sb('bar_logs?venue=eq.'+encodeURIComponent(VENUE)+'&date=eq.'+EDT,{method:'DELETE',prefer:'return=minimal'});
+    await sb('bar_logs',{method:'POST',body:pay,prefer:'return=minimal'});
+    var idx=ALL.findIndex(function(l){return l.date===EDT;}); if(idx>=0)ALL[idx]=pay; else ALL.push(pay);
+    closeModal(); toast('Log saved','ok'); applyFilter();
+  } catch(err){ toast('Save failed: '+err.message,'err'); }
 }
 
-// ── DELETE ────────────────────────────────────────────────────
-function promptDelete(date, single) {
-  PENDING_DELETE = single ? [date] : Array.from(SELECTED);
-  var n = PENDING_DELETE.length;
-  document.getElementById('delMsg').textContent = 'Delete ' + (n > 1 ? n + ' logs' : 'this log') + '? This cannot be undone.';
-  document.getElementById('delOverlay').classList.add('open');
-}
-
-function deleteSelected() {
-  if (SELECTED.size === 0) { toast('No logs selected', 'error'); return; }
-  promptDelete(null, false);
-}
-
-document.getElementById('confirmDelBtn').addEventListener('click', async function() {
-  if (!PENDING_DELETE || !PENDING_DELETE.length) return;
+function promptDel(dates) { PDT=dates; var n=dates.length; document.getElementById('delMsg').textContent='Delete '+(n>1?n+' logs':'this log')+'? This cannot be undone.'; document.getElementById('delOverlay').classList.add('open'); }
+function deleteSelected(){ if(!SEL.size){toast('No logs selected','err');return;} promptDel(Array.from(SEL)); }
+document.getElementById('confirmDelBtn').addEventListener('click', async function(){
+  if(!PDT||!PDT.length)return;
   try {
-    for (var i = 0; i < PENDING_DELETE.length; i++) {
-      await sb('bar_logs?venue=eq.' + encodeURIComponent(VENUE) + '&date=eq.' + PENDING_DELETE[i], {
-        method: 'PATCH', body: { deleted: true, deleted_at: new Date().toISOString() }, prefer: 'return=minimal'
-      });
-    }
-    var deleted = new Set(PENDING_DELETE);
-    ALL_LOGS = ALL_LOGS.filter(function(l){ return !deleted.has(l.date); });
-    SELECTED.clear();
-    PENDING_DELETE = null;
+    for(var i=0;i<PDT.length;i++) await sb('bar_logs?venue=eq.'+encodeURIComponent(VENUE)+'&date=eq.'+PDT[i],{method:'PATCH',body:{deleted:true,deleted_at:new Date().toISOString()},prefer:'return=minimal'});
+    var d=new Set(PDT); ALL=ALL.filter(function(l){return!d.has(l.date);}); SEL.clear(); PDT=null;
     document.getElementById('delOverlay').classList.remove('open');
-    toast(deleted.size + ' log' + (deleted.size>1?'s':'') + ' deleted', 'success');
-    applyFilter();
-  } catch(err) {
-    toast('Delete failed: ' + err.message, 'error');
-  }
+    toast(d.size+' log'+(d.size>1?'s':'')+' deleted','ok'); applyFilter();
+  } catch(err){ toast('Delete failed: '+err.message,'err'); }
 });
 
-// ── MODAL ─────────────────────────────────────────────────────
-function openModal()  { document.getElementById('modalOverlay').classList.add('open'); }
-function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); EDITING_DATE = null; }
-function bgClick(ev)  { if (ev.target === document.getElementById('modalOverlay')) closeModal(); }
+function openModal(){ document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); EDT=null; }
+function bgClick(ev){ if(ev.target===document.getElementById('modalOverlay'))closeModal(); }
+function toast(msg,type){ var el=document.getElementById('toast'); el.textContent=msg; el.className='toast show'+(type?' '+type:''); setTimeout(function(){el.className='toast';},3500); }
 
-// ── TOAST ─────────────────────────────────────────────────────
-function toast(msg, type) {
-  var el = document.getElementById('toast');
-  el.textContent = msg; el.className = 'toast show' + (type ? ' ' + type : '');
-  setTimeout(function(){ el.className = 'toast'; }, 3500);
-}
-
-// ── INIT ─────────────────────────────────────────────────────
 loadLogs();
 </script>
 </body>
